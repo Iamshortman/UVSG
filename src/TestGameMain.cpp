@@ -12,6 +12,11 @@
 #include "Model/ObjModel.h"
 #include "InputButton.hpp"
 
+//Include everthing
+#include "Voxel/threed.h"
+#include "Voxel/box.h"
+#define BOX_VOXEL_SIZE      Vector(0.5f, 0.5f, 0.5f)
+
 using namespace std;
 
 int main()
@@ -43,8 +48,8 @@ int main()
 	GLuint vertexUVID = glGetAttribLocation(program.ShaderProgramID, "vertexUV");
     GLuint vertexNormal_modelspaceID = glGetAttribLocation(program.ShaderProgramID, "vertexNormal_modelspace");
 
-	/*// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(50.0f, screenRatio, 0.1f, 100.0f);
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	glm::mat4 Projection = glm::perspective(50.0f, 4.0f/3.0f, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
 								glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
@@ -56,13 +61,22 @@ int main()
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
-    */
-
     // Get a handle for our "myTextureSampler" uniform
 	GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
 
 
+    // build a box of size (3,4,6)
 
+    Isosurface *boxIso = new BoxIsosurface(Vector(1.0f, 1.0f, 1.0f));
+    Transform boxTrans;
+    boxTrans.translate(Vector(0.0f, 0.0f, 0.0f));
+    boxIso->setTransform(boxTrans);
+
+    Vector voxelSize = BOX_VOXEL_SIZE;
+    IsoMesher_DC mesher(boxIso);
+    mesher.setVoxelSize(voxelSize.x(), voxelSize.y(), voxelSize.z());
+    Mesh *mesh = mesher.createMesh();
+    mesh->computeVertexNormals();
 
     /*// Read our .obj file
 	std::vector<glm::vec3> vertices;
@@ -116,11 +130,12 @@ int main()
         program.setActiveProgram();
 
 
+        time += 0.1F;
         //Render in here
 
-        time += 0.1F;
+        glUniformMatrix4fv(projectionMatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-
+        mesh->draw();
 
         //End Render
 
