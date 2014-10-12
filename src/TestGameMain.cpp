@@ -8,6 +8,8 @@
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <stdlib.h>
+
 
 #include "Model/ObjModel.h"
 #include "InputButton.hpp"
@@ -18,6 +20,122 @@
 #define BOX_VOXEL_SIZE      Vector(0.5f, 0.5f, 0.5f)
 
 using namespace std;
+
+std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
+    out << "{"
+        << vec.x << ", " << vec.y << ","<< vec.z
+        << "}";
+
+    return out;
+}
+
+short calcDensity(glm::vec3 pos)
+{
+    glm::vec3 center(0,0,0);
+
+    double x = (center.x - pos.x) * (center.x - pos.x);
+    double y = (center.y - pos.y) * (center.y - pos.y);
+    double z = (center.z - pos.z) * (center.z - pos.z);
+    double dist = sqrt(x + y + z);
+
+    cout << "( " << dist <<" )\n";
+
+    if(dist <= 3)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+glm::vec3 calcNormal(glm::vec3 pos)
+{
+    glm::vec3 center(0,0,0);
+    glm::vec3 dist = pos - center;
+    double dot = sqrt(glm::dot(dist,dist));
+
+    dist.x = dist.x / dot;
+    dist.y = dist.y / dot;
+    dist.z = dist.z / dot;
+    return dist;
+}
+
+//Checks if the array is all zeros or no zeros
+bool checkCubeArray(short (&cube_sign)[8])
+{
+    int zeros = 0;
+    //Checks how many zeros are in the array
+    for(int i = 0; i < 8; i++)
+    {
+        if(cube_sign[i] == 0)
+        {
+            zeros++;
+        }
+    }
+
+    //If all zeros or none zeros return true
+    if(zeros == 0 || zeros == 8)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+struct typeReturn
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<int> faceIndex;
+};
+
+typeReturn dualContouring()
+{
+    glm::vec3 cube_vertex[] = {
+    glm::vec3(0, 0, 0),
+    glm::vec3(0, 0, 1),
+    glm::vec3(0, 1, 0),
+    glm::vec3(0, 1, 1),
+    glm::vec3(1, 0, 0),
+    glm::vec3(1, 0, 1),
+    glm::vec3(1, 1, 0),
+    glm::vec3(1, 1, 1)
+    };
+
+    glm::vec3 posMin(-5, -5, -5);
+    glm::vec3 posMax( 5,  5,  5);
+    glm::vec3    res( 1,  1,  1);
+
+    glm::vec3 pos();
+
+    for(int x = posMin.x; x <= posMax.x; x += res.x)
+    {
+        for(int y = posMin.y; y <= posMax.y; y += res.y)
+        {
+            for(int z = posMin.z; z <= posMax.z; z += res.z)
+            {
+                glm::vec3 pos(x, y, z);
+
+                //Get the value at each conner.
+                short cube_sign[8];
+                for(int i = 0; i < 8; i++)
+                {
+                    cube_sign[i] = calcDensity(pos + cube_vertex[i]);
+                }
+
+                //If the array is all zeros or no zeros skip this step
+                if(checkCubeArray(cube_sign))
+                {
+                    continue;
+                }
+
+
+            }
+        }
+    }
+
+
+    return typeReturn();
+}
 
 int main()
 {
@@ -62,21 +180,15 @@ int main()
 	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
     // Get a handle for our "myTextureSampler" uniform
-	GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
+	//GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
+
+    std::vector<glm::vec3> vertices;
 
 
-    // build a box of size (3,4,6)
+    //cout << calcDensity(glm::vec3(0,1,0)) << endl;
+    glm::vec3 normal = calcNormal(glm::vec3(1,1,0));
 
-    Isosurface *boxIso = new BoxIsosurface(Vector(1.0f, 1.0f, 1.0f));
-    Transform boxTrans;
-    boxTrans.translate(Vector(0.0f, 0.0f, 0.0f));
-    boxIso->setTransform(boxTrans);
-
-    Vector voxelSize = BOX_VOXEL_SIZE;
-    IsoMesher_DC mesher(boxIso);
-    mesher.setVoxelSize(voxelSize.x(), voxelSize.y(), voxelSize.z());
-    Mesh *mesh = mesher.createMesh();
-    mesh->computeVertexNormals();
+    cout << normal << endl;
 
     /*// Read our .obj file
 	std::vector<glm::vec3> vertices;
@@ -134,8 +246,6 @@ int main()
         //Render in here
 
         glUniformMatrix4fv(projectionMatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-        mesh->draw();
 
         //End Render
 
