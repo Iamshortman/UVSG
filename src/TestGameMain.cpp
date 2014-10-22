@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdlib.h>
-
+#include <math.h>
 
 #include "Model/ObjModel.h"
 #include "InputButton.hpp"
@@ -29,39 +29,86 @@ std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
     return out;
 }
 
-short calcDensity(glm::vec3 pos)
+struct typeReturn
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<int> faceIndex;
+};
+
+struct HermitData
+{
+    glm::vec3 point;
+    glm::vec3 normal;
+};
+
+double calcDensity(glm::vec3 pos)
 {
     glm::vec3 center(0,0,0);
 
-    double x = (center.x - pos.x) * (center.x - pos.x);
-    double y = (center.y - pos.y) * (center.y - pos.y);
-    double z = (center.z - pos.z) * (center.z - pos.z);
-    double dist = sqrt(x + y + z);
+    glm::vec3 dist = pos - center;
 
-    cout << "( " << dist <<" )\n";
+    double sqr_dist = (pos.x * pos.x) + (pos.y * pos.y) + (pos.z * pos.z);
+    double sqr_rad = 3 * 3;
 
-    if(dist <= 3)
-    {
-        return 1;
-    }
-
-    return 0;
+    double d = sqr_dist - sqr_rad;
+    return d;
 }
 
 glm::vec3 calcNormal(glm::vec3 pos)
 {
-    glm::vec3 center(0,0,0);
-    glm::vec3 dist = pos - center;
-    double dot = sqrt(glm::dot(dist,dist));
+    float xt = pos.x;
+    float yt = pos.y;
+    float zt = pos.z;
 
-    dist.x = dist.x / dot;
-    dist.y = dist.y / dot;
-    dist.z = dist.z / dot;
-    return dist;
+    double d = calcDensity(glm::vec3(xt, yt, zt));
+    float nx = calcDensity(glm::vec3(xt + 0.001f, yt, zt)) - d;
+    float ny = calcDensity(glm::vec3(xt, yt + 0.001f, zt)) - d;
+    float nz = calcDensity(glm::vec3(xt, yt, zt + 0.001f)) - d;
+
+    glm::vec3 normal(nx, ny, nz);
+    glm::normalize(normal);
+
+    return normal;
+}
+
+glm::vec3 absVec3(glm::vec3 vec)
+{
+    return glm::vec3(abs(vec.x), abs(vec.y), abs(vec.z));
+}
+
+HermitData calcHermitData(glm::vec3 vertex1, glm::vec3 vertex2)
+{
+    HermitData data;
+
+    if(calcDensity(vertex1) < 0.001F)
+    {
+        data.point = vertex1;
+    }
+    else if(calcDensity(vertex2) < 0.001F)
+    {
+        data.point = vertex2;
+    }
+    else if(calcDensity(vertex1) - calcDensity(vertex2) < 0.001F)
+    {
+        data.point = vertex1;
+    }
+    else
+    {
+        glm::vec3 diff = vertex1 - vertex2;
+        absVec3(diff);
+        if (diff.x > 0.001F)
+        {
+
+        }
+
+    }
+
+
+    return HermitData();
 }
 
 //Checks if the array is all zeros or no zeros
-bool checkCubeArray(short (&cube_sign)[8])
+bool checkCubeArray(double (&cube_sign)[8])
 {
     int zeros = 0;
     //Checks how many zeros are in the array
@@ -82,23 +129,37 @@ bool checkCubeArray(short (&cube_sign)[8])
     return false;
 }
 
-struct typeReturn
-{
-    std::vector<glm::vec3> vertices;
-    std::vector<int> faceIndex;
-};
-
 typeReturn dualContouring()
 {
-    glm::vec3 cube_vertex[] = {
-    glm::vec3(0, 0, 0),
-    glm::vec3(0, 0, 1),
-    glm::vec3(0, 1, 0),
-    glm::vec3(0, 1, 1),
-    glm::vec3(1, 0, 0),
-    glm::vec3(1, 0, 1),
-    glm::vec3(1, 1, 0),
-    glm::vec3(1, 1, 1)
+    //cube_edges
+
+    glm::vec3 cube_vertex[] =
+    {
+        glm::vec3(0, 0, 0),
+        glm::vec3(0, 0, 1),
+        glm::vec3(0, 1, 0),
+        glm::vec3(0, 1, 1),
+        glm::vec3(1, 0, 0),
+        glm::vec3(1, 0, 1),
+        glm::vec3(1, 1, 0),
+        glm::vec3(1, 1, 1)
+    };
+
+    const int cube_edge_lenght = 12;
+    glm::vec2 cube_edge[] =
+    {
+        glm::vec2(0, 1),
+        glm::vec2(0, 2),
+        glm::vec2(0, 4),
+        glm::vec2(2, 3),
+        glm::vec2(1, 3),
+        glm::vec2(4, 5),
+        glm::vec2(1, 5),
+        glm::vec2(4, 6),
+        glm::vec2(2, 6),
+        glm::vec2(6, 7),
+        glm::vec2(5, 7),
+        glm::vec2(3, 7)
     };
 
     glm::vec3 posMin(-5, -5, -5);
@@ -116,7 +177,7 @@ typeReturn dualContouring()
                 glm::vec3 pos(x, y, z);
 
                 //Get the value at each conner.
-                short cube_sign[8];
+                double cube_sign[8];
                 for(int i = 0; i < 8; i++)
                 {
                     cube_sign[i] = calcDensity(pos + cube_vertex[i]);
@@ -127,6 +188,24 @@ typeReturn dualContouring()
                 {
                     continue;
                 }
+
+                std::deque<HermitData> hermitData;
+
+                for(int i = 0; i < cube_edge_lenght; i++)
+                {
+                    glm::vec2 e = cube_edge[i];
+
+                    if(cube_sign[(int)(e.x)] != cube_sign[(int)(e.y)])
+                    {
+                        glm::vec3 point1 = pos + cube_vertex[(int)(e.x)];
+                        glm::vec3 point2 = pos + cube_vertex[(int)(e.y)];
+                        hermitData.push_back(calcHermitData(point1, point2));
+                    }
+                }
+
+
+
+
 
 
             }
@@ -139,6 +218,8 @@ typeReturn dualContouring()
 
 int main()
 {
+    cout << 1e-3 << endl;
+
 
 	AE_String Title = "Test Game";
 	int SCREEN_WIDTH = 640;
@@ -148,7 +229,14 @@ int main()
     testScreen.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
 
-    printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
+    int num_joy = SDL_NumJoysticks();
+    printf("%i joysticks were found.\n\n", num_joy);
+    for(int i = 0; i < num_joy; i++)
+    {
+        SDL_Joystick *joystick = SDL_JoystickOpen(i);
+        printf("%s\n", SDL_JoystickName(joystick));
+    }
+
 
     ShaderProgram program("VertexShader.vertexshader", "FragmentShader.fragmentshader");
 
@@ -239,7 +327,7 @@ int main()
         }
 
         testScreen.clearBuffer();
-        program.setActiveProgram();
+        //program.setActiveProgram();
 
 
         time += 0.1F;

@@ -10,9 +10,9 @@ InputButton::InputButton()
 {
     //Enables JoyStick for use
     SDL_Init(SDL_INIT_JOYSTICK);
-    //SDL_JoystickEventState(SDL_ENABLE);
+    SDL_JoystickEventState(SDL_ENABLE);
     //TODO Actively load joysticks.
-    //SDL_JoystickOpen(0);
+    SDL_JoystickOpen(0);
 }
 
 //Used to update which buttons are down
@@ -38,7 +38,7 @@ void InputButton::HandleEvent(SDL_Event& e)
     }
     else if(e.type == SDL_JOYBUTTONDOWN)
     {
-        printf("JoyStickButton Down!!!!\n");
+        printf("JoyStickButton Down: %i\n", e.jbutton.button);
     }
 }
 
