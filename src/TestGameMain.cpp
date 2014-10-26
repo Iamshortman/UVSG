@@ -14,11 +14,6 @@
 #include "Model/ObjModel.h"
 #include "InputButton.hpp"
 
-//Include everthing
-#include "Voxel/threed.h"
-#include "Voxel/box.h"
-#define BOX_VOXEL_SIZE      Vector(0.5f, 0.5f, 0.5f)
-
 using namespace std;
 
 std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
@@ -76,6 +71,198 @@ glm::vec3 absVec3(glm::vec3 vec)
     return glm::vec3(abs(vec.x), abs(vec.y), abs(vec.z));
 }
 
+#define TOLERANCE_DENSITY 1e-3
+#define TOLERANCE_COORD   1e-5
+
+glm::vec3 calcIntersection_XAxis(glm::vec3 point1, glm::vec3 point2)
+{
+    float fa, fb;
+    float xa, xb;
+    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
+    {
+        fa = calcDensity(point1);
+        fb = calcDensity(point2);
+        xa = point1.x;
+        xb = point2.x;
+    }
+    else // p1 < 0  ,  p0 > 0
+    {
+        fa = calcDensity(point2);
+        fb = calcDensity(point1);
+        xa = point2.x;
+        xb = point1.x;
+    }
+    float y = point1.y;
+    float z = point1.z;
+    float xm;
+    float density;
+
+    while (1)
+    {
+        xm = xb - (fb * (xb - xa) / (fb - fa));
+       density = calcDensity(glm::vec3(xm, y, z));
+       density += 1e-4f;
+
+        if (fabs(density) < TOLERANCE_DENSITY)
+            break;
+        if (fabs(xa - xb) < TOLERANCE_COORD)
+            break;
+
+        if (density < 0)  // pm is negative
+        {
+            xa = xm;
+            fa = density;
+        }
+        else // pm is positive
+        {
+            xb = xm;
+            fb = density;
+        }
+
+        xm = (xa + xb) * 0.5f;
+        density = calcDensity(glm::vec3(xm, y, z));
+        density += 1e-4f;
+        if (density < 0) // pm < 0
+        {
+            xa = xm;
+            fa = density;
+        }
+        else // pm > 0
+        {
+            xb = xm;
+            fb = density;
+        }
+    }
+
+    return glm::vec3(xm, y, z);
+}
+
+glm::vec3 calcIntersection_YAxis(glm::vec3 point1, glm::vec3 point2)
+{
+    float fa, fb;
+    float ya, yb;
+    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
+    {
+        fa = calcDensity(point1);
+        fb = calcDensity(point2);
+        ya = point1.y;
+        yb = point2.y;
+    }
+    else // p1 < 0  ,  p0 > 0
+    {
+        fa = calcDensity(point2);
+        fb = calcDensity(point1);
+        ya = point2.y;
+        yb = point1.y;
+    }
+    float x = point1.x;
+    float z = point1.z;
+    float ym;
+    float density;
+
+    while (1)
+    {
+       ym = yb - (fb * (yb - ya) / (fb - fa));
+       density = calcDensity(glm::vec3(x, ym, z));
+       density += 1e-4f;
+
+        if (fabs(density) < TOLERANCE_DENSITY)
+            break;
+        if (fabs(ya - yb) < TOLERANCE_COORD)
+            break;
+
+        if (density < 0)  // pm is negative
+        {
+            ya = ym;
+            fa = density;
+        }
+        else // pm is positive
+        {
+            yb = ym;
+            fb = density;
+        }
+
+        ym = (ya + yb) * 0.5f;
+        density = calcDensity(glm::vec3(x, ym, z));
+        density += 1e-4f;
+        if (density < 0) // pm < 0
+        {
+            ya = ym;
+            fa = density;
+        }
+        else // pm > 0
+        {
+            yb = ym;
+            fb = density;
+        }
+    }
+
+    return glm::vec3(x, ym, z);
+}
+
+glm::vec3 calcIntersection_ZAxis(glm::vec3 point1, glm::vec3 point2)
+{
+    float fa, fb;
+    float za, zb;
+    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
+    {
+        fa = calcDensity(point1);
+        fb = calcDensity(point2);
+        za = point1.z;
+        zb = point2.z;
+    }
+    else // p1 < 0  ,  p0 > 0
+    {
+        fa = calcDensity(point2);
+        fb = calcDensity(point1);
+        za = point2.z;
+        zb = point1.z;
+    }
+    float x = point1.x;
+    float y = point1.y;
+    float zm;
+    float density;
+
+    while (1)
+    {
+       zm = zb - (fb * (zb - za) / (fb - fa));
+       density = calcDensity(glm::vec3(x, y, zm));
+       density += 1e-4f;
+
+        if (fabs(density) < TOLERANCE_DENSITY)
+            break;
+        if (fabs(za - zb) < TOLERANCE_COORD)
+            break;
+
+        if (density < 0)  // pm is negative
+        {
+            za = zm;
+            fa = density;
+        }
+        else // pm is positive
+        {
+            zb = zm;
+            fb = density;
+        }
+
+        zm = (za + zb) * 0.5f;
+        density = calcDensity(glm::vec3(x, y, zm));
+        density += 1e-4f;
+        if (density < 0) // pm < 0
+        {
+            za = zm;
+            fa = density;
+        }
+        else // pm > 0
+        {
+            zb = zm;
+            fb = density;
+        }
+    }
+
+    return glm::vec3(x, y, zm);
+}
+
 HermitData calcHermitData(glm::vec3 vertex1, glm::vec3 vertex2)
 {
     HermitData data;
@@ -98,13 +285,22 @@ HermitData calcHermitData(glm::vec3 vertex1, glm::vec3 vertex2)
         absVec3(diff);
         if (diff.x > 0.001F)
         {
-
+            data.point = calcIntersection_XAxis(vertex1, vertex2);
+        }
+        else if (diff.y > 0.001F)
+        {
+            data.point = calcIntersection_YAxis(vertex1, vertex2);
+        }
+        else if (diff.y > 0.001F)
+        {
+            data.point = calcIntersection_ZAxis(vertex1, vertex2);
         }
 
     }
 
+    data.normal = calcNormal(data.point);
 
-    return HermitData();
+    return data;
 }
 
 //Checks if the array is all zeros or no zeros
@@ -148,18 +344,18 @@ typeReturn dualContouring()
     const int cube_edge_lenght = 12;
     glm::vec2 cube_edge[] =
     {
-        glm::vec2(0, 1),
-        glm::vec2(0, 2),
-        glm::vec2(0, 4),
-        glm::vec2(2, 3),
-        glm::vec2(1, 3),
-        glm::vec2(4, 5),
-        glm::vec2(1, 5),
-        glm::vec2(4, 6),
-        glm::vec2(2, 6),
-        glm::vec2(6, 7),
-        glm::vec2(5, 7),
-        glm::vec2(3, 7)
+        glm::vec2( 0, 1 ),
+        glm::vec2( 1, 2 ),
+        glm::vec2( 2, 3 ),
+        glm::vec2( 3, 0 ),
+        glm::vec2( 4, 5 ),
+        glm::vec2( 5, 6 ),
+        glm::vec2( 6, 7 ),
+        glm::vec2( 7, 4 ),
+        glm::vec2( 0, 4 ),
+        glm::vec2( 1, 5 ),
+        glm::vec2( 2, 6 ),
+        glm::vec2( 3, 7 )
     };
 
     glm::vec3 posMin(-5, -5, -5);
@@ -189,7 +385,11 @@ typeReturn dualContouring()
                     continue;
                 }
 
-                std::deque<HermitData> hermitData;
+                HermitData hermitData[12];
+                int numIntersections = 0;
+
+                //Really have no idea what it does.
+                glm::vec3 masspoint(0,0,0);
 
                 for(int i = 0; i < cube_edge_lenght; i++)
                 {
@@ -199,14 +399,38 @@ typeReturn dualContouring()
                     {
                         glm::vec3 point1 = pos + cube_vertex[(int)(e.x)];
                         glm::vec3 point2 = pos + cube_vertex[(int)(e.y)];
-                        hermitData.push_back(calcHermitData(point1, point2));
+                        hermitData[i] = calcHermitData(point1, point2);
+                        masspoint += hermitData[i].point;
+                        numIntersections++;
                     }
                 }
 
+                //No idea why We do this..
+                masspoint /= (float) numIntersections;
 
+                // part 2  compute the QEF-minimizing point
+                glm::vec3 newPointNormal(0,0,0);
 
+                double matrix[12][3];
+                double vectorArr[12];
+                int rows = 0;
 
+                for (int i = 0; i < 12; ++i)
+                {
+                    const glm::vec3 normal = hermitData[i].normal;
 
+                    matrix[rows][0] = normal.x;
+                    matrix[rows][1] = normal.y;
+                    matrix[rows][2] = normal.z;
+
+                    glm::vec3 point = hermitData[i].point - masspoint;
+
+                    vectorArr[rows] = (double)glm::dot(normal, point);
+                }
+
+                glm::vec3 newPointPos(0,0,0);
+                //QEF::evaluate(matrix, vector, rows, &newPointV);
+                //newPointV += massPoint;
 
             }
         }
@@ -218,8 +442,10 @@ typeReturn dualContouring()
 
 int main()
 {
-    cout << 1e-3 << endl;
+    glm::vec3 vec1(1,1,0);
+    glm::vec3 vec2(1,0,1);
 
+    cout << glm::dot(vec2, vec1) << endl;
 
 	AE_String Title = "Test Game";
 	int SCREEN_WIDTH = 640;
