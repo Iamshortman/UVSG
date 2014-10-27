@@ -1,6 +1,7 @@
 //GML needs this to not complain about rotations being deprecated
 #define GLM_FORCE_RADIANS
 
+#include "Camera.hpp"
 #include "Screen.hpp"
 #include "Shader/ShaderProgram.hpp"
 #include "openGL.hpp"
@@ -16,6 +17,9 @@
 
 using namespace std;
 
+
+GLuint loadDDS(const char * imagepath);
+
 std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
     out << "{"
         << vec.x << ", " << vec.y << ","<< vec.z
@@ -24,428 +28,8 @@ std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
     return out;
 }
 
-struct typeReturn
-{
-    std::vector<glm::vec3> vertices;
-    std::vector<int> faceIndex;
-};
-
-struct HermitData
-{
-    glm::vec3 point;
-    glm::vec3 normal;
-};
-
-double calcDensity(glm::vec3 pos)
-{
-    glm::vec3 center(0,0,0);
-
-    glm::vec3 dist = pos - center;
-
-    double sqr_dist = (pos.x * pos.x) + (pos.y * pos.y) + (pos.z * pos.z);
-    double sqr_rad = 3 * 3;
-
-    double d = sqr_dist - sqr_rad;
-    return d;
-}
-
-glm::vec3 calcNormal(glm::vec3 pos)
-{
-    float xt = pos.x;
-    float yt = pos.y;
-    float zt = pos.z;
-
-    double d = calcDensity(glm::vec3(xt, yt, zt));
-    float nx = calcDensity(glm::vec3(xt + 0.001f, yt, zt)) - d;
-    float ny = calcDensity(glm::vec3(xt, yt + 0.001f, zt)) - d;
-    float nz = calcDensity(glm::vec3(xt, yt, zt + 0.001f)) - d;
-
-    glm::vec3 normal(nx, ny, nz);
-    glm::normalize(normal);
-
-    return normal;
-}
-
-glm::vec3 absVec3(glm::vec3 vec)
-{
-    return glm::vec3(abs(vec.x), abs(vec.y), abs(vec.z));
-}
-
-#define TOLERANCE_DENSITY 1e-3
-#define TOLERANCE_COORD   1e-5
-
-glm::vec3 calcIntersection_XAxis(glm::vec3 point1, glm::vec3 point2)
-{
-    float fa, fb;
-    float xa, xb;
-    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
-    {
-        fa = calcDensity(point1);
-        fb = calcDensity(point2);
-        xa = point1.x;
-        xb = point2.x;
-    }
-    else // p1 < 0  ,  p0 > 0
-    {
-        fa = calcDensity(point2);
-        fb = calcDensity(point1);
-        xa = point2.x;
-        xb = point1.x;
-    }
-    float y = point1.y;
-    float z = point1.z;
-    float xm;
-    float density;
-
-    while (1)
-    {
-        xm = xb - (fb * (xb - xa) / (fb - fa));
-       density = calcDensity(glm::vec3(xm, y, z));
-       density += 1e-4f;
-
-        if (fabs(density) < TOLERANCE_DENSITY)
-            break;
-        if (fabs(xa - xb) < TOLERANCE_COORD)
-            break;
-
-        if (density < 0)  // pm is negative
-        {
-            xa = xm;
-            fa = density;
-        }
-        else // pm is positive
-        {
-            xb = xm;
-            fb = density;
-        }
-
-        xm = (xa + xb) * 0.5f;
-        density = calcDensity(glm::vec3(xm, y, z));
-        density += 1e-4f;
-        if (density < 0) // pm < 0
-        {
-            xa = xm;
-            fa = density;
-        }
-        else // pm > 0
-        {
-            xb = xm;
-            fb = density;
-        }
-    }
-
-    return glm::vec3(xm, y, z);
-}
-
-glm::vec3 calcIntersection_YAxis(glm::vec3 point1, glm::vec3 point2)
-{
-    float fa, fb;
-    float ya, yb;
-    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
-    {
-        fa = calcDensity(point1);
-        fb = calcDensity(point2);
-        ya = point1.y;
-        yb = point2.y;
-    }
-    else // p1 < 0  ,  p0 > 0
-    {
-        fa = calcDensity(point2);
-        fb = calcDensity(point1);
-        ya = point2.y;
-        yb = point1.y;
-    }
-    float x = point1.x;
-    float z = point1.z;
-    float ym;
-    float density;
-
-    while (1)
-    {
-       ym = yb - (fb * (yb - ya) / (fb - fa));
-       density = calcDensity(glm::vec3(x, ym, z));
-       density += 1e-4f;
-
-        if (fabs(density) < TOLERANCE_DENSITY)
-            break;
-        if (fabs(ya - yb) < TOLERANCE_COORD)
-            break;
-
-        if (density < 0)  // pm is negative
-        {
-            ya = ym;
-            fa = density;
-        }
-        else // pm is positive
-        {
-            yb = ym;
-            fb = density;
-        }
-
-        ym = (ya + yb) * 0.5f;
-        density = calcDensity(glm::vec3(x, ym, z));
-        density += 1e-4f;
-        if (density < 0) // pm < 0
-        {
-            ya = ym;
-            fa = density;
-        }
-        else // pm > 0
-        {
-            yb = ym;
-            fb = density;
-        }
-    }
-
-    return glm::vec3(x, ym, z);
-}
-
-glm::vec3 calcIntersection_ZAxis(glm::vec3 point1, glm::vec3 point2)
-{
-    float fa, fb;
-    float za, zb;
-    if (calcDensity(point1) < 0) // p0 < 0  ,  p1 > 0
-    {
-        fa = calcDensity(point1);
-        fb = calcDensity(point2);
-        za = point1.z;
-        zb = point2.z;
-    }
-    else // p1 < 0  ,  p0 > 0
-    {
-        fa = calcDensity(point2);
-        fb = calcDensity(point1);
-        za = point2.z;
-        zb = point1.z;
-    }
-    float x = point1.x;
-    float y = point1.y;
-    float zm;
-    float density;
-
-    while (1)
-    {
-       zm = zb - (fb * (zb - za) / (fb - fa));
-       density = calcDensity(glm::vec3(x, y, zm));
-       density += 1e-4f;
-
-        if (fabs(density) < TOLERANCE_DENSITY)
-            break;
-        if (fabs(za - zb) < TOLERANCE_COORD)
-            break;
-
-        if (density < 0)  // pm is negative
-        {
-            za = zm;
-            fa = density;
-        }
-        else // pm is positive
-        {
-            zb = zm;
-            fb = density;
-        }
-
-        zm = (za + zb) * 0.5f;
-        density = calcDensity(glm::vec3(x, y, zm));
-        density += 1e-4f;
-        if (density < 0) // pm < 0
-        {
-            za = zm;
-            fa = density;
-        }
-        else // pm > 0
-        {
-            zb = zm;
-            fb = density;
-        }
-    }
-
-    return glm::vec3(x, y, zm);
-}
-
-HermitData calcHermitData(glm::vec3 vertex1, glm::vec3 vertex2)
-{
-    HermitData data;
-
-    if(calcDensity(vertex1) < 0.001F)
-    {
-        data.point = vertex1;
-    }
-    else if(calcDensity(vertex2) < 0.001F)
-    {
-        data.point = vertex2;
-    }
-    else if(calcDensity(vertex1) - calcDensity(vertex2) < 0.001F)
-    {
-        data.point = vertex1;
-    }
-    else
-    {
-        glm::vec3 diff = vertex1 - vertex2;
-        absVec3(diff);
-        if (diff.x > 0.001F)
-        {
-            data.point = calcIntersection_XAxis(vertex1, vertex2);
-        }
-        else if (diff.y > 0.001F)
-        {
-            data.point = calcIntersection_YAxis(vertex1, vertex2);
-        }
-        else if (diff.y > 0.001F)
-        {
-            data.point = calcIntersection_ZAxis(vertex1, vertex2);
-        }
-
-    }
-
-    data.normal = calcNormal(data.point);
-
-    return data;
-}
-
-//Checks if the array is all zeros or no zeros
-bool checkCubeArray(double (&cube_sign)[8])
-{
-    int zeros = 0;
-    //Checks how many zeros are in the array
-    for(int i = 0; i < 8; i++)
-    {
-        if(cube_sign[i] == 0)
-        {
-            zeros++;
-        }
-    }
-
-    //If all zeros or none zeros return true
-    if(zeros == 0 || zeros == 8)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-typeReturn dualContouring()
-{
-    //cube_edges
-
-    glm::vec3 cube_vertex[] =
-    {
-        glm::vec3(0, 0, 0),
-        glm::vec3(0, 0, 1),
-        glm::vec3(0, 1, 0),
-        glm::vec3(0, 1, 1),
-        glm::vec3(1, 0, 0),
-        glm::vec3(1, 0, 1),
-        glm::vec3(1, 1, 0),
-        glm::vec3(1, 1, 1)
-    };
-
-    const int cube_edge_lenght = 12;
-    glm::vec2 cube_edge[] =
-    {
-        glm::vec2( 0, 1 ),
-        glm::vec2( 1, 2 ),
-        glm::vec2( 2, 3 ),
-        glm::vec2( 3, 0 ),
-        glm::vec2( 4, 5 ),
-        glm::vec2( 5, 6 ),
-        glm::vec2( 6, 7 ),
-        glm::vec2( 7, 4 ),
-        glm::vec2( 0, 4 ),
-        glm::vec2( 1, 5 ),
-        glm::vec2( 2, 6 ),
-        glm::vec2( 3, 7 )
-    };
-
-    glm::vec3 posMin(-5, -5, -5);
-    glm::vec3 posMax( 5,  5,  5);
-    glm::vec3    res( 1,  1,  1);
-
-    glm::vec3 pos();
-
-    for(int x = posMin.x; x <= posMax.x; x += res.x)
-    {
-        for(int y = posMin.y; y <= posMax.y; y += res.y)
-        {
-            for(int z = posMin.z; z <= posMax.z; z += res.z)
-            {
-                glm::vec3 pos(x, y, z);
-
-                //Get the value at each conner.
-                double cube_sign[8];
-                for(int i = 0; i < 8; i++)
-                {
-                    cube_sign[i] = calcDensity(pos + cube_vertex[i]);
-                }
-
-                //If the array is all zeros or no zeros skip this step
-                if(checkCubeArray(cube_sign))
-                {
-                    continue;
-                }
-
-                HermitData hermitData[12];
-                int numIntersections = 0;
-
-                //Really have no idea what it does.
-                glm::vec3 masspoint(0,0,0);
-
-                for(int i = 0; i < cube_edge_lenght; i++)
-                {
-                    glm::vec2 e = cube_edge[i];
-
-                    if(cube_sign[(int)(e.x)] != cube_sign[(int)(e.y)])
-                    {
-                        glm::vec3 point1 = pos + cube_vertex[(int)(e.x)];
-                        glm::vec3 point2 = pos + cube_vertex[(int)(e.y)];
-                        hermitData[i] = calcHermitData(point1, point2);
-                        masspoint += hermitData[i].point;
-                        numIntersections++;
-                    }
-                }
-
-                //No idea why We do this..
-                masspoint /= (float) numIntersections;
-
-                // part 2  compute the QEF-minimizing point
-                glm::vec3 newPointNormal(0,0,0);
-
-                double matrix[12][3];
-                double vectorArr[12];
-                int rows = 0;
-
-                for (int i = 0; i < 12; ++i)
-                {
-                    const glm::vec3 normal = hermitData[i].normal;
-
-                    matrix[rows][0] = normal.x;
-                    matrix[rows][1] = normal.y;
-                    matrix[rows][2] = normal.z;
-
-                    glm::vec3 point = hermitData[i].point - masspoint;
-
-                    vectorArr[rows] = (double)glm::dot(normal, point);
-                }
-
-                glm::vec3 newPointPos(0,0,0);
-                //QEF::evaluate(matrix, vector, rows, &newPointV);
-                //newPointV += massPoint;
-
-            }
-        }
-    }
-
-
-    return typeReturn();
-}
-
 int main()
 {
-    glm::vec3 vec1(1,1,0);
-    glm::vec3 vec2(1,0,1);
-
-    cout << glm::dot(vec2, vec1) << endl;
 
 	AE_String Title = "Test Game";
 	int SCREEN_WIDTH = 640;
@@ -454,6 +38,7 @@ int main()
 	Screen testScreen(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
     testScreen.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
+    Camera camera = Camera();
 
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
@@ -464,53 +49,38 @@ int main()
     }
 
 
-    ShaderProgram program("VertexShader.vertexshader", "FragmentShader.fragmentshader");
+    ShaderProgram program("VertexShader.vertexshader", "TextureFragmentShader.fragmentshader");
 
     //START DEMO CODE****************************************************************************************
 
 
-    	// Get a handle for our "MVP" uniform
-	GLuint projectionMatrixID = glGetUniformLocation(program.ShaderProgramID, "projection");
-	GLuint viewMatrixID = glGetUniformLocation(program.ShaderProgramID, "view");
-    GLuint modelMatrixID = glGetUniformLocation(program.ShaderProgramID, "model");
-
+	// Get a handle for our "MVP" uniform
+	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "MVP");
 
 	// Get a handle for our buffers
 	GLuint vertexPosition_modelspaceID = glGetAttribLocation(program.ShaderProgramID, "vertexPosition_modelspace");
 	GLuint vertexUVID = glGetAttribLocation(program.ShaderProgramID, "vertexUV");
-    GLuint vertexNormal_modelspaceID = glGetAttribLocation(program.ShaderProgramID, "vertexNormal_modelspace");
+    //GLuint vertexNormal_modelspaceID = glGetAttribLocation(program.ShaderProgramID, "vertexNormal_modelspace");
 
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(50.0f, 4.0f/3.0f, 0.1f, 100.0f);
-	// Camera matrix
-	glm::mat4 View       = glm::lookAt(
-								glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
-								glm::vec3(0,0,0), // and looks at the origin
-								glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-						   );
+
 	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model      = glm::mat4(1.0f);
-	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+	glm::mat4 ModelMatrix      = glm::mat4(1.0f);
+    ModelMatrix =   glm::rotate(ModelMatrix , 0.0F, glm::vec3(0, 1, 0));
 
-    // Get a handle for our "myTextureSampler" uniform
-	//GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
+    // Load the texture
+	GLuint Texture = loadDDS("uvmap.DDS");
 
-    std::vector<glm::vec3> vertices;
+	// Get a handle for our "myTextureSampler" uniform
+	GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
 
-
-    //cout << calcDensity(glm::vec3(0,1,0)) << endl;
-    glm::vec3 normal = calcNormal(glm::vec3(1,1,0));
-
-    cout << normal << endl;
-
-    /*// Read our .obj file
+	// Read our .obj file
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals; // Won't be used at the moment.
-	bool res = loadOBJ("cube.obj", vertices, uvs, normals);
+	loadOBJ("cube.obj", vertices, uvs, normals);
 
 	// Load it into a VBO
+
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -521,11 +91,6 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
-    GLuint normalbuffer;
-	glGenBuffers(1, &normalbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);*/
-
     //END DEMO CODE******************************************************************************************
 
     float time = 0;
@@ -533,6 +98,19 @@ int main()
 	bool escKey = false;
 	while(escKey == false)
 	{
+
+        SDL_Event event;
+        while( SDL_PollEvent( &event ) )
+        {
+            if(event.window.event == SDL_WINDOWEVENT_CLOSE)
+            {
+                escKey = true;
+            }
+
+            input.HandleEvent(event);
+            testScreen.HandleEvent(event);
+        }
+
         if(input.isKeyboardButtonDown(SDLK_ESCAPE))
         {
             SDL_ShowCursor(SDL_ENABLE);
@@ -553,36 +131,169 @@ int main()
         }
 
         testScreen.clearBuffer();
-        //program.setActiveProgram();
+        program.setActiveProgram();
 
 
         time += 0.1F;
         //Render in here
 
-        glUniformMatrix4fv(projectionMatrixID, 1, GL_FALSE, &MVP[0][0]);
+        // Projection matrix
+        float screenRes = ((float)width)/((float)height);
+        glm::mat4 ProjectionMatrix = glm::perspective(45.0f, screenRes, 0.1f, 100.0f);
+
+        camera.moveCameraPos(glm::vec3(0.0F, -0.1F, -0.1F));
+        glm::mat4 ViewMatrix = camera.getViewMatrix();
+
+        ModelMatrix =   glm::rotate(ModelMatrix , 0.01F, glm::vec3(0, 1, 0));
+
+        // Send our transformation to the currently bound shader,
+        glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+		// Send our transformation to the currently bound shader,
+		// in the "MVP" uniform
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        // Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Texture);
+		// Set our "myTextureSampler" sampler to user Texture Unit 0
+		glUniform1i(TextureID, 0);
+
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(vertexPosition_modelspaceID);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glVertexAttribPointer(
+			vertexPosition_modelspaceID,  // The attribute we want to configure
+			3,                            // size
+			GL_FLOAT,                     // type
+			GL_FALSE,                     // normalized?
+			0,                            // stride
+			(void*)0                      // array buffer offset
+		);
+
+		// 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(vertexUVID);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+		glVertexAttribPointer(
+			vertexUVID,                   // The attribute we want to configure
+			2,                            // size : U+V => 2
+			GL_FLOAT,                     // type
+			GL_FALSE,                     // normalized?
+			0,                            // stride
+			(void*)0                      // array buffer offset
+		);
+
+		// Draw the triangles !
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
+
+		glDisableVertexAttribArray(vertexPosition_modelspaceID);
+		glDisableVertexAttribArray(vertexUVID);
 
         //End Render
 
 		testScreen.updateBuffer();
-
-
-		SDL_Event event;
-		SDL_PollEvent(&event);
-		if(event.window.event == SDL_WINDOWEVENT_CLOSE)
-		{
-			escKey = true;
-		}
-
-        input.HandleEvent(event);
-		testScreen.HandleEvent(event);
-
 	}
 
     // Cleanup VBO
-	//glDeleteBuffers(1, &vertexbuffer);
-	//glDeleteBuffers(1, &uvbuffer);
+	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &uvbuffer);
 
 	testScreen.closeScreen();
 
 	return 0;
+}
+
+#define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
+#define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
+#define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
+
+GLuint loadDDS(const char * imagepath){
+
+	unsigned char header[124];
+
+	FILE *fp;
+
+	/* try to open the file */
+	fp = fopen(imagepath, "rb");
+	if (fp == NULL){
+		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar();
+		return 0;
+	}
+
+	/* verify the type of file */
+	char filecode[4];
+	fread(filecode, 1, 4, fp);
+	if (strncmp(filecode, "DDS ", 4) != 0) {
+		fclose(fp);
+		return 0;
+	}
+
+	/* get the surface desc */
+	fread(&header, 124, 1, fp);
+
+	unsigned int height      = *(unsigned int*)&(header[8 ]);
+	unsigned int width	     = *(unsigned int*)&(header[12]);
+	unsigned int linearSize	 = *(unsigned int*)&(header[16]);
+	unsigned int mipMapCount = *(unsigned int*)&(header[24]);
+	unsigned int fourCC      = *(unsigned int*)&(header[80]);
+
+
+	unsigned char * buffer;
+	unsigned int bufsize;
+	/* how big is it going to be including all mipmaps? */
+	bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
+	buffer = (unsigned char*)malloc(bufsize * sizeof(unsigned char));
+	fread(buffer, 1, bufsize, fp);
+	/* close the file pointer */
+	fclose(fp);
+
+	unsigned int components  = (fourCC == FOURCC_DXT1) ? 3 : 4;
+	unsigned int format;
+	switch(fourCC)
+	{
+	case FOURCC_DXT1:
+		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		break;
+	case FOURCC_DXT3:
+		format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+		break;
+	case FOURCC_DXT5:
+		format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		break;
+	default:
+		free(buffer);
+		return 0;
+	}
+
+	// Create one OpenGL texture
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+
+	unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+	unsigned int offset = 0;
+
+	/* load the mipmaps */
+	for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
+	{
+		unsigned int size = ((width+3)/4)*((height+3)/4)*blockSize;
+		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
+			0, size, buffer + offset);
+
+		offset += size;
+		width  /= 2;
+		height /= 2;
+
+		// Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
+		if(width < 1) width = 1;
+		if(height < 1) height = 1;
+
+	}
+
+	free(buffer);
+
+	return textureID;
 }

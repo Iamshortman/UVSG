@@ -5,7 +5,7 @@ Screen::Screen(int width, int height, AE_String windowTitle)
 	SDL_Init(SDL_INIT_VIDEO);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	// Create an application window with the following settings:
     window = SDL_CreateWindow(
