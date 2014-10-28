@@ -4,10 +4,10 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
-#include <glm/glm.hpp>
+#include "../glmInclude.hpp"
 
 bool loadOBJ(const char * path,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals);
+	std::vector<vector3> & out_vertices,
+	std::vector<vector2> & out_uvs,
+	std::vector<vector3> & out_normals);
 

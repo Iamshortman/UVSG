@@ -4,20 +4,26 @@ Camera::Camera()
 {
 
 	// Camera matrix
-	View        = glm::lookAt(
-								glm::vec3(0,3,3), // Camera is at (4,3,3), in World Space
-								glm::vec3(0,0,0), // and looks at the origin
-								glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-						   );
+	/*View        = matrix4(1.0F); lookAt(
+								vector3(0,3,3), // Camera is at (4,3,3), in World Space
+								vector3(0,0,0), // and looks at the origin
+								vector3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+						   );*/
+    //this->moveCameraPos(vector3(0,0,-3));
 }
 
-void Camera::moveCameraPos(glm::vec3 dist)
+void Camera::moveCameraPos(vector3 dist)
 {
-    View = glm::translate(View, dist);
+    //View = glm::translate(View, dist);
 }
 
-glm::mat4 Camera::getViewMatrix()
+void Camera::rotateCamera(vector3 direction, float angle)
 {
-    return View;
+    //View = glm::rotate(View, angle, direction);
+}
+
+matrix4 Camera::getViewMatrix()
+{
+    return matrix4();
 }
 

@@ -1,22 +1,19 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-// Include GLM
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "glmInclude.hpp"
 
 class Camera
 {
 public:
 	Camera();
-	glm::mat4 getViewMatrix();
-    void moveCameraPos(glm::vec3 dist);
-    void setCameraPos(glm::vec3 pos);
+	matrix4 getViewMatrix();
+    void moveCameraPos(vector3 dist);
+    void rotateCamera(vector3 direction, float angle);
+    void setCameraPos(vector3 pos);
 
 private:
     //Location and rotation
-    glm::mat4 View;
 
 };
 

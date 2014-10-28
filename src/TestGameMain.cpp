@@ -1,14 +1,10 @@
-//GML needs this to not complain about rotations being deprecated
-#define GLM_FORCE_RADIANS
-
 #include "Camera.hpp"
 #include "Screen.hpp"
 #include "Shader/ShaderProgram.hpp"
 #include "openGL.hpp"
+#include "glmInclude.hpp"
 
 #include <SDL2/SDL.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <stdlib.h>
 #include <math.h>
 
@@ -20,7 +16,7 @@ using namespace std;
 
 GLuint loadDDS(const char * imagepath);
 
-std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec) {
+std::ostream &operator<< (std::ostream &out, const vector3 &vec) {
     out << "{"
         << vec.x << ", " << vec.y << ","<< vec.z
         << "}";
@@ -64,8 +60,8 @@ int main()
 
 
 	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 ModelMatrix      = glm::mat4(1.0f);
-    ModelMatrix =   glm::rotate(ModelMatrix , 0.0F, glm::vec3(0, 1, 0));
+	matrix4 ModelMatrix      = matrix4(1.0f);
+    ModelMatrix =   glm::rotate(ModelMatrix , 0.0F, vector3(0, 1, 0));
 
     // Load the texture
 	GLuint Texture = loadDDS("uvmap.DDS");
@@ -74,9 +70,9 @@ int main()
 	GLuint TextureID  = glGetUniformLocation(program.ShaderProgramID, "myTextureSampler");
 
 	// Read our .obj file
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec2> uvs;
-	std::vector<glm::vec3> normals; // Won't be used at the moment.
+	std::vector<vector3> vertices;
+	std::vector<vector2> uvs;
+	std::vector<vector3> normals; // Won't be used at the moment.
 	loadOBJ("cube.obj", vertices, uvs, normals);
 
 	// Load it into a VBO
@@ -84,12 +80,12 @@ int main()
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vector3), &vertices[0], GL_STATIC_DRAW);
 
 	GLuint uvbuffer;
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(vector2), &uvs[0], GL_STATIC_DRAW);
 
     //END DEMO CODE******************************************************************************************
 
@@ -139,15 +135,15 @@ int main()
 
         // Projection matrix
         float screenRes = ((float)width)/((float)height);
-        glm::mat4 ProjectionMatrix = glm::perspective(45.0f, screenRes, 0.1f, 100.0f);
+        matrix4 ProjectionMatrix = glm::perspective(45.0f, screenRes, 0.1f, 100.0f);
 
-        camera.moveCameraPos(glm::vec3(0.0F, -0.1F, -0.1F));
-        glm::mat4 ViewMatrix = camera.getViewMatrix();
+        //camera.moveCameraPos(vector3(0.0F, 0.00F, -0.1F));
+        //camera.rotateCamera(vector3(0.0F, 1.0F, 0.0), 0.01F);
+        matrix4 ViewMatrix = camera.getViewMatrix();
 
-        ModelMatrix =   glm::rotate(ModelMatrix , 0.01F, glm::vec3(0, 1, 0));
 
         // Send our transformation to the currently bound shader,
-        glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+        matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
 		// Send our transformation to the currently bound shader,
 		// in the "MVP" uniform
