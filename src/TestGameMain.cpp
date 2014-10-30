@@ -10,6 +10,7 @@
 
 #include "Model/ObjModel.h"
 #include "InputButton.hpp"
+#include "Transform.hpp"
 
 using namespace std;
 
@@ -59,10 +60,6 @@ int main()
     //GLuint vertexNormal_modelspaceID = glGetAttribLocation(program.ShaderProgramID, "vertexNormal_modelspace");
 
 
-	// Model matrix : an identity matrix (model will be at the origin)
-	matrix4 ModelMatrix      = matrix4(1.0f);
-    ModelMatrix =   glm::rotate(ModelMatrix , 0.0F, vector3(0, 1, 0));
-
     // Load the texture
 	GLuint Texture = loadDDS("uvmap.DDS");
 
@@ -91,10 +88,17 @@ int main()
 
     float time = 0;
 
+    Transform modelTransform = Transform();
+    modelTransform.position = vector3(0.0F, 0.0F, -7.0F);
+
+    modelTransform.update();
+    cout << "Forward: " << modelTransform.forward << endl;
+    cout << "Up: " << modelTransform.up << endl;
+    cout << "Right: " << modelTransform.right << endl;
+
 	bool escKey = false;
 	while(escKey == false)
 	{
-
         SDL_Event event;
         while( SDL_PollEvent( &event ) )
         {
@@ -135,12 +139,42 @@ int main()
 
         // Projection matrix
         float screenRes = ((float)width)/((float)height);
-        matrix4 ProjectionMatrix = glm::perspective(45.0f, screenRes, 0.1f, 100.0f);
+        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 100.0F);
 
         //camera.moveCameraPos(vector3(0.0F, 0.00F, -0.1F));
         //camera.rotateCamera(vector3(0.0F, 1.0F, 0.0), 0.01F);
         matrix4 ViewMatrix = camera.getViewMatrix();
 
+        //modelTransform.pos += vector3(0.0F, 0.0F, -0.01F);
+
+
+        //float scale = sin(time) + 1;
+        //modelTransform.scale = vector3(scale, scale, scale);
+
+        if(input.isKeyboardButtonDown(SDLK_RIGHT))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.01F, vector3(0.0F, 0.3F, 0.0F)));
+
+        if(input.isKeyboardButtonDown(SDLK_LEFT))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.01F, vector3(0.0F, 0.3F, 0.0F)));
+
+        //modelTransform.rotation *= glm::normalize(glm::angleAxis(0.01F, vector3(0.3F, 0.0F, 0.0F)));
+
+        modelTransform.update();
+        /*cout << "Forward: " << modelTransform.forward << endl;
+        cout << "Up: " << modelTransform.up << endl;
+        cout << "Right: " << modelTransform.right << endl;*/
+
+        if(input.isKeyboardButtonDown(SDLK_UP))
+        {
+            modelTransform.position += (modelTransform.forward * .1F);
+        }
+
+        if(input.isKeyboardButtonDown(SDLK_DOWN))
+        {
+            modelTransform.position += -(modelTransform.forward * .1F);
+        }
+
+        matrix4 ModelMatrix = modelTransform.getModelMatrix();
 
         // Send our transformation to the currently bound shader,
         matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
