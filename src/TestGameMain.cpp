@@ -96,19 +96,21 @@ int main()
     cout << "Up: " << modelTransform.up << endl;
     cout << "Right: " << modelTransform.right << endl;
 
-	bool escKey = false;
-	while(escKey == false)
+	bool shouldEnd = false;
+	while(shouldEnd == false)
 	{
         SDL_Event event;
         while( SDL_PollEvent( &event ) )
         {
             if(event.window.event == SDL_WINDOWEVENT_CLOSE)
             {
-                escKey = true;
+                shouldEnd = true;
             }
 
             input.HandleEvent(event);
             testScreen.HandleEvent(event);
+
+            event = SDL_Event();
         }
 
         if(input.isKeyboardButtonDown(SDLK_ESCAPE))
@@ -118,7 +120,7 @@ int main()
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-            SDL_ShowCursor(SDL_DISABLE);
+            //SDL_ShowCursor(SDL_DISABLE);
         }
 
         int height, width;
@@ -151,11 +153,11 @@ int main()
         //float scale = sin(time) + 1;
         //modelTransform.scale = vector3(scale, scale, scale);
 
-        if(input.isKeyboardButtonDown(SDLK_RIGHT))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.01F, vector3(0.0F, 0.3F, 0.0F)));
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_D))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.1F, vector3(0.0F, 0.3F, 0.0F)));
 
-        if(input.isKeyboardButtonDown(SDLK_LEFT))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.01F, vector3(0.0F, 0.3F, 0.0F)));
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_A))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.1F, vector3(0.0F, 0.3F, 0.0F)));
 
         //modelTransform.rotation *= glm::normalize(glm::angleAxis(0.01F, vector3(0.3F, 0.0F, 0.0F)));
 
@@ -164,12 +166,12 @@ int main()
         cout << "Up: " << modelTransform.up << endl;
         cout << "Right: " << modelTransform.right << endl;*/
 
-        if(input.isKeyboardButtonDown(SDLK_UP))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
             modelTransform.position += (modelTransform.forward * .1F);
         }
 
-        if(input.isKeyboardButtonDown(SDLK_DOWN))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_S))
         {
             modelTransform.position += -(modelTransform.forward * .1F);
         }

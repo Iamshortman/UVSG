@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include <deque>
+#include <vector>
 #include <algorithm>
 
 using namespace std;
@@ -15,17 +16,19 @@ class InputButton
 	public:
         InputButton();
         void HandleEvent(SDL_Event& e);
+        void update();
         bool isButtonDown(int key, int device);
         bool isKeyboardButtonDown(int key);
         bool isMouseButtonDown(int key);
         bool isGamePadButtonDown(int key, int device);
 
 	private:
-        deque<int> keyboard;
+
+        vector<int> keyboard;
         deque<int> mouse;
         deque<int> gamepad;
 
-        deque<int> keyboardLast;
+        vector<int> keyboardLast;
         deque<int> mouseLast;
         deque<int> gamepadLast;
 
