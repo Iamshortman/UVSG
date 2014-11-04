@@ -1,6 +1,6 @@
-#include "Screen.hpp"
+#include "Window.hpp"
 
-Screen::Screen(int width, int height, AE_String windowTitle)
+Window::Window(int width, int height, string windowTitle)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
@@ -33,10 +33,10 @@ Screen::Screen(int width, int height, AE_String windowTitle)
 	}
 
 	initGL();
-	resizeScreen(width, height);
+	resizeWindow(width, height);
 }
 
-void Screen::initGL()
+void Window::initGL()
 {
     // init OpenGL here
     glShadeModel(GL_SMOOTH);
@@ -49,7 +49,7 @@ void Screen::initGL()
     glCullFace(GL_BACK);
 }
 
-void Screen::resizeScreen(int width, int height)
+void Window::resizeWindow(int width, int height)
 {
     if (height == 0) // Prevent A Divide By Zero By
     {
@@ -59,12 +59,12 @@ void Screen::resizeScreen(int width, int height)
     glViewport(0, 0, width, height); // Reset The Current Viewport
 }
 
-void Screen::getScreenSize(int &width, int &height)
+void Window::getWindowSize(int &width, int &height)
 {
     SDL_GetWindowSize(window, &width, &height);
 }
 
-void Screen::HandleEvent(SDL_Event& e)
+void Window::HandleEvent(SDL_Event& e)
 {
      if( e.type == SDL_WINDOWEVENT )
      {
@@ -72,44 +72,67 @@ void Screen::HandleEvent(SDL_Event& e)
         {
         int newWidth = e.window.data1;
         int newHeight = e.window.data2;
-        this->resizeScreen(newWidth, newHeight);
+        this->resizeWindow(newWidth, newHeight);
         }
+        else if(e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+        {
+            keyboardFocus = true;
+        }
+        else if(e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+        {
+            keyboardFocus = false;
+        }
+
      }
 }
 
-void Screen::updateBuffer()
+void Window::updateBuffer()
 {
 	SDL_GL_SwapWindow(window);
 }
 
-void Screen::setBufferClearColor(GLclampf red, GLclampf green, GLclampf blue,
+void Window::setBufferClearColor(GLclampf red, GLclampf green, GLclampf blue,
 GLclampf alpha)
 {
 	 glClearColor(red, green, blue, alpha);
 }
 
-void Screen::clearBuffer()
+void Window::clearBuffer()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Screen::setTitleString(AE_String title)
+void Window::setTitleString(string title)
 {
 	SDL_SetWindowTitle(window, title.c_str());
 }
 
-const AE_String Screen::getTitleString()
+const string Window::getTitleString()
 {
-	AE_String title = SDL_GetWindowTitle(window);
-	return title;
+	return SDL_GetWindowTitle(window);
 }
 
-Screen::~Screen()
+Window::~Window()
 {
-    closeScreen();
+    closeWindow();
 }
 
-void Screen::closeScreen()
+bool Window::isWindowActive()
+{
+    return keyboardFocus;
+}
+
+void Window::setMousePos(int x, int y)
+{
+    SDL_WarpMouseInWindow(window, x, y);
+}
+
+void Window::getMousePos(int &x, int &y)
+{
+     SDL_GetMouseState(&x, &y);
+}
+
+void Window::closeWindow()
 {
 	SDL_DestroyWindow(window);
 }

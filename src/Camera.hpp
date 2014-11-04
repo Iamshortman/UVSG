@@ -2,6 +2,7 @@
 #define CAMERA_HPP
 
 #include "glmInclude.hpp"
+#include "Transform.hpp"
 
 class Camera
 {
@@ -13,7 +14,7 @@ public:
     void setCameraPos(vector3 pos);
 
 private:
-    //Location and rotation
+    Transform transform;
 
 };
 

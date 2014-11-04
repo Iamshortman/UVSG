@@ -1,5 +1,5 @@
 #include "Camera.hpp"
-#include "Screen.hpp"
+#include "Window.hpp"
 #include "Shader/ShaderProgram.hpp"
 #include "openGL.hpp"
 #include "glmInclude.hpp"
@@ -25,15 +25,18 @@ std::ostream &operator<< (std::ostream &out, const vector3 &vec) {
     return out;
 }
 
+
+
+
 int main()
 {
 
-	AE_String Title = "Test Game";
+	string Title = "Test Game";
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 400;
 
-	Screen testScreen(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-    testScreen.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
+	Window testWindow(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
+    testWindow.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
     Camera camera = Camera();
 
@@ -90,11 +93,7 @@ int main()
 
     Transform modelTransform = Transform();
     modelTransform.position = vector3(0.0F, 0.0F, -7.0F);
-
     modelTransform.update();
-    cout << "Forward: " << modelTransform.forward << endl;
-    cout << "Up: " << modelTransform.up << endl;
-    cout << "Right: " << modelTransform.right << endl;
 
 	bool shouldEnd = false;
 	while(shouldEnd == false)
@@ -108,33 +107,30 @@ int main()
             }
 
             input.HandleEvent(event);
-            testScreen.HandleEvent(event);
-
-            event = SDL_Event();
+            testWindow.HandleEvent(event);
         }
 
-        if(input.isKeyboardButtonDown(SDLK_ESCAPE))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_ESCAPE) || !testWindow.isWindowActive())
         {
             SDL_ShowCursor(SDL_ENABLE);
         }
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-            //SDL_ShowCursor(SDL_DISABLE);
+            SDL_ShowCursor(SDL_DISABLE);
         }
 
         int height, width;
-        testScreen.getScreenSize(width, height);
+        testWindow.getWindowSize(width, height);
 
         //If mouse render is disabled
         if(SDL_ShowCursor(-1) == SDL_DISABLE)
         {
-         SDL_WarpMouseInWindow(testScreen.window, width/2, height/2);
+           testWindow.setMousePos(width/2, height/2);
         }
 
-        testScreen.clearBuffer();
+        testWindow.clearBuffer();
         program.setActiveProgram();
-
 
         time += 0.1F;
         //Render in here
@@ -144,14 +140,8 @@ int main()
         matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 100.0F);
 
         //camera.moveCameraPos(vector3(0.0F, 0.00F, -0.1F));
-        //camera.rotateCamera(vector3(0.0F, 1.0F, 0.0), 0.01F);
+        camera.rotateCamera(vector3(0.0F, 0.0F, 1.0), 0.01F);
         matrix4 ViewMatrix = camera.getViewMatrix();
-
-        //modelTransform.pos += vector3(0.0F, 0.0F, -0.01F);
-
-
-        //float scale = sin(time) + 1;
-        //modelTransform.scale = vector3(scale, scale, scale);
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_D))
         modelTransform.rotation *= glm::normalize(glm::angleAxis(0.1F, vector3(0.0F, 0.3F, 0.0F)));
@@ -159,12 +149,13 @@ int main()
         if(input.isKeyboardButtonDown(SDL_SCANCODE_A))
         modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.1F, vector3(0.0F, 0.3F, 0.0F)));
 
-        //modelTransform.rotation *= glm::normalize(glm::angleAxis(0.01F, vector3(0.3F, 0.0F, 0.0F)));
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_SPACE))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.1F, vector3(0.3F, 0.0F, 0.0F)));
+
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_LSHIFT))
+        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.1F, vector3(0.3F, 0.0F, 0.0F)));
 
         modelTransform.update();
-        /*cout << "Forward: " << modelTransform.forward << endl;
-        cout << "Up: " << modelTransform.up << endl;
-        cout << "Right: " << modelTransform.right << endl;*/
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
@@ -223,14 +214,14 @@ int main()
 
         //End Render
 
-		testScreen.updateBuffer();
+		testWindow.updateBuffer();
 	}
 
     // Cleanup VBO
 	glDeleteBuffers(1, &vertexbuffer);
 	glDeleteBuffers(1, &uvbuffer);
 
-	testScreen.closeScreen();
+	testWindow.closeWindow();
 
 	return 0;
 }
