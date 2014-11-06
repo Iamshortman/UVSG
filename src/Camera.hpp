@@ -12,9 +12,9 @@ public:
     void moveCameraPos(vector3 dist);
     void rotateCamera(vector3 direction, float angle);
     void setCameraPos(vector3 pos);
+    Transform transform;
 
 private:
-    Transform transform;
 
 };
 

@@ -30,7 +30,6 @@ std::ostream &operator<< (std::ostream &out, const vector3 &vec) {
 
 int main()
 {
-
 	string Title = "Test Game";
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 400;
@@ -52,7 +51,6 @@ int main()
     ShaderProgram program("VertexShader.vertexshader", "TextureFragmentShader.fragmentshader");
 
     //START DEMO CODE****************************************************************************************
-
 
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "MVP");
@@ -91,19 +89,63 @@ int main()
 
     float time = 0;
 
+    Uint32 lastTime = 0;
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 frames = 0;
+
     Transform modelTransform = Transform();
     modelTransform.position = vector3(0.0F, 0.0F, -7.0F);
     modelTransform.update();
 
+    bool mouseCaptured = false;
+
 	bool shouldEnd = false;
 	while(shouldEnd == false)
 	{
+
+        int height, width;
+        testWindow.getWindowSize(width, height);
+
+        //FPS counter stuff
+        currentTime = SDL_GetTicks();
+        frames++;
+        if(currentTime - lastTime > 1000)
+        {
+            cout << "FPS: " << frames << endl;
+            lastTime = currentTime;
+            frames = 0;
+        }
+
         SDL_Event event;
         while( SDL_PollEvent( &event ) )
         {
             if(event.window.event == SDL_WINDOWEVENT_CLOSE)
             {
                 shouldEnd = true;
+            }
+
+            if(event.type == SDL_MOUSEMOTION && mouseCaptured)
+            {
+
+                int deltaX = event.motion.x - (((float)width) / 2);
+                int deltaY = event.motion.y - (((float)height) / 2);
+
+                if(deltaX != 0 )
+                {
+                    float rotation = ((float) -deltaX) * 1.0F;
+
+                    rotation *= (3.1415926F / 360.0F);
+
+                    camera.rotateCamera(camera.transform.up, rotation);
+                }
+                if(deltaY != 0)
+                {
+                    float rotation = ((float) -deltaY) * 1.0F;
+
+                    rotation *= (3.1415926F / 360.0F);
+
+                    camera.rotateCamera(camera.transform.right, rotation);
+                }
             }
 
             input.HandleEvent(event);
@@ -113,20 +155,18 @@ int main()
         if(input.isKeyboardButtonDown(SDL_SCANCODE_ESCAPE) || !testWindow.isWindowActive())
         {
             SDL_ShowCursor(SDL_ENABLE);
+            mouseCaptured = false;
         }
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
             SDL_ShowCursor(SDL_DISABLE);
+            mouseCaptured = true;
         }
 
-        int height, width;
-        testWindow.getWindowSize(width, height);
-
-        //If mouse render is disabled
-        if(SDL_ShowCursor(-1) == SDL_DISABLE)
+        if(mouseCaptured)
         {
-           testWindow.setMousePos(width/2, height/2);
+            testWindow.setMousePos(width/2, height/2);
         }
 
         testWindow.clearBuffer();
@@ -139,33 +179,35 @@ int main()
         float screenRes = ((float)width)/((float)height);
         matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 100.0F);
 
-        //camera.moveCameraPos(vector3(0.0F, 0.00F, -0.1F));
-        camera.rotateCamera(vector3(0.0F, 0.0F, 1.0), 0.01F);
-        matrix4 ViewMatrix = camera.getViewMatrix();
 
+        camera.transform.update();
         if(input.isKeyboardButtonDown(SDL_SCANCODE_D))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.1F, vector3(0.0F, 0.3F, 0.0F)));
-
+        {
+            camera.transform.position += camera.transform.right * 0.1F;
+        }
         if(input.isKeyboardButtonDown(SDL_SCANCODE_A))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.1F, vector3(0.0F, 0.3F, 0.0F)));
-
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_SPACE))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(0.1F, vector3(0.3F, 0.0F, 0.0F)));
-
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_LSHIFT))
-        modelTransform.rotation *= glm::normalize(glm::angleAxis(-0.1F, vector3(0.3F, 0.0F, 0.0F)));
-
-        modelTransform.update();
+        {
+            camera.transform.position += camera.transform.right * -0.1F;
+        }
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
-            modelTransform.position += (modelTransform.forward * .1F);
+            camera.transform.position += camera.transform.forward * 0.1F;
         }
-
         if(input.isKeyboardButtonDown(SDL_SCANCODE_S))
         {
-            modelTransform.position += -(modelTransform.forward * .1F);
+            camera.transform.position += camera.transform.forward * -0.1F;
         }
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_SPACE))
+        {
+            camera.transform.position += camera.transform.up * 0.1F;
+        }
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_LSHIFT))
+        {
+            camera.transform.position += camera.transform.up * -0.1F;
+        }
+
+        matrix4 ViewMatrix = camera.getViewMatrix();
 
         matrix4 ModelMatrix = modelTransform.getModelMatrix();
 

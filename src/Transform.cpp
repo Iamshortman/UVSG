@@ -27,10 +27,10 @@ Transform::~Transform()
 void Transform::update()
 {
      matrix4 RotationMatrix = glm::toMat4(rotation);
-     right = glm::vec3(RotationMatrix[0][0], RotationMatrix[0][1], RotationMatrix[0][2]);
+     //I have no idea why the right vec needs to be opposite.
+     right = -glm::vec3(RotationMatrix[0][0], RotationMatrix[0][1], RotationMatrix[0][2]);
      up = glm::vec3(RotationMatrix[1][0], RotationMatrix[1][1], RotationMatrix[1][2]);
      forward = glm::vec3(RotationMatrix[2][0], RotationMatrix[2][1], RotationMatrix[2][2]);
-
 }
 
 matrix4 Transform::getModelMatrix()

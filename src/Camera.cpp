@@ -17,9 +17,6 @@ void Camera::rotateCamera(vector3 direction, float angle)
 
 matrix4 Camera::getViewMatrix()
 {
-    matrix4 PositionMatrix = glm::translate(matrix4(1.0F), -transform.position);
-    matrix4 RotationMatrix = glm::toMat4(-transform.rotation);
-
-    return PositionMatrix * RotationMatrix;
+    return glm::lookAt(transform.position, transform.position + transform.forward, transform.up);
 }
 
