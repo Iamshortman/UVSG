@@ -1,4 +1,5 @@
 #include "Camera.hpp"
+#include <iostream>
 
 Camera::Camera()
 {
@@ -7,16 +8,22 @@ Camera::Camera()
 
 void Camera::moveCameraPos(vector3 dist)
 {
-    transform.position += dist;
+    transform.translate(dist);
 }
 
 void Camera::rotateCamera(vector3 direction, float angle)
 {
-    transform.rotation *= glm::normalize(glm::angleAxis(angle, direction));
+    quat rotation = glm::angleAxis(angle, direction);
+    std::cout << "{"
+        << rotation.x << ", " << rotation.y << ","<< rotation.z << "," << rotation.w
+        << "}" << std::endl;
+
+//    transform.rotation *= glm::normalize(quat);
 }
 
 matrix4 Camera::getViewMatrix()
 {
-    return glm::lookAt(transform.position, transform.position + transform.forward, transform.up);
+
+    return glm::mat4();
 }
 
