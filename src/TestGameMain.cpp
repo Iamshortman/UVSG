@@ -3,7 +3,6 @@
 #include "Shader/ShaderProgram.hpp"
 #include "openGL.hpp"
 #include "glmInclude.hpp"
-
 #include "Mesh.hpp"
 
 #include <SDL2/SDL.h>
@@ -37,7 +36,7 @@ std::ostream &operator<< (std::ostream &out, const quat &vec)
 
 int main()
 {
-	string Title = "Test Game";
+	string Title = "UVSG";
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 400;
 
@@ -45,7 +44,6 @@ int main()
     testWindow.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
     Camera camera = Camera();
-    camera.moveCameraPos(vector3(0.0f ,0.0f, -10.0f));
 
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
@@ -57,12 +55,27 @@ int main()
 
     ShaderProgram program("basicVertex.vs", "basicFragment.fs");
 
-    //START DEMO CODE****************************************************************************************
-
-	// Get a handle for our "MVP" uniform
+	// Get a handle for our "Matrix" uniform
 	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "Matrix");
 
-    //END DEMO CODE******************************************************************************************
+    Mesh mesh = Mesh();
+    const vector3 vertices[] =
+    {
+    vector3(-1.0f, -1.0f, -1.0f),
+    vector3(1.0f, -1.0f, -1.0f),
+    vector3(0.0f, 1.0f, -1.0f)
+    };
+
+    const vector3 colors[]=
+    {
+    vector3(1.0F, 1.0F, 0.0F),
+    vector3(0.0F, 1.0F, 1.0F),
+    vector3(1.0F, 0.0F, 1.0F)
+    };
+
+    const int indices[] = {0, 1, 2};
+
+    mesh.addVertices(vertices, colors, indices, sizeof(vertices));
 
     float time = 0;
 
@@ -81,6 +94,9 @@ int main()
 
         int height, width;
         testWindow.getWindowSize(width, height);
+
+        float screenRes = ((float)width)/((float)height);
+        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 100.0F);
 
         //FPS counter stuff
         currentTime = SDL_GetTicks();
@@ -127,7 +143,15 @@ int main()
         time += 0.1F;
         //Render in here
 
+        matrix4 ViewMatrix = camera.getViewMatrix();
 
+        matrix4 ModelMatrix = modelTransform.getModelMatrix();
+
+        // Send our transformation to the currently bound shader,
+        matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        mesh.draw();
 
         //End Render
         testWindow.updateBuffer();
