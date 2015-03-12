@@ -23,7 +23,7 @@ void Camera::rotateCamera(vector3 direction, float angle)
 
 matrix4 Camera::getViewMatrix()
 {
-
+    matrix4 transformMatrix = glm::translate(matrix4(1.0f), this->transform.getPosition() * -1.0f);
     return glm::mat4();
 }
 
