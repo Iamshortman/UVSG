@@ -44,7 +44,7 @@ int main()
     testWindow.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
     Camera camera = Camera();
-
+    camera.moveCameraPos(vector3(0.0F, 0.0F, -1.0F));
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
@@ -61,21 +61,24 @@ int main()
     Mesh mesh = Mesh();
     const vector3 vertices[] =
     {
-    vector3(-1.0f, -1.0f, -1.0f),
-    vector3(1.0f, -1.0f, -1.0f),
-    vector3(0.0f, 1.0f, -1.0f)
+    vector3(-1.0f, -1.0f, 0.0f),
+    vector3(1.0f, -1.0f, 0.0f),
+    vector3(1.0f, 1.0f, 0.0f),
+    vector3(-1.0f, 1.0f, 0.0f)
     };
 
     const vector3 colors[]=
     {
     vector3(1.0F, 1.0F, 0.0F),
     vector3(0.0F, 1.0F, 1.0F),
-    vector3(1.0F, 0.0F, 1.0F)
+    vector3(1.0F, 0.0F, 1.0F),
+    vector3(0.0F, 1.0F, 1.0F)
     };
 
-    const int indices[] = {0, 1, 2};
+    //TODO Make Indices actually work
+    const int indices[] = {0, 1, 3, 1, 2, 3};
 
-    mesh.addVertices(vertices, colors, indices, sizeof(vertices));
+    mesh.addVertices(vertices, colors, indices, sizeof(vertices), sizeof(indices));
 
     float time = 0;
 
@@ -83,8 +86,9 @@ int main()
     Uint32 currentTime = SDL_GetTicks();
     Uint32 frames = 0;
 
-    Transform modelTransform = Transform();
-    modelTransform.setPosition(0.0F, 0.0F, 0.0F);
+    btTransform objTrans;
+    objTrans.setIdentity();
+    float angle = 0.0F;
 
     bool mouseCaptured = false;
 
@@ -145,13 +149,20 @@ int main()
 
         matrix4 ViewMatrix = camera.getViewMatrix();
 
-        matrix4 ModelMatrix = modelTransform.getModelMatrix();
+        matrix4 ModelMatrix = matrix4();
+        objTrans.getOpenGLMatrix(&ModelMatrix[0][0]);
 
         // Send our transformation to the currently bound shader,
         matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         mesh.draw();
+
+        objTrans.getOrigin() -= btVector3(0.0F, 0.0F, 0.01F);
+        btQuaternion temp = btQuaternion();
+        temp.setRotation(btVector3(0.0F, 0.0F, 1.0F), angle);
+        //objTrans.setRotation(temp);
+        angle += 0.033333F;
 
         //End Render
         testWindow.updateBuffer();

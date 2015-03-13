@@ -6,8 +6,9 @@ Mesh::Mesh()
 
 }
 
-void Mesh::addVertices(const vector3 vertices[], const vector3 colors[], const int indices[], const int sizeOfVertices)
+void Mesh::addVertices(const vector3 vertices[], const vector3 colors[], const int indices[], const int sizeOfVertices, const int sizeOfIndices)
 {
+    size = sizeOfIndices;
 
     // Generate 1 buffer, put the resulting identifier in vbo
     glGenBuffers(1, &vbo);
@@ -46,7 +47,7 @@ void Mesh::draw()
         );
 
         // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        glDrawArrays(GL_QUADS, 0, size);
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
 }

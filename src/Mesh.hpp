@@ -9,7 +9,7 @@ class Mesh
     public:
         Mesh();
         ~Mesh();
-        void addVertices(const vector3 vertices[], const vector3 colors[], const int indices[], const int sizeOfVertices);
+        void addVertices(const vector3 vertices[], const vector3 colors[], const int indices[], const int sizeOfVertices, const int sizeOfIndices);
         void draw();
 
     private:
