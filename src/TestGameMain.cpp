@@ -24,14 +24,14 @@ std::ostream &operator<< (std::ostream &out, const vector3 &vec)
     return out;
 }
 
-std::ostream &operator<< (std::ostream &out, const quat &vec)
+/*std::ostream &operator<< (std::ostream &out, const quat &vec)
 {
     out << "{"
         << vec.x << ", " << vec.y << ", "<< vec.z << ", " << vec.w
         << "}";
 
     return out;
-}
+}*/
 
 int main()
 {
@@ -139,19 +139,22 @@ int main()
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
             //SDL_ShowCursor(SDL_DISABLE);
-            //mouseCaptured = true;
+            mouseCaptured = true;
         }
 
         if(mouseCaptured)
         {
+            int x, y;
+            testWindow.getMousePos(x, y);
             testWindow.setMousePos(width/2, height/2);
+            int deltaX = x - width/2;
+            int deltaY = y - height/2;
+
+            camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), 0.001F * deltaX);
+            camera.rotateCamera(btVector3(0.0F, 0.0F, 1.0F), 0.001F * -deltaY);
+
         }
 
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_LEFT))
-        {
-            camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), 0.1F);
-            cout << "Rotate" << endl;
-        }
 
         testWindow.clearBuffer();
         program.setActiveProgram();
