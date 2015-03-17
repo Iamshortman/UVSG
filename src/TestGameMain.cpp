@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 std::ostream &operator<< (std::ostream &out, const vector3 &vec)
 {
     out << "{"
@@ -43,8 +42,10 @@ int main()
 	Window testWindow(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
     testWindow.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
     InputButton input = InputButton();
+
     Camera camera = Camera();
-    camera.moveCameraPos(vector3(0.0F, 0.0F, -1.0F));
+    camera.moveCameraPos(btVector3(0.0F, 0.0F, 0.0F));
+
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
@@ -59,26 +60,29 @@ int main()
 	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "Matrix");
 
     Mesh mesh = Mesh();
-    const vector3 vertices[] =
-    {
-    vector3(-1.0f, -1.0f, 0.0f),
-    vector3(1.0f, -1.0f, 0.0f),
-    vector3(1.0f, 1.0f, 0.0f),
-    vector3(-1.0f, 1.0f, 0.0f)
-    };
 
-    const vector3 colors[]=
-    {
-    vector3(1.0F, 1.0F, 0.0F),
-    vector3(0.0F, 1.0F, 1.0F),
-    vector3(1.0F, 0.0F, 1.0F),
-    vector3(0.0F, 1.0F, 1.0F)
-    };
+    vector<vector3> vertices = vector<vector3>();
+    vertices.push_back( vector3(-1.0f, -1.0f, 0.0f) );
+    vertices.push_back( vector3(1.0f, -1.0f, 0.0f) );
+    vertices.push_back( vector3(1.0f, 1.0f, 0.0f) );
+    vertices.push_back( vector3(-1.0f, 1.0f, 0.0f) );
 
-    //TODO Make Indices actually work
-    const int indices[] = {0, 1, 3, 1, 2, 3};
+    vector<vector3> colors = vector<vector3>();
+    colors.push_back( vector3(1.0F, 1.0F, 0.0F) );
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
+    colors.push_back( vector3(1.0F, 0.0F, 1.0F) );
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F));
 
-    mesh.addVertices(vertices, colors, indices, sizeof(vertices), sizeof(indices));
+    vector<unsigned int> indices = vector<unsigned int>();
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
+
+    mesh.addVertices(vertices, colors, indices);
 
     float time = 0;
 
@@ -88,6 +92,8 @@ int main()
 
     btTransform objTrans;
     objTrans.setIdentity();
+    objTrans.getOrigin() += btVector3( 0.0F, 0.0F, -3.0F);
+
     float angle = 0.0F;
 
     bool mouseCaptured = false;
@@ -141,6 +147,12 @@ int main()
             testWindow.setMousePos(width/2, height/2);
         }
 
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_LEFT))
+        {
+            camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), 0.1F);
+            cout << "Rotate" << endl;
+        }
+
         testWindow.clearBuffer();
         program.setActiveProgram();
 
@@ -158,10 +170,9 @@ int main()
 
         mesh.draw();
 
-        objTrans.getOrigin() -= btVector3(0.0F, 0.0F, 0.01F);
         btQuaternion temp = btQuaternion();
         temp.setRotation(btVector3(0.0F, 0.0F, 1.0F), angle);
-        //objTrans.setRotation(temp);
+        objTrans.setRotation(temp);
         angle += 0.033333F;
 
         //End Render

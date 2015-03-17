@@ -8,7 +8,6 @@ bool contains(const std::deque<int> &buttons, const int &value)
 
 InputButton::InputButton()
 {
-
     //Enables JoyStick for use
     SDL_Init(SDL_INIT_JOYSTICK);
     SDL_JoystickEventState(SDL_ENABLE);
@@ -38,7 +37,8 @@ void InputButton::HandleEvent(SDL_Event& e)
         cout << "Code: " << button << endl;
         keyboard.push_back(button);
     }
-    else*/ if(e.type == SDL_MOUSEBUTTONDOWN)
+    else*/
+    if(e.type == SDL_MOUSEBUTTONDOWN)
     {
         int button = e.button.button;
         mouse.push_back(button);

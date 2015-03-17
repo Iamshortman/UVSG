@@ -3,16 +3,17 @@
 
 #include "glmInclude.hpp"
 #include "Transform.hpp"
+#include "btBulletDynamicsCommon.h"
 
 class Camera
 {
 public:
 	Camera();
 	matrix4 getViewMatrix();
-    void moveCameraPos(vector3 dist);
-    void rotateCamera(vector3 direction, float angle);
+    void moveCameraPos(btVector3 dist);
+    void rotateCamera(btVector3 direction, float angle);
     void setCameraPos(vector3 pos);
-    Transform transform;
+    btTransform transform;
 
 private:
 
