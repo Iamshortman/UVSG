@@ -46,7 +46,7 @@ void Window::initGL()
     glDepthFunc(GL_LEQUAL);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glEnable(GL_TEXTURE_2D);
-    glCullFace(GL_BACK);
+    //glCullFace(GL_BACK);
 }
 
 void Window::resizeWindow(int width, int height)

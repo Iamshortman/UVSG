@@ -24,14 +24,14 @@ std::ostream &operator<< (std::ostream &out, const vector3 &vec)
     return out;
 }
 
-/*std::ostream &operator<< (std::ostream &out, const quat &vec)
+std::ostream &operator<< (std::ostream &out, const quat &vec)
 {
     out << "{"
         << vec.x << ", " << vec.y << ", "<< vec.z << ", " << vec.w
         << "}";
 
     return out;
-}*/
+}
 
 int main()
 {
@@ -106,7 +106,7 @@ int main()
         testWindow.getWindowSize(width, height);
 
         float screenRes = ((float)width)/((float)height);
-        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 100.0F);
+        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 10000.0F);
 
         //FPS counter stuff
         currentTime = SDL_GetTicks();
@@ -134,12 +134,27 @@ int main()
         {
             SDL_ShowCursor(SDL_ENABLE);
             mouseCaptured = false;
+
+            btQuaternion quat = camera.transform.getRotation();
+            btVector3    vec3 = camera.getForward();
+            //cout << "Quat: " << "{" << vec3.getX() << ", " << vec3.getY() << ", "<< vec3.getZ() << "}" << endl;
+            //cout << "Vec:  " << "{" << quat.getX() << ", " << quat.getY() << ", "<< quat.getZ() << "}" << endl;
+
         }
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
             //SDL_ShowCursor(SDL_DISABLE);
             mouseCaptured = true;
+        }
+
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_UP))
+        {
+            //btQuaternion quat = camera.transform.getRotation();
+            //btVector3 vec = btVector3(quat.getX(), quat.getY(), quat.getZ());
+            btVector3 vec = camera.getForward();
+            vec *= 0.1F;
+            camera.moveCameraPos(vec);
         }
 
         if(mouseCaptured)
