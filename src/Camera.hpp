@@ -15,6 +15,7 @@ public:
     btVector3 getForward();
     btVector3 getRight();
     btVector3 getUp();
+    btVector3 getPos();
 
     btTransform transform;
 

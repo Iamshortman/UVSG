@@ -45,6 +45,11 @@ btVector3 Camera::getRight()
     return forward.cross(up);
 }
 
+btVector3 Camera::getPos()
+{
+    return pos;
+}
+
 matrix4 Camera::getViewMatrix()
 {
     return glm::lookAt

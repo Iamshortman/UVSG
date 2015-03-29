@@ -40,7 +40,8 @@ int main()
     InputButton input = InputButton();
 
     Camera camera = Camera();
-
+    camera.moveCameraPos(btVector3(0.0, 20.0F, 25.0F));
+    camera.rotateCamera(camera.getRight(), -17.0F / 57.2957795F);
 
     PhysicsWorld world = PhysicsWorld();
 
@@ -171,9 +172,17 @@ int main()
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-            //SDL_ShowCursor(SDL_DISABLE);
-            mouseCaptured = true;
+            if(!mouseCaptured)
+            {
+                //SDL_ShowCursor(SDL_DISABLE);
+                mouseCaptured = true;
+            }
+            else
+            {
+                bool test = world.rayTest(camera.getPos(), camera.getPos() + (camera.getForward() * 100.0F));
+            }
         }
+
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
