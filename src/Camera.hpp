@@ -2,7 +2,6 @@
 #define CAMERA_HPP
 
 #include "glmInclude.hpp"
-#include "Transform.hpp"
 #include "btBulletDynamicsCommon.h"
 
 class Camera

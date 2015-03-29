@@ -4,25 +4,16 @@
 #include "openGL.hpp"
 #include "glmInclude.hpp"
 #include "Mesh.hpp"
+#include "PhysicsWorld.hpp"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <math.h>
-#include "btBulletDynamicsCommon.h"
+
 
 #include "InputButton.hpp"
-#include "Transform.hpp"
 
 using namespace std;
-
-std::ostream &operator<< (std::ostream &out, const quat &vec)
-{
-    out << "{"
-        << vec.x << ", " << vec.y << ", "<< vec.z << ", " << vec.w
-        << "}";
-
-    return out;
-}
 
 void printVector3(const btVector3 &vec)
 {
@@ -33,9 +24,9 @@ void printVector3(const btVector3 &vec)
 
 void push3(vector<unsigned int>* vector, unsigned int a, unsigned int b, unsigned int c)
 {
-    vector->push_back(a);
-    vector->push_back(b);
-    vector->push_back(c);
+    vector->push_back(a - 1);
+    vector->push_back(b - 1);
+    vector->push_back(c - 1);
 }
 
 int main()
@@ -49,7 +40,10 @@ int main()
     InputButton input = InputButton();
 
     Camera camera = Camera();
-    camera.moveCameraPos(btVector3(0.0F, 0.0F, 0.0F));
+
+
+    PhysicsWorld world = PhysicsWorld();
+
 
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
@@ -64,7 +58,8 @@ int main()
 	// Get a handle for our "Matrix" uniform
 	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "Matrix");
 
-    Mesh mesh = Mesh();
+    Mesh boxMesh = Mesh();
+    Mesh groundMesh = Mesh();
 
     vector<vector3> vertices = vector<vector3>();
     vertices.push_back( vector3( 1.0f, -1.0f, -1.0f) );
@@ -74,7 +69,7 @@ int main()
     vertices.push_back( vector3( 1.0f,  1.0f, -1.0f) );
     vertices.push_back( vector3( 1.0f,  1.0f,  1.0f) );
     vertices.push_back( vector3(-1.0f,  1.0f,  1.0f) );
-    vertices.push_back( vector3(-1.0f,  1.0f,  -1.0f) );
+    vertices.push_back( vector3(-1.0f,  1.0f, -1.0f) );
 
 
     vector<vector3> colors = vector<vector3>();
@@ -105,17 +100,29 @@ int main()
 
     cout << indices.size() << endl;
 
-    mesh.addVertices(vertices, colors, indices);
+    boxMesh.addVertices(vertices, colors, indices);
+
+    vector<vector3> vertices1 = vector<vector3>();
+    vector<vector3> colors1 = vector<vector3>();
+    vector<unsigned int> indices1 = vector<unsigned int>();
+
+    vertices1.push_back( vector3( 50.0f, 0.0f,  50.0f) );
+    vertices1.push_back( vector3( 50.0f, 0.0f, -50.0f) );
+    vertices1.push_back( vector3(-50.0f, 0.0f, -50.0f) );
+    vertices1.push_back( vector3(-50.0f, 0.0f,  50.0f) );
+    colors1.push_back( vector3(1.0F, 1.0F, 0.0F) );
+    colors1.push_back( vector3(0.0F, 1.0F, 1.0F) );
+    colors1.push_back( vector3(1.0F, 0.0F, 1.0F) );
+    colors1.push_back( vector3(0.0F, 1.0F, 1.0F));
+    push3(&indices1, 1, 2, 3);
+    push3(&indices1, 3, 4, 1);
+    groundMesh.addVertices(vertices1, colors1, indices1);
 
     float time = 0;
 
     Uint32 lastTime = 0;
     Uint32 currentTime = SDL_GetTicks();
     Uint32 frames = 0;
-
-    btTransform objTrans;
-    objTrans.setIdentity();
-    objTrans.getOrigin() += btVector3( 0.0F, 0.0F, -3.0F);
 
     float angle = 0.0F;
 
@@ -152,6 +159,9 @@ int main()
             input.HandleEvent(event);
             testWindow.HandleEvent(event);
         }
+
+        world.updateWorld();
+
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_ESCAPE) || !testWindow.isWindowActive())
         {
@@ -192,7 +202,6 @@ int main()
             camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * -0.1F);
         }
 
-
         if(mouseCaptured)
         {
             int x, y;
@@ -207,7 +216,6 @@ int main()
 
         }
 
-
         testWindow.clearBuffer();
         program.setActiveProgram();
 
@@ -216,19 +224,27 @@ int main()
 
         matrix4 ViewMatrix = camera.getViewMatrix();
 
+        btTransform t;
         matrix4 ModelMatrix = matrix4();
-        objTrans.getOpenGLMatrix(&ModelMatrix[0][0]);
+        world.boxRigidBody->getMotionState()->getWorldTransform(t);
+        t.getOpenGLMatrix(&ModelMatrix[0][0]);
 
         // Send our transformation to the currently bound shader,
         matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        mesh.draw();
+        boxMesh.draw();
 
-        //btQuaternion temp = btQuaternion();
-        //temp.setRotation(btVector3(0.0F, 0.0F, 1.0F), angle);
-        //objTrans.setRotation(temp);
-        //angle += 0.033333F;
+
+        world.groundRigidBody->getMotionState()->getWorldTransform(t);
+        t.getOpenGLMatrix(&ModelMatrix[0][0]);
+
+        // Send our transformation to the currently bound shader,
+        MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        groundMesh.draw();
+
 
         //End Render
         testWindow.updateBuffer();
