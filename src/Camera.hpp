@@ -19,10 +19,10 @@ public:
 
     btTransform transform;
 
-    vector3 pos;
-    quat    oriantation;
-
 private:
+    btVector3 forward;
+    btVector3 up;
+    btVector3 pos;
 
 };
 

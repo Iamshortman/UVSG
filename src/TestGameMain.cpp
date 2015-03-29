@@ -15,15 +15,6 @@
 
 using namespace std;
 
-std::ostream &operator<< (std::ostream &out, const vector3 &vec)
-{
-    out << "{"
-        << vec.x << ", " << vec.y << ", "<< vec.z
-        << "}";
-
-    return out;
-}
-
 std::ostream &operator<< (std::ostream &out, const quat &vec)
 {
     out << "{"
@@ -31,6 +22,20 @@ std::ostream &operator<< (std::ostream &out, const quat &vec)
         << "}";
 
     return out;
+}
+
+void printVector3(const btVector3 &vec)
+{
+        cout << "{"
+        << vec.getX() << ", " << vec.getY() << ", "<< vec.getZ()
+        << "}" << endl;
+}
+
+void push3(vector<unsigned int>* vector, unsigned int a, unsigned int b, unsigned int c)
+{
+    vector->push_back(a);
+    vector->push_back(b);
+    vector->push_back(c);
 }
 
 int main()
@@ -62,25 +67,43 @@ int main()
     Mesh mesh = Mesh();
 
     vector<vector3> vertices = vector<vector3>();
-    vertices.push_back( vector3(-1.0f, -1.0f, 0.0f) );
-    vertices.push_back( vector3(1.0f, -1.0f, 0.0f) );
-    vertices.push_back( vector3(1.0f, 1.0f, 0.0f) );
-    vertices.push_back( vector3(-1.0f, 1.0f, 0.0f) );
+    vertices.push_back( vector3( 1.0f, -1.0f, -1.0f) );
+    vertices.push_back( vector3( 1.0f, -1.0f,  1.0f) );
+    vertices.push_back( vector3(-1.0f, -1.0f,  1.0f) );
+    vertices.push_back( vector3(-1.0f, -1.0f, -1.0f) );
+    vertices.push_back( vector3( 1.0f,  1.0f, -1.0f) );
+    vertices.push_back( vector3( 1.0f,  1.0f,  1.0f) );
+    vertices.push_back( vector3(-1.0f,  1.0f,  1.0f) );
+    vertices.push_back( vector3(-1.0f,  1.0f,  -1.0f) );
+
 
     vector<vector3> colors = vector<vector3>();
     colors.push_back( vector3(1.0F, 1.0F, 0.0F) );
     colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
     colors.push_back( vector3(1.0F, 0.0F, 1.0F) );
     colors.push_back( vector3(0.0F, 1.0F, 1.0F));
+    colors.push_back( vector3(1.0F, 1.0F, 0.0F) );
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
+    colors.push_back( vector3(1.0F, 0.0F, 1.0F) );
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F));
+
 
     vector<unsigned int> indices = vector<unsigned int>();
-    indices.push_back(0);
-    indices.push_back(1);
-    indices.push_back(2);
+    push3(&indices, 1, 2, 4);
+    push3(&indices, 5, 8, 6);
+    push3(&indices, 1, 5, 2);
+    push3(&indices, 2, 6, 3);
+    push3(&indices, 3, 7, 4);
+    push3(&indices, 5, 1, 8);
+    push3(&indices, 2, 3, 4);
+    push3(&indices, 8, 7, 6);
+    push3(&indices, 2, 3, 4);
+    push3(&indices, 5, 6, 2);
+    push3(&indices, 6, 7, 3);
+    push3(&indices, 7, 8, 4);
+    push3(&indices, 1, 4, 8);
 
-    indices.push_back(2);
-    indices.push_back(3);
-    indices.push_back(0);
+    cout << indices.size() << endl;
 
     mesh.addVertices(vertices, colors, indices);
 
@@ -134,12 +157,6 @@ int main()
         {
             SDL_ShowCursor(SDL_ENABLE);
             mouseCaptured = false;
-
-            btQuaternion quat = camera.transform.getRotation();
-            btVector3    vec3 = camera.getForward();
-            //cout << "Quat: " << "{" << vec3.getX() << ", " << vec3.getY() << ", "<< vec3.getZ() << "}" << endl;
-            //cout << "Vec:  " << "{" << quat.getX() << ", " << quat.getY() << ", "<< quat.getZ() << "}" << endl;
-
         }
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
@@ -148,14 +165,33 @@ int main()
             mouseCaptured = true;
         }
 
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_UP))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
-            //btQuaternion quat = camera.transform.getRotation();
-            //btVector3 vec = btVector3(quat.getX(), quat.getY(), quat.getZ());
-            btVector3 vec = camera.getForward();
-            vec *= 0.1F;
-            camera.moveCameraPos(vec);
+            camera.moveCameraPos(camera.getForward() * 0.1F);
         }
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_S))
+        {
+            camera.moveCameraPos(camera.getForward() * -0.1F);
+        }
+
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_D))
+        {
+            camera.moveCameraPos(camera.getRight() * 0.1F);
+        }
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_A))
+        {
+            camera.moveCameraPos(camera.getRight() * -0.1F);
+        }
+
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_SPACE))
+        {
+            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * 0.1F);
+        }
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_LSHIFT))
+        {
+            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * -0.1F);
+        }
+
 
         if(mouseCaptured)
         {
@@ -164,9 +200,10 @@ int main()
             testWindow.setMousePos(width/2, height/2);
             int deltaX = x - width/2;
             int deltaY = y - height/2;
+            float sensitivity = 0.001F;
 
-            camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), 0.001F * deltaX);
-            camera.rotateCamera(btVector3(0.0F, 0.0F, 1.0F), 0.001F * -deltaY);
+            camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), sensitivity * -deltaX);
+            camera.rotateCamera(camera.getRight(), sensitivity * -deltaY);
 
         }
 
@@ -188,10 +225,10 @@ int main()
 
         mesh.draw();
 
-        btQuaternion temp = btQuaternion();
-        temp.setRotation(btVector3(0.0F, 0.0F, 1.0F), angle);
-        objTrans.setRotation(temp);
-        angle += 0.033333F;
+        //btQuaternion temp = btQuaternion();
+        //temp.setRotation(btVector3(0.0F, 0.0F, 1.0F), angle);
+        //objTrans.setRotation(temp);
+        //angle += 0.033333F;
 
         //End Render
         testWindow.updateBuffer();
