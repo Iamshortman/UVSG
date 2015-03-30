@@ -51,8 +51,8 @@ bool PhysicsWorld::rayTest(btVector3 start, btVector3 end)
 
             std::cout << "Hit" << std::endl;
             boxRigidBody->setActivationState(ACTIVE_TAG);
-            boxRigidBody->applyCentralForce(btVector3(0.0F, 400.0F, 0.0F));
-            boxRigidBody->applyTorque(btVector3(0.0F, 1.0F, 1.0F));
+            boxRigidBody->applyCentralForce(btVector3(0.0F, 250.0F, 0.0F));
+            boxRigidBody->applyTorque(btVector3(0.0F, 200.0F, 1.0F));
         }
         return true;
     }

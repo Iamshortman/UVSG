@@ -1,8 +1,8 @@
-#include <btBulletDynamicsCommon.h>
-#include <iostream>
-
 #ifndef PHYSICSWORLD_HPP
 #define PHYSICSWORLD_HPP
+
+#include <btBulletDynamicsCommon.h>
+#include <iostream>
 
 class PhysicsWorld
 {
