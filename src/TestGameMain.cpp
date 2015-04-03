@@ -5,6 +5,7 @@
 #include "glmInclude.hpp"
 #include "Mesh.hpp"
 #include "PhysicsWorld.hpp"
+#include "World.hpp"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
@@ -43,7 +44,7 @@ int main()
     camera.moveCameraPos(btVector3(0.0, 20.0F, 25.0F));
     camera.rotateCamera(camera.getRight(), -17.0F / 57.2957795F);
 
-    PhysicsWorld world = PhysicsWorld();
+    World world = World();
 
 
     int num_joy = SDL_NumJoysticks();
@@ -119,13 +120,14 @@ int main()
     push3(&indices1, 3, 4, 1);
     groundMesh.addVertices(vertices1, colors1, indices1);
 
+    world.createCube(btVector3(0.0F, 5.0F, 0.0F), btVector3(1.0F, 1.0F, 1.0F));
+
     float time = 0;
 
     Uint32 lastTime = 0;
+    Uint32 lastFrameTime = 0;
     Uint32 currentTime = SDL_GetTicks();
     Uint32 frames = 0;
-
-    float angle = 0.0F;
 
     bool mouseCaptured = false;
 
@@ -148,6 +150,10 @@ int main()
             lastTime = currentTime;
             frames = 0;
         }
+        Uint32 delta = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        world.update(delta);
 
         SDL_Event event;
         while( SDL_PollEvent( &event ) )
@@ -161,9 +167,6 @@ int main()
             testWindow.HandleEvent(event);
         }
 
-        world.updateWorld();
-
-
         if(input.isKeyboardButtonDown(SDL_SCANCODE_ESCAPE) || !testWindow.isWindowActive())
         {
             SDL_ShowCursor(SDL_ENABLE);
@@ -172,17 +175,25 @@ int main()
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-            if(!mouseCaptured)
-            {
                 //SDL_ShowCursor(SDL_DISABLE);
                 mouseCaptured = true;
-            }
-            else
-            {
-                bool test = world.rayTest(camera.getPos(), camera.getPos() + (camera.getForward() * 100.0F));
-            }
         }
 
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
+        {
+            world.createCube(btVector3(0.0F, 10.0F, 0.0F), btVector3(1.0F, 1.0F, 1.0F));
+        }
+
+        if(input.isMouseButtonDown(SDL_BUTTON_RIGHT))
+        {
+            btVector3 rayEnd = camera.getForward() * 1000.0F;
+            rayEnd += camera.getPos();
+            GameObject* hitObject = world.rayTrace(camera.getPos(), rayEnd);
+            if(hitObject != 0)
+            {
+                world.deleteGameObject(hitObject->object_id);
+            }
+        }
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
@@ -222,7 +233,6 @@ int main()
 
             camera.rotateCamera(btVector3(0.0F, 1.0F, 0.0F), sensitivity * -deltaX);
             camera.rotateCamera(camera.getRight(), sensitivity * -deltaY);
-
         }
 
         testWindow.clearBuffer();
@@ -235,30 +245,41 @@ int main()
 
         btTransform t;
         matrix4 ModelMatrix = matrix4();
-        world.boxRigidBody->getMotionState()->getWorldTransform(t);
-        t.getOpenGLMatrix(&ModelMatrix[0][0]);
+        matrix4 MVP = matrix4();
 
-        // Send our transformation to the currently bound shader,
-        matrix4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+        for(unsigned int i = 0; i < world.gameObjects.size(); i++)
+        {
+            GameObject* object = world.getGameObject(i);
 
-        boxMesh.draw();
+            if(object != 0)
+            {
+                object->body->getMotionState()->getWorldTransform(t);
+                t.getOpenGLMatrix(&ModelMatrix[0][0]);
 
+                // Send our transformation to the currently bound shader,
+                MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+                glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                boxMesh.draw();
+            }
+        }
 
-        world.groundRigidBody->getMotionState()->getWorldTransform(t);
+        world.worldPhysics->groundRigidBody->getMotionState()->getWorldTransform(t);
         t.getOpenGLMatrix(&ModelMatrix[0][0]);
 
         // Send our transformation to the currently bound shader,
         MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
         groundMesh.draw();
-
 
         //End Render
         testWindow.updateBuffer();
 
         }
+
+    for(unsigned int i = 0; i < world.gameObjects.size(); i++)
+    {
+        world.deleteGameObject(i);
+    }
 
 	testWindow.closeWindow();
 

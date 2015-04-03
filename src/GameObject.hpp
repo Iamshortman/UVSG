@@ -1,14 +1,22 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-//Kinda of a start to this file
+#include "Component.hpp"
+
+#include <btBulletDynamicsCommon.h>
+#include <vector>
 
 class GameObject
 {
-public:
-	double posX, posY, posZ;
-	double rotationYaw, rotationRoll, rotationPitch;
+    public:
+        GameObject(unsigned int id);
+        ~GameObject();
+        std::vector<Component> components;
 
+        void addRigidBody(btRigidBody* rigidBody);
+
+        const unsigned int object_id;
+        btRigidBody* body;
 
 };
 

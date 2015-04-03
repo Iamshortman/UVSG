@@ -2,7 +2,10 @@
 #define PHYSICSWORLD_HPP
 
 #include <btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
 #include <iostream>
+
+typedef btCollisionWorld::ClosestRayResultCallback ClosestRayResultCallback;
 
 class PhysicsWorld
 {
@@ -10,9 +13,11 @@ class PhysicsWorld
         PhysicsWorld();
         virtual ~PhysicsWorld();
         btRigidBody* groundRigidBody;
-        btRigidBody* boxRigidBody;
-        void updateWorld();
-        bool rayTest(btVector3 start, btVector3 end);
+        void updateWorld(float timeStep);
+        void addRigidBody(btRigidBody* body);
+        void removeRigidBody(btRigidBody* body);
+
+        ClosestRayResultCallback rayTest(btVector3 start, btVector3 end);
 
     private:
         btBroadphaseInterface* broadphase;
