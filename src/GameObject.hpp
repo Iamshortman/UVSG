@@ -1,23 +1,30 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-#include "Component.hpp"
-
 #include <btBulletDynamicsCommon.h>
 #include <vector>
+#include "World.hpp"
+
+//Prototype class
+class Component;
 
 class GameObject
 {
     public:
+        const unsigned int object_id;
+        World* worldPtr;
+        std::vector<Component*> components;
+        btTransform transform;
+
         GameObject(unsigned int id);
         ~GameObject();
-        std::vector<Component> components;
+        void addComponent(Component* component);
+        void removeComponet(Component* componentToRemove);
+        void update();
+        void destoryObject();
 
-        void addRigidBody(btRigidBody* rigidBody);
-
-        const unsigned int object_id;
-        btRigidBody* body;
-
+        inline void setWorldPtr(World* ptr){worldPtr = ptr;}
+        inline const World* getWorldPtr(){return worldPtr;}
 };
 
 #endif

@@ -1,14 +1,20 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef COMPONENT_HPP
+#define COMPONENT_HPP
+
+#include "GameObject.hpp"
 
 class Component
 {
     public:
-        Component();
+        GameObject* parent;
+
+        Component(GameObject* object);
         virtual ~Component();
+        virtual void update() = 0;
 
     protected:
     private:
 };
 
-#endif // COMPONENT_H
+#endif // COMPONENT_HPP
+

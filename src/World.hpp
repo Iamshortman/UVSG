@@ -1,10 +1,14 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
+class World;
+
 #include "PhysicsWorld.hpp"
-#include "GameObject.hpp"
+//#include "GameObject.hpp"
 
 #include <vector>
+
+class GameObject;
 
 class World
 {

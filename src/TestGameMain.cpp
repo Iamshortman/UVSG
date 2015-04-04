@@ -6,6 +6,7 @@
 #include "Mesh.hpp"
 #include "PhysicsWorld.hpp"
 #include "World.hpp"
+#include "GameObject.hpp"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
@@ -99,8 +100,6 @@ int main()
     push3(&indices, 6, 7, 3);
     push3(&indices, 7, 8, 4);
     push3(&indices, 1, 4, 8);
-
-    cout << indices.size() << endl;
 
     boxMesh.addVertices(vertices, colors, indices);
 
@@ -253,8 +252,7 @@ int main()
 
             if(object != 0)
             {
-                object->body->getMotionState()->getWorldTransform(t);
-                t.getOpenGLMatrix(&ModelMatrix[0][0]);
+                object->transform.getOpenGLMatrix(&ModelMatrix[0][0]);
 
                 // Send our transformation to the currently bound shader,
                 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;

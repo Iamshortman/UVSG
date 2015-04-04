@@ -1,5 +1,8 @@
 #include "World.hpp"
+#include "GameObject.hpp"
 #include <iostream>
+
+#include "RigidBodyComponent.hpp"
 
 World::World()
 {
@@ -11,16 +14,12 @@ unsigned int World::createCube(btVector3 pos, btVector3 size)
 {
     unsigned int id = gameObjects.size();
     GameObject* cube = new GameObject(id);
+    cube->setWorldPtr(this);
 
     btCollisionShape* boxShape = new btBoxShape(size);
     btScalar mass = 1;
-    btVector3 boxInertia;
-    boxShape->calculateLocalInertia(mass, boxInertia);
-    btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), pos));
-    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
-    btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
-    cube->addRigidBody(boxRigidBody);
-    worldPhysics->addRigidBody(boxRigidBody);
+    cube->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
+    cube->addComponent(new RigidBodyComponent(cube, cube->transform, boxShape, mass));
     gameObjects.push_back(cube);
 
     return id;
@@ -31,8 +30,6 @@ void World::deleteGameObject(unsigned int object_id)
     GameObject* object = gameObjects[object_id];
     if(object != 0)
     {
-        worldPhysics->removeRigidBody(object->body);
-        //gameObjects.erase(gameObjects.begin() + object_id);
         delete object;
         //To Preserve gameObjects ids, just make the pointer 0
         gameObjects[object_id] = 0;
@@ -54,6 +51,14 @@ void World::update(unsigned long delta)
     float timeStep = delta;
     timeStep /= 1000.0f;
     worldPhysics->updateWorld(timeStep);
+
+    for(unsigned int i = 0; i < gameObjects.size(); i++)
+    {
+        if(gameObjects[i] != 0)
+        {
+            gameObjects[i]->update();
+        }
+    }
 }
 
 GameObject* World::rayTrace(btVector3 start, btVector3 end)

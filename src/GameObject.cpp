@@ -1,21 +1,47 @@
 #include "GameObject.hpp"
+#include "World.hpp"
+#include "Component.hpp"
 #include <iostream>
 
 GameObject::GameObject(unsigned int id):
 object_id(id)
 {
-
+    transform = btTransform();
 }
 
-void GameObject::addRigidBody(btRigidBody* rigidBody)
+void GameObject::addComponent(Component* component)
 {
-    body = rigidBody;
-    body->setUserPointer(this);
+    components.push_back(component);
+}
+
+void GameObject::removeComponet(Component* componentToRemove)
+{
+    for(unsigned int i = 0; i < components.size(); i++)
+    {
+        if(components[i] == componentToRemove)
+        {
+            components.erase(components.begin() + i);
+        }
+    }
+}
+
+void GameObject::update()
+{
+    for(unsigned int i = 0; i < components.size(); i++)
+    {
+        components[i]->update();
+    }
+}
+
+void GameObject::destoryObject()
+{
+    worldPtr->deleteGameObject(object_id);
 }
 
 GameObject::~GameObject()
 {
-    delete body->getMotionState();
-    delete body->getCollisionShape();
-    delete body;
+    for(unsigned int i = 0; i < components.size(); i++)
+    {
+        delete components[i];
+    }
 }
