@@ -17,11 +17,13 @@ class GameObject
         btTransform transform;
 
         GameObject(unsigned int id);
-        ~GameObject();
+        virtual ~GameObject();
         void addComponent(Component* component);
         void removeComponet(Component* componentToRemove);
-        void update();
+        virtual void update();
         void destoryObject();
+
+        virtual void render();
 
         inline void setWorldPtr(World* ptr){worldPtr = ptr;}
         inline const World* getWorldPtr(){return worldPtr;}

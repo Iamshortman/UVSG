@@ -3,6 +3,9 @@
 #include <iostream>
 
 #include "RigidBodyComponent.hpp"
+#include "MeshComponent.hpp"
+#include "Mesh.hpp"
+#include "VoxelObject.hpp"
 
 World::World()
 {
@@ -21,6 +24,57 @@ unsigned int World::createCube(btVector3 pos, btVector3 size)
     cube->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
     cube->addComponent(new RigidBodyComponent(cube, cube->transform, boxShape, mass));
     gameObjects.push_back(cube);
+
+    return id;
+}
+
+unsigned int World::createGameObject(btVector3 pos)
+{
+    unsigned int id = gameObjects.size();
+    GameObject* object = new GameObject(id);
+    object->setWorldPtr(this);
+    gameObjects.push_back(object);
+
+    return id;
+}
+
+unsigned int World::createVoxelObject(btVector3 pos)
+{
+    unsigned int id = gameObjects.size();
+    VoxelObject* voxel = new VoxelObject(id);
+    voxel->setWorldPtr(this);
+    voxel->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
+
+    unsigned int chunkSize = voxel->chunkSize;
+
+    btScalar mass = 0;
+
+    btCompoundShape* voxels = new btCompoundShape();
+    btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+
+    for(unsigned int x = 0; x < chunkSize; x++)
+    {
+            for(unsigned  int y = 0; y < chunkSize; y++)
+            {
+                for(unsigned int z = 0; z < chunkSize; z++)
+                {
+                    if(voxel->chunk[x][y][z] == 1)
+                    {
+                        voxels->addChildShape(btTransform(btQuaternion(0.0f, 1.0f, 0.0f, 1.0f), btVector3(x, y, z)), boxShape);
+                        mass += 1.0f;
+                    }
+                }
+            }
+    }
+    btVector3 boxInertia;
+    voxels->calculateLocalInertia(mass, boxInertia);
+    btDefaultMotionState* MotionState = new btDefaultMotionState(voxel->transform);
+    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, voxels, boxInertia);
+    voxel->body = new btRigidBody(boxRigidBodyCI);
+    voxel->body->setUserPointer(voxel);
+    worldPhysics->addRigidBody(voxel->body);
+
+    gameObjects.push_back(voxel);
 
     return id;
 }

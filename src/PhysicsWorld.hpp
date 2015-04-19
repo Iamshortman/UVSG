@@ -12,7 +12,6 @@ class PhysicsWorld
     public:
         PhysicsWorld();
         virtual ~PhysicsWorld();
-        btRigidBody* groundRigidBody;
         void updateWorld(float timeStep);
         void addRigidBody(btRigidBody* body);
         void removeRigidBody(btRigidBody* body);

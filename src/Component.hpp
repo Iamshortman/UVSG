@@ -11,6 +11,7 @@ class Component
         Component(GameObject* object);
         virtual ~Component();
         virtual void update() = 0;
+        virtual void render() = 0;
 
     protected:
     private:

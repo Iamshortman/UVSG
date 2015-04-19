@@ -8,7 +8,8 @@ class RigidBodyComponent: public Component
     public:
         RigidBodyComponent(GameObject* object, btTransform offsetTransform, btCollisionShape* shape, float mass);
         ~RigidBodyComponent();
-        void update();
+        virtual void update();
+        virtual inline void render(){}
 
         btRigidBody* rigidBody;
         btTransform offset;

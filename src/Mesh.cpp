@@ -6,18 +6,40 @@ Mesh::Mesh()
     //We really don't do anything here
 }
 
-
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<unsigned int>& indices)
 {
-    //Clear the old one incase
+    size = indices.size();
+
+    std::vector<vector3> normals = std::vector<vector3>();
+
+    for(int i = 0; i < size; i += 3)
+    {
+        vector3 point1 = vertices[ indices[i] ];
+        vector3 point2 = vertices[ indices[i + 1] ];
+        vector3 point3 = vertices[ indices[i + 2] ];
+
+        point2 -= point1;
+        point3 -= point1;
+
+        vector3 normal = glm::normalize( glm::cross(point2, point3) );
+        normals.push_back(normal);
+        normals.push_back(normal);
+        normals.push_back(normal);
+    }
+    addVertices(vertices, colors, normals, indices);
+}
+
+void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<vector3>& normals, std::vector<unsigned int>& indices)
+{
+        //Clear the old one incase
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &cbo);
+    glDeleteBuffers(1, &nbo);
     glDeleteBuffers(1, &ibo);
-
-    size = indices.size();
 
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &cbo);
+    glGenBuffers(1, &nbo);
     glGenBuffers(1, &ibo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -25,6 +47,9 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
 
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(vector3), &colors[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, nbo);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vector3), &normals[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
@@ -55,6 +80,16 @@ void Mesh::draw()
         (void*)0
         );
 
+        glBindBuffer(GL_ARRAY_BUFFER, nbo);
+        glVertexAttribPointer(
+        2,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        (void*)0
+        );
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 
@@ -66,5 +101,6 @@ Mesh::~Mesh()
 {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &cbo);
+    glDeleteBuffers(1, &nbo);
     glDeleteBuffers(1, &ibo);
 }

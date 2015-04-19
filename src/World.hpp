@@ -24,6 +24,8 @@ class World
         GameObject* getGameObject(unsigned int object_id);
         void deleteGameObject(unsigned int object_id);
 
+        unsigned int createGameObject(btVector3 pos);
+        unsigned int createVoxelObject(btVector3 pos);
         unsigned int createCube(btVector3 pos, btVector3 size);
         int getGameObjectCount();
         GameObject* rayTrace(btVector3 start, btVector3 end);

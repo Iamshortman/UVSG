@@ -14,19 +14,14 @@ PhysicsWorld::PhysicsWorld()
 
     // The world.
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-    dynamicsWorld->setGravity(btVector3(0.0F, 0.0F, 0.0F));
+    dynamicsWorld->setGravity(btVector3(0.0F, -9.8F, 0.0F));
 
-    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
-    btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
-    btRigidBody::btRigidBodyConstructionInfo
-    groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
-    groundRigidBody = new btRigidBody(groundRigidBodyCI);
-    dynamicsWorld->addRigidBody(groundRigidBody);
+
 }
 
 void PhysicsWorld::updateWorld(float timeStep)
 {
-    dynamicsWorld->stepSimulation(timeStep, 3);
+    dynamicsWorld->stepSimulation(timeStep, 4);
 }
 
 void PhysicsWorld::addRigidBody(btRigidBody* body)
@@ -36,7 +31,6 @@ void PhysicsWorld::addRigidBody(btRigidBody* body)
 
 void PhysicsWorld::removeRigidBody(btRigidBody* body)
 {
-
     dynamicsWorld->removeRigidBody(body);
 }
 
@@ -49,11 +43,6 @@ ClosestRayResultCallback PhysicsWorld::rayTest(btVector3 start, btVector3 end)
 
 PhysicsWorld::~PhysicsWorld()
 {
-    dynamicsWorld->removeRigidBody(groundRigidBody);
-    delete groundRigidBody->getMotionState();
-    delete groundRigidBody->getCollisionShape();
-    delete groundRigidBody;
-
     // Clean up behind ourselves like good little programmers
     delete dynamicsWorld;
     delete solver;

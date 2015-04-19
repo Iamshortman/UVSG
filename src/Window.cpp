@@ -46,6 +46,8 @@ void Window::initGL()
     glDepthFunc(GL_LEQUAL);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_CULL_FACE);
+    //glFrontFace(GL_CCW);
     //glCullFace(GL_BACK);
 }
 

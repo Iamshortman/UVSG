@@ -7,6 +7,7 @@ GameObject::GameObject(unsigned int id):
 object_id(id)
 {
     transform = btTransform();
+    transform.setIdentity();
 }
 
 void GameObject::addComponent(Component* component)
@@ -30,6 +31,14 @@ void GameObject::update()
     for(unsigned int i = 0; i < components.size(); i++)
     {
         components[i]->update();
+    }
+}
+
+void GameObject::render()
+{
+    for(unsigned int i = 0; i < components.size(); i++)
+    {
+        components[i]->render();
     }
 }
 

@@ -7,6 +7,10 @@
 #include "PhysicsWorld.hpp"
 #include "World.hpp"
 #include "GameObject.hpp"
+#include "VoxelObject.hpp"
+
+#include "MeshComponent.hpp"
+#include "RigidBodyComponent.hpp"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
@@ -47,7 +51,6 @@ int main()
 
     World world = World();
 
-
     int num_joy = SDL_NumJoysticks();
     printf("%i joysticks were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
@@ -59,7 +62,8 @@ int main()
     ShaderProgram program("basicVertex.vs", "basicFragment.fs");
 
 	// Get a handle for our "Matrix" uniform
-	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "Matrix");
+	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "MVP");
+	GLuint ModelID = glGetUniformLocation(program.ShaderProgramID, "Model");
 
     Mesh boxMesh = Mesh();
     Mesh groundMesh = Mesh();
@@ -79,27 +83,50 @@ int main()
     colors.push_back( vector3(1.0F, 1.0F, 0.0F) );
     colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
     colors.push_back( vector3(1.0F, 0.0F, 1.0F) );
-    colors.push_back( vector3(0.0F, 1.0F, 1.0F));
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
     colors.push_back( vector3(1.0F, 1.0F, 0.0F) );
     colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
     colors.push_back( vector3(1.0F, 0.0F, 1.0F) );
-    colors.push_back( vector3(0.0F, 1.0F, 1.0F));
+    colors.push_back( vector3(0.0F, 1.0F, 1.0F) );
 
+    vector<vector3> normals = vector<vector3>();
 
     vector<unsigned int> indices = vector<unsigned int>();
-    push3(&indices, 1, 2, 4);
-    push3(&indices, 5, 8, 6);
-    push3(&indices, 1, 5, 2);
-    push3(&indices, 2, 6, 3);
-    push3(&indices, 3, 7, 4);
-    push3(&indices, 5, 1, 8);
-    push3(&indices, 2, 3, 4);
+    push3(&indices, 5, 8, 6);//TOP
     push3(&indices, 8, 7, 6);
+    normals.push_back(vector3(0.0F, 1.0F, 0.0F));
+    normals.push_back(vector3(0.0F, 1.0F, 0.0F));
+    normals.push_back(vector3(0.0F, 1.0F, 0.0F));
+
+    push3(&indices, 1, 2, 4);//Bottom
     push3(&indices, 2, 3, 4);
-    push3(&indices, 5, 6, 2);
+    normals.push_back(vector3(0.0F, -1.0F, 0.0F));
+    normals.push_back(vector3(0.0F, -1.0F, 0.0F));
+    normals.push_back(vector3(0.0F, -1.0F, 0.0F));
+
+    push3(&indices, 2, 6, 3);//Back
     push3(&indices, 6, 7, 3);
+    normals.push_back(vector3(0.0F, 0.0F, -1.0F));
+    normals.push_back(vector3(0.0F, 0.0F, -1.0F));
+    normals.push_back(vector3(0.0F, 0.0F, -1.0F));
+
+    push3(&indices, 1, 4, 8);//Front
+    push3(&indices, 5, 1, 8);
+    normals.push_back(vector3(0.0F, 0.0F, 1.0F));
+    normals.push_back(vector3(0.0F, 0.0F, 1.0F));
+    normals.push_back(vector3(0.0F, 0.0F, 1.0F));
+
+    push3(&indices, 1, 5, 2);//Right
+    push3(&indices, 5, 6, 2);
+    normals.push_back(vector3(1.0F, 0.0F, 0.0F));
+    normals.push_back(vector3(1.0F, 0.0F, 0.0F));
+    normals.push_back(vector3(1.0F, 0.0F, 0.0F));
+
+    push3(&indices, 3, 7, 4);//Left
     push3(&indices, 7, 8, 4);
-    push3(&indices, 1, 4, 8);
+    normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
+    normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
+    normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
     boxMesh.addVertices(vertices, colors, indices);
 
@@ -119,7 +146,15 @@ int main()
     push3(&indices1, 3, 4, 1);
     groundMesh.addVertices(vertices1, colors1, indices1);
 
-    world.createCube(btVector3(0.0F, 5.0F, 0.0F), btVector3(1.0F, 1.0F, 1.0F));
+    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+
+    unsigned int groundId = world.createGameObject(btVector3(0.0F, 0.0F, 0.0F));
+    GameObject* object = world.getGameObject(groundId);
+    object->addComponent(new RigidBodyComponent(object,btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)), groundShape, 0.0F));
+    object->addComponent(new MeshComponent(object, &groundMesh));
+
+    unsigned int voxelId = world.createVoxelObject(btVector3(0.0f, 10.0f, 0.0f));
+    VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
 
     float time = 0;
 
@@ -180,45 +215,51 @@ int main()
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
         {
-            world.createCube(btVector3(0.0F, 10.0F, 0.0F), btVector3(1.0F, 1.0F, 1.0F));
+            unsigned int id = world.createVoxelObject(btVector3(0.0f, 100.0f, 0.0f));
+            //world.getGameObject(id)->addComponent(new MeshComponent(world.getGameObject(id), &boxMesh));
+
         }
 
-        if(input.isMouseButtonDown(SDL_BUTTON_RIGHT))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {
             btVector3 rayEnd = camera.getForward() * 1000.0F;
             rayEnd += camera.getPos();
             GameObject* hitObject = world.rayTrace(camera.getPos(), rayEnd);
             if(hitObject != 0)
             {
-                world.deleteGameObject(hitObject->object_id);
+                if(hitObject->object_id != groundId)
+                {
+                    world.deleteGameObject(hitObject->object_id);
+                }
             }
         }
 
+        float speed = 0.2F;
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
         {
-            camera.moveCameraPos(camera.getForward() * 0.1F);
+            camera.moveCameraPos(camera.getForward() * speed);
         }
         if(input.isKeyboardButtonDown(SDL_SCANCODE_S))
         {
-            camera.moveCameraPos(camera.getForward() * -0.1F);
+            camera.moveCameraPos(camera.getForward() * -speed);
         }
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_D))
         {
-            camera.moveCameraPos(camera.getRight() * 0.1F);
+            camera.moveCameraPos(camera.getRight() * speed);
         }
         if(input.isKeyboardButtonDown(SDL_SCANCODE_A))
         {
-            camera.moveCameraPos(camera.getRight() * -0.1F);
+            camera.moveCameraPos(camera.getRight() * -speed);
         }
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_SPACE))
         {
-            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * 0.1F);
+            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * speed);
         }
         if(input.isKeyboardButtonDown(SDL_SCANCODE_LSHIFT))
         {
-            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * -0.1F);
+            camera.moveCameraPos(btVector3(0.0F, 1.0F, 0.0F) * -speed);
         }
 
         if(mouseCaptured)
@@ -257,20 +298,13 @@ int main()
                 // Send our transformation to the currently bound shader,
                 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
                 glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-                boxMesh.draw();
+                glUniformMatrix4fv(ModelID, 1, GL_FALSE, &ModelMatrix[0][0]);
+                object->render();
             }
         }
 
-        world.worldPhysics->groundRigidBody->getMotionState()->getWorldTransform(t);
-        t.getOpenGLMatrix(&ModelMatrix[0][0]);
-
-        // Send our transformation to the currently bound shader,
-        MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-        groundMesh.draw();
-
-        //End Render
-        testWindow.updateBuffer();
+            //End Render
+            testWindow.updateBuffer();
 
         }
 
