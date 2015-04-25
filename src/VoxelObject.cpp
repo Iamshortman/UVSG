@@ -86,10 +86,10 @@ GameObject(id)
 
 void VoxelObject::update()
 {
+    GameObject::update();
     btTransform temp;
     body->getMotionState()->getWorldTransform(temp);
     this->transform = temp;
-    GameObject::update();
 }
 
 void VoxelObject::render()

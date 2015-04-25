@@ -14,6 +14,7 @@ class PhysicsWorld
         virtual ~PhysicsWorld();
         void updateWorld(float timeStep);
         void addRigidBody(btRigidBody* body);
+        void addCollisionObject(btCollisionObject *collisionObject, short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter, short int collisionFilterMask=btBroadphaseProxy::AllFilter);
         void removeRigidBody(btRigidBody* body);
 
         ClosestRayResultCallback rayTest(btVector3 start, btVector3 end);

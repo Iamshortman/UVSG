@@ -17,6 +17,8 @@ Window::Window(int width, int height, string windowTitle)
         SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE
     );
 
+    SDL_MaximizeWindow(window);
+
     if( window == NULL )
     {
         exit(1);

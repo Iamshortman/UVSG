@@ -29,6 +29,11 @@ void PhysicsWorld::addRigidBody(btRigidBody* body)
     dynamicsWorld->addRigidBody(body);
 }
 
+void PhysicsWorld::addCollisionObject(btCollisionObject *collisionObject, short int collisionFilterGroup, short int collisionFilterMask)
+{
+    dynamicsWorld->addCollisionObject(collisionObject, collisionFilterGroup, collisionFilterMask);
+}
+
 void PhysicsWorld::removeRigidBody(btRigidBody* body)
 {
     dynamicsWorld->removeRigidBody(body);

@@ -5,12 +5,52 @@
 #include "RigidBodyComponent.hpp"
 #include "MeshComponent.hpp"
 #include "Mesh.hpp"
+
 #include "VoxelObject.hpp"
+#include "PlayerObject.hpp"
 
 World::World()
 {
     worldPhysics = new PhysicsWorld();
     gameObjects = std::vector<GameObject*>();
+}
+
+unsigned int World::createPlayer(btVector3 pos)
+{
+    unsigned int id = gameObjects.size();
+    PlayerObject* player = new PlayerObject(id);
+    player->setWorldPtr(this);
+
+    btVector3 inertia(0.0f, 0.0f, 0.0f);//No inertia since its a player
+    btCollisionShape* capsule = new btCapsuleShape(0.4f, 2.0f);
+    btScalar mass = 1.0F;
+    capsule->calculateLocalInertia(mass, inertia);
+    btTransform transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
+    btDefaultMotionState* MotionState = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, MotionState, capsule, inertia);
+    rigidBodyCI.m_friction = 1.0f;
+	rigidBodyCI.m_restitution = 0.0f;
+	rigidBodyCI.m_linearDamping = 0.0f;
+
+    player->body = new btRigidBody(rigidBodyCI);
+    player->body->setUserPointer(player);
+    // Keep upright
+	player->body->setAngularFactor(0.0f);
+
+	// No sleeping (or else setLinearVelocity won't work)
+	player->body->setActivationState(DISABLE_DEACTIVATION);
+
+    worldPhysics->addRigidBody(player->body);
+    gameObjects.push_back(player);
+
+    player->m_pGhostObject = new btPairCachingGhostObject();
+    player->m_pGhostObject->setCollisionShape(player->body->getCollisionShape());
+    player->m_pGhostObject->setUserPointer(player);
+	player->m_pGhostObject->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+    worldPhysics->addCollisionObject(player->m_pGhostObject, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+
+    return id;
 }
 
 unsigned int World::createCube(btVector3 pos, btVector3 size)
@@ -66,13 +106,16 @@ unsigned int World::createVoxelObject(btVector3 pos)
                 }
             }
     }
-    btVector3 boxInertia;
-    voxels->calculateLocalInertia(mass, boxInertia);
+    btVector3 Inertia;
+    voxels->calculateLocalInertia(mass, Inertia);
     btDefaultMotionState* MotionState = new btDefaultMotionState(voxel->transform);
-    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, voxels, boxInertia);
+    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, voxels, Inertia);
     voxel->body = new btRigidBody(boxRigidBodyCI);
     voxel->body->setUserPointer(voxel);
     worldPhysics->addRigidBody(voxel->body);
+
+    btTransform offsetTransform = btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(4.0f, 4.0f, 4.0f));
+    voxel->body->setCenterOfMassTransform(offsetTransform);
 
     gameObjects.push_back(voxel);
 

@@ -21,6 +21,7 @@ class VoxelObject : public GameObject
         unsigned short chunk[chunkSize][chunkSize][chunkSize];
         Mesh voxelMesh;
         btRigidBody* body;
+        btCompoundShape* shape;
     protected:
     private:
 
