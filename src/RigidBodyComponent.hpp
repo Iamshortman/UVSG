@@ -6,7 +6,7 @@
 class RigidBodyComponent: public Component
 {
     public:
-        RigidBodyComponent(GameObject* object, btTransform offsetTransform, btCollisionShape* shape, float mass);
+        RigidBodyComponent(GameObject* object, btTransform& offsetTransform, btCollisionShape* shape, float mass);
         ~RigidBodyComponent();
         virtual void update();
         virtual inline void render(){}

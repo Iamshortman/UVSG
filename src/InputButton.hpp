@@ -2,7 +2,7 @@
 #define INPUTBUTTON_HPP
 
 #include <SDL2/SDL.h>
-#include <SDL/SDL_events.h>
+#include <SDL2/SDL_events.h>
 #include <string>
 #include <iostream>
 #include <deque>

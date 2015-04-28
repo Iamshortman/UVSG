@@ -39,7 +39,7 @@ void PhysicsWorld::removeRigidBody(btRigidBody* body)
     dynamicsWorld->removeRigidBody(body);
 }
 
-ClosestRayResultCallback PhysicsWorld::rayTest(btVector3 start, btVector3 end)
+ClosestRayResultCallback PhysicsWorld::rayTest(btVector3& start, btVector3& end)
 {
     ClosestRayResultCallback RayCallback(start, end);
     dynamicsWorld->rayTest(start, end, RayCallback);

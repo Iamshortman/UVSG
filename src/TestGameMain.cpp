@@ -13,6 +13,8 @@
 #include "RigidBodyComponent.hpp"
 
 #include <SDL2/SDL.h>
+#undef main //Not sure if this is needed
+
 #include <stdlib.h>
 #include <math.h>
 

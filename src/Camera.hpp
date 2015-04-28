@@ -9,9 +9,9 @@ class Camera
 public:
 	Camera();
 	matrix4 getViewMatrix();
-    void moveCameraPos(btVector3 dist);
-    void rotateCamera(btVector3 direction, float angle);
-    void setCameraPos(vector3 pos);
+    void moveCameraPos(btVector3& dist);
+    void rotateCamera(btVector3& direction, float angle);
+    void setCameraPos(vector3& pos);
     btVector3 getForward();
     btVector3 getRight();
     btVector3 getUp();

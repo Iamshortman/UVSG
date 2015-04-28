@@ -17,12 +17,12 @@ Camera::Camera()
     up = btVector3(0.0F, 1.0F, 0.0F);
 }
 
-void Camera::moveCameraPos(btVector3 dist)
+void Camera::moveCameraPos(btVector3& dist)
 {
     pos += dist;
 }
 
-void Camera::rotateCamera(btVector3 direction, float angle)
+void Camera::rotateCamera(btVector3& direction, float angle)
 {
     forward = forward.rotate(direction, angle);
     up = up.rotate(direction, angle);
