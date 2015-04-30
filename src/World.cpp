@@ -15,7 +15,7 @@ World::World()
     gameObjects = std::vector<GameObject*>();
 }
 
-unsigned int World::createPlayer(btVector3& pos)
+unsigned int World::createPlayer(const  btVector3& pos)
 {
     unsigned int id = gameObjects.size();
     PlayerObject* player = new PlayerObject(id);
@@ -53,7 +53,7 @@ unsigned int World::createPlayer(btVector3& pos)
     return id;
 }
 
-unsigned int World::createCube(btVector3& pos, btVector3& size)
+unsigned int World::createCube(const btVector3& pos, const btVector3& size)
 {
     unsigned int id = gameObjects.size();
     GameObject* cube = new GameObject(id);
@@ -68,7 +68,7 @@ unsigned int World::createCube(btVector3& pos, btVector3& size)
     return id;
 }
 
-unsigned int World::createGameObject(btVector3& pos)
+unsigned int World::createGameObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
     GameObject* object = new GameObject(id);
@@ -78,7 +78,7 @@ unsigned int World::createGameObject(btVector3& pos)
     return id;
 }
 
-unsigned int World::createVoxelObject(btVector3& pos)
+unsigned int World::createVoxelObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
     VoxelObject* voxel = new VoxelObject(id);
@@ -158,7 +158,7 @@ void World::update(unsigned long delta)
     }
 }
 
-GameObject* World::rayTrace(btVector3& start, btVector3& end)
+GameObject* World::rayTrace(const btVector3& start, const btVector3& end)
 {
     ClosestRayResultCallback result = worldPhysics->rayTest(start, end);
     if(result.hasHit())

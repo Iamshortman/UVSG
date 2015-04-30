@@ -1,6 +1,6 @@
 #include "RigidBodyComponent.hpp"
 
-RigidBodyComponent::RigidBodyComponent(GameObject* object, btTransform& offsetTransform, btCollisionShape* shape, float mass)
+RigidBodyComponent::RigidBodyComponent(GameObject* object, const btTransform& offsetTransform, btCollisionShape* shape, float mass)
 : Component(object)
 {
     offset = offsetTransform;

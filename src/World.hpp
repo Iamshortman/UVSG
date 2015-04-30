@@ -24,13 +24,13 @@ class World
         GameObject* getGameObject(unsigned int object_id);
         void deleteGameObject(unsigned int object_id);
 
-        unsigned int createGameObject(btVector3& pos);
-        unsigned int createPlayer(btVector3& pos);
-        unsigned int createVoxelObject(btVector3& pos);
-        unsigned int createCube(btVector3& pos, btVector3& size);
+        unsigned int createGameObject(const btVector3& pos);
+        unsigned int createPlayer(const  btVector3& pos);
+        unsigned int createVoxelObject(const  btVector3& pos);
+        unsigned int createCube(const btVector3& pos, const btVector3& size);
         int getGameObjectCount();
 
-        GameObject* rayTrace(btVector3& start, btVector3& end);
+        GameObject* rayTrace(const btVector3& start, const btVector3& end);
 
     protected:
     private:
