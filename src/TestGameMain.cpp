@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 #include "Window.hpp"
-#include "Shader/ShaderProgram.hpp"
+#include "ShaderProgram.hpp"
 #include "openGL.hpp"
 #include "glmInclude.hpp"
 #include "Mesh.hpp"
@@ -44,7 +44,7 @@ int main()
 	int SCREEN_HEIGHT = 400;
 
 	Window testWindow(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-    testWindow.setBufferClearColor(0.0, 0.0, 0.0, 1.0);
+    testWindow.setBufferClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     InputButton input = InputButton();
 
     Camera camera = Camera();
@@ -61,11 +61,14 @@ int main()
         printf("%s\n", SDL_JoystickName(joystick));
     }
 
-    ShaderProgram program("basicVertex.vs", "basicFragment.fs");
+    AttributeLocation attributes[] = { {0, "in_Position"}, {1, "in_Color"} };
+
+    ShaderProgram program("basicVertex.vs", "basicFragment.fs", attributes, 2);
 
 	// Get a handle for our "Matrix" uniform
-	GLuint MatrixID = glGetUniformLocation(program.ShaderProgramID, "MVP");
-	GLuint ModelID = glGetUniformLocation(program.ShaderProgramID, "Model");
+	GLuint MatrixID = glGetUniformLocation(program.programID, "MVP");
+	GLuint ModelID = glGetUniformLocation(program.programID, "ModelMatrix");
+	GLuint NormalID = glGetUniformLocation(program.programID, "NormalMatrix");
 
     Mesh boxMesh = Mesh();
     Mesh groundMesh = Mesh();
@@ -134,6 +137,7 @@ int main()
 
     vector<vector3> vertices1 = vector<vector3>();
     vector<vector3> colors1 = vector<vector3>();
+    vector<vector3> normals1 = vector<vector3>();
     vector<unsigned int> indices1 = vector<unsigned int>();
 
     vertices1.push_back( vector3( 50.0f, 0.0f,  50.0f) );
@@ -143,10 +147,14 @@ int main()
     colors1.push_back( vector3(1.0F, 1.0F, 0.0F) );
     colors1.push_back( vector3(0.0F, 1.0F, 1.0F) );
     colors1.push_back( vector3(1.0F, 0.0F, 1.0F) );
-    colors1.push_back( vector3(0.0F, 1.0F, 1.0F));
+    colors1.push_back( vector3(0.0F, 1.0F, 1.0F) );
     push3(&indices1, 1, 2, 3);
     push3(&indices1, 3, 4, 1);
-    groundMesh.addVertices(vertices1, colors1, indices1);
+    normals1.push_back( vector3(0.0F, 1.0F, 0.0F) );
+    normals1.push_back( vector3(0.0F, 1.0F, 0.0F) );
+    normals1.push_back( vector3(0.0F, 1.0F, 0.0F) );
+    normals1.push_back( vector3(0.0F, 1.0F, 0.0F) );
+    groundMesh.addVertices(vertices1, colors1, normals1, indices1);
 
     btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
 
@@ -158,9 +166,9 @@ int main()
     //unsigned int voxelId = world.createVoxelObject(btVector3(0.0f, 10.0f, 0.0f));
     //VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
 
-    unsigned int playerId = world.createPlayer(btVector3(0.0F, 10.0F, 0.0F));
-    GameObject* player = world.getGameObject(playerId);
-    player->addComponent(new MeshComponent(player, &boxMesh));
+    //unsigned int playerId = world.createPlayer(btVector3(0.0F, 10.0F, 0.0F));
+    //GameObject* player = world.getGameObject(playerId);
+    //player->addComponent(new MeshComponent(player, &boxMesh));
 
 
     float time = 0;
@@ -180,7 +188,7 @@ int main()
         testWindow.getWindowSize(width, height);
 
         float screenRes = ((float)width)/((float)height);
-        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 10000.0F);
+        matrix4 ProjectionMatrix = glm::perspective(45.0F, screenRes, 0.1F, 1000.0F);
 
         //FPS counter stuff
         currentTime = SDL_GetTicks();
@@ -216,7 +224,7 @@ int main()
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-                //SDL_ShowCursor(SDL_DISABLE);
+                SDL_ShowCursor(SDL_DISABLE);
                 mouseCaptured = true;
         }
 
@@ -304,8 +312,10 @@ int main()
 
                 // Send our transformation to the currently bound shader,
                 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+                matrix3 NormalMatrix = glm::transpose(glm::inverse(glm::mat3(MVP)));
                 glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
                 glUniformMatrix4fv(ModelID, 1, GL_FALSE, &ModelMatrix[0][0]);
+                glUniformMatrix3fv(NormalID, 1, GL_FALSE, &NormalMatrix[0][0]);
                 object->render();
             }
         }

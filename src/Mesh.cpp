@@ -8,11 +8,9 @@ Mesh::Mesh()
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<unsigned int>& indices)
 {
-    size = indices.size();
-
     std::vector<vector3> normals = std::vector<vector3>();
 
-    for(int i = 0; i < size; i += 3)
+    for(unsigned int i = 0; i < indices.size(); i += 3)
     {
         vector3 point1 = vertices[ indices[i] ];
         vector3 point2 = vertices[ indices[i + 1] ];
@@ -25,13 +23,16 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
         normals.push_back(normal);
         normals.push_back(normal);
         normals.push_back(normal);
+        //std::cout << normal.x << ", " <<  normal.y << "," << normal.z << std::endl;
     }
     addVertices(vertices, colors, normals, indices);
 }
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<vector3>& normals, std::vector<unsigned int>& indices)
 {
-        //Clear the old one incase
+    size = indices.size();
+
+    //Clear the old one incase
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &cbo);
     glDeleteBuffers(1, &nbo);
