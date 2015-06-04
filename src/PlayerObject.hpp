@@ -9,7 +9,7 @@
 class PlayerObject: public GameObject
 {
     public:
-        PlayerObject(unsigned int id);
+		PlayerObject(World* worldPtr, unsigned int id);
         virtual ~PlayerObject();
         virtual void render();
         virtual void update();

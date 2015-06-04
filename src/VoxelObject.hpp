@@ -16,10 +16,11 @@ class VoxelObject : public GameObject
 {
     public:
         const static unsigned int chunkSize = 8;
-		VoxelObject(unsigned int id, float size = 1.0f);
+		VoxelObject(World* worldPtr, unsigned int id, float size = 1.0f);
         virtual ~VoxelObject();
         virtual void render();
         virtual void update();
+		void initPhysics();
 
 		void setBlock(int x, int y, int z, BlockID id);
 		BlockID getBlock(int x, int y, int z);
@@ -27,8 +28,7 @@ class VoxelObject : public GameObject
 		void updateChunk();
 
         Mesh voxelMesh;
-        btRigidBody* body;
-        btCompoundShape* shape;
+        btRigidBody* rigidBody;
     protected:
     private:
 		bool shouldUpdateChunk = false;

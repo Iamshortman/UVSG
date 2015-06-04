@@ -16,7 +16,7 @@ class GameObject
         std::vector<Component*> components;
         btTransform transform;
 
-        GameObject(unsigned int id);
+		GameObject(World* worldPtr, unsigned int id);
         virtual ~GameObject();
         void addComponent(Component* component);
         void removeComponet(Component* componentToRemove);

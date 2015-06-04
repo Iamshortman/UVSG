@@ -3,9 +3,10 @@
 #include "Component.hpp"
 #include <iostream>
 
-GameObject::GameObject(unsigned int id):
+GameObject::GameObject(World* worldPtr, unsigned int id) :
 object_id(id)
 {
+	setWorldPtr(worldPtr);
     transform = btTransform();
     transform.setIdentity();
 }

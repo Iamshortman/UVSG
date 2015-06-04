@@ -5,10 +5,10 @@ RigidBodyComponent::RigidBodyComponent(GameObject* object, const btTransform& of
 {
     offset = offsetTransform;
 
-    btVector3 boxInertia;
-    shape->calculateLocalInertia(mass, boxInertia);
+    btVector3 Inertia;
+    shape->calculateLocalInertia(mass, Inertia);
     btDefaultMotionState* MotionState = new btDefaultMotionState(offsetTransform);
-    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, shape, boxInertia);
+    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, shape, Inertia);
     rigidBody = new btRigidBody(boxRigidBodyCI);
     rigidBody->setUserPointer(parent);
 

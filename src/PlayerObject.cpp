@@ -1,7 +1,7 @@
 #include "PlayerObject.hpp"
 
-PlayerObject::PlayerObject(unsigned int id)
-:GameObject(id)
+PlayerObject::PlayerObject(World* worldPtr, unsigned int id)
+:GameObject(worldPtr, id)
 {
 
 }

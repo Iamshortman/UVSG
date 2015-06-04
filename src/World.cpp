@@ -18,8 +18,7 @@ World::World()
 unsigned int World::createPlayer(const  btVector3& pos)
 {
     unsigned int id = gameObjects.size();
-    PlayerObject* player = new PlayerObject(id);
-    player->setWorldPtr(this);
+    PlayerObject* player = new PlayerObject(this, id);
 
     btVector3 inertia(0.0f, 0.0f, 0.0f);//No inertia since its a player
     btCollisionShape* capsule = new btCapsuleShape(0.4f, 2.0f);
@@ -56,8 +55,7 @@ unsigned int World::createPlayer(const  btVector3& pos)
 unsigned int World::createCube(const btVector3& pos, const btVector3& size)
 {
     unsigned int id = gameObjects.size();
-    GameObject* cube = new GameObject(id);
-    cube->setWorldPtr(this);
+    GameObject* cube = new GameObject(this, id);
 
     btCollisionShape* boxShape = new btBoxShape(size);
     btScalar mass = 1;
@@ -71,8 +69,7 @@ unsigned int World::createCube(const btVector3& pos, const btVector3& size)
 unsigned int World::createGameObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
-    GameObject* object = new GameObject(id);
-    object->setWorldPtr(this);
+    GameObject* object = new GameObject(this, id);
     gameObjects.push_back(object);
 
     return id;
@@ -81,9 +78,9 @@ unsigned int World::createGameObject(const btVector3& pos)
 unsigned int World::createVoxelObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
-    VoxelObject* voxel = new VoxelObject(id, 1.0f);
-    voxel->setWorldPtr(this);
+    VoxelObject* voxel = new VoxelObject(this, id, 1.0f);
     voxel->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
+	//voxel->initPhysics();
 
     return id;
 }

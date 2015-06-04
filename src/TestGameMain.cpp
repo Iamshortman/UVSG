@@ -166,10 +166,6 @@ int main()
     unsigned int voxelId = world.createVoxelObject(btVector3(2.0f, 10.0f, 2.0f));
     VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
 
-    //unsigned int playerId = world.createPlayer(btVector3(0.0F, 10.0F, 0.0F));
-    //GameObject* player = world.getGameObject(playerId);
-    //player->addComponent(new MeshComponent(player, &boxMesh));
-
 
     float time = 0;
 
