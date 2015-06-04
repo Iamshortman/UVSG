@@ -29,6 +29,7 @@ GLclampf alpha);
         bool isWindowActive();
         void setMousePos(int x, int y);
         void getMousePos(int &x, int &y);
+		void setVsync(int syncRate);
 
 	private:
         bool keyboardFocus;

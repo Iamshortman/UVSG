@@ -163,8 +163,8 @@ int main()
     object->addComponent(new RigidBodyComponent(object,btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)), groundShape, 0.0F));
     object->addComponent(new MeshComponent(object, &groundMesh));
 
-    //unsigned int voxelId = world.createVoxelObject(btVector3(0.0f, 10.0f, 0.0f));
-    //VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
+    unsigned int voxelId = world.createVoxelObject(btVector3(2.0f, 10.0f, 2.0f));
+    VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
 
     //unsigned int playerId = world.createPlayer(btVector3(0.0F, 10.0F, 0.0F));
     //GameObject* player = world.getGameObject(playerId);
@@ -235,7 +235,7 @@ int main()
             cube->addComponent(new MeshComponent(cube, &boxMesh));
         }
 
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
+        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {
             btVector3 rayEnd = camera.getForward() * 1000.0F;
             rayEnd += camera.getPos();
@@ -247,7 +247,7 @@ int main()
                     world.deleteGameObject(hitObject->object_id);
                 }
             }
-        }
+        }*/
 
         float speed = 0.2F;
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
@@ -325,6 +325,7 @@ int main()
 
         }
 
+	cout << "# of Game Objects: " << world.gameObjects.size() << endl;
     for(unsigned int i = 0; i < world.gameObjects.size(); i++)
     {
         world.deleteGameObject(i);

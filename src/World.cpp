@@ -81,43 +81,9 @@ unsigned int World::createGameObject(const btVector3& pos)
 unsigned int World::createVoxelObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
-    VoxelObject* voxel = new VoxelObject(id);
+    VoxelObject* voxel = new VoxelObject(id, 1.0f);
     voxel->setWorldPtr(this);
     voxel->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
-
-    unsigned int chunkSize = voxel->chunkSize;
-
-    btScalar mass = 0;
-
-    btCompoundShape* voxels = new btCompoundShape();
-    btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
-
-    for(unsigned int x = 0; x < chunkSize; x++)
-    {
-            for(unsigned  int y = 0; y < chunkSize; y++)
-            {
-                for(unsigned int z = 0; z < chunkSize; z++)
-                {
-                    if(voxel->chunk[x][y][z] == 1)
-                    {
-                        voxels->addChildShape(btTransform(btQuaternion(0.0f, 1.0f, 0.0f, 1.0f), btVector3(x, y, z)), boxShape);
-                        mass += 1.0f;
-                    }
-                }
-            }
-    }
-    btVector3 Inertia;
-    voxels->calculateLocalInertia(mass, Inertia);
-    btDefaultMotionState* MotionState = new btDefaultMotionState(voxel->transform);
-    btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, MotionState, voxels, Inertia);
-    voxel->body = new btRigidBody(boxRigidBodyCI);
-    voxel->body->setUserPointer(voxel);
-    worldPhysics->addRigidBody(voxel->body);
-
-    btTransform offsetTransform = btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(4.0f, 4.0f, 4.0f));
-    voxel->body->setCenterOfMassTransform(offsetTransform);
-
-    gameObjects.push_back(voxel);
 
     return id;
 }

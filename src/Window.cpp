@@ -26,8 +26,10 @@ Window::Window(int width, int height, string windowTitle)
 
 	// Create an OpenGL context associated with the window.
 	glcontext = SDL_GL_CreateContext(window);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	setVsync(1);
 
-    	// Initialize GLEW
+    // Initialize GLEW
 	if (glewInit() != GLEW_OK)
 	{
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -139,4 +141,15 @@ void Window::getMousePos(int &x, int &y)
 void Window::closeWindow()
 {
 	SDL_DestroyWindow(window);
+}
+
+/*
+0 = Vsync off
+1 = Vsync on
+2 = Vsync half rate
+*/
+void Window::setVsync(int syncRate)
+{
+	if (syncRate >= 0 && syncRate <= 2)
+	SDL_GL_SetSwapInterval(syncRate);
 }
