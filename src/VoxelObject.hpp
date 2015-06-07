@@ -16,7 +16,7 @@ class VoxelObject : public GameObject
 {
     public:
         const static unsigned int chunkSize = 8;
-		VoxelObject(World* worldPtr, unsigned int id, float size = 1.0f);
+		VoxelObject(World* worldPtr, unsigned int id, float size = 2.0f);
         virtual ~VoxelObject();
         virtual void render();
         virtual void update();
@@ -36,6 +36,7 @@ class VoxelObject : public GameObject
 		btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
 		BlockID chunk[chunkSize][chunkSize][chunkSize];
         btCompoundShape* voxels;
+		btCollisionShape* cube;
 };
 
 #endif // VOXELOBJECT_HPP

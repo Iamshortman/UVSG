@@ -48,8 +48,9 @@ int main()
     InputButton input = InputButton();
 
     Camera camera = Camera();
-    camera.moveCameraPos(btVector3(0.0, 20.0F, 25.0F));
-    camera.rotateCamera(camera.getRight(), -17.0F / 57.2957795F);
+    camera.moveCameraPos(btVector3(0.0, 10.0F, 25.0F));
+    //camera.rotateCamera(camera.getRight(), -17.0F / 57.2957795F);
+
 
     World world = World();
 
@@ -158,9 +159,9 @@ int main()
 
     btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
 
-    unsigned int groundId = world.createGameObject(btVector3(0.0F, 0.0F, 0.0F));
+    unsigned int groundId = world.createGameObject(btVector3(0.0F, -1.0F, 0.0F));
     GameObject* object = world.getGameObject(groundId);
-    object->addComponent(new RigidBodyComponent(object,btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)), groundShape, 0.0F));
+    object->addComponent(new RigidBodyComponent(object,	object->transform, groundShape, 0.0F));
     object->addComponent(new MeshComponent(object, &groundMesh));
 
     unsigned int voxelId = world.createVoxelObject(btVector3(2.0f, 10.0f, 2.0f));
@@ -226,12 +227,12 @@ int main()
 
         if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
         {
-            unsigned int cubeId = world.createCube(btVector3(0.0f, 10.0f, 0.0f), btVector3(1.0f, 1.0f, 1.0f));
+            unsigned int cubeId = world.createCube(btVector3(20.0f, 40.0f, 20.0f), btVector3(1.0f, 1.0f, 1.0f));
             GameObject* cube = world.getGameObject(cubeId);
             cube->addComponent(new MeshComponent(cube, &boxMesh));
         }
 
-        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {
             btVector3 rayEnd = camera.getForward() * 1000.0F;
             rayEnd += camera.getPos();
@@ -243,7 +244,7 @@ int main()
                     world.deleteGameObject(hitObject->object_id);
                 }
             }
-        }*/
+        }
 
         float speed = 0.2F;
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))

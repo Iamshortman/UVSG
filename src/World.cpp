@@ -78,9 +78,9 @@ unsigned int World::createGameObject(const btVector3& pos)
 unsigned int World::createVoxelObject(const btVector3& pos)
 {
     unsigned int id = gameObjects.size();
-    VoxelObject* voxel = new VoxelObject(this, id, 1.0f);
+    VoxelObject* voxel = new VoxelObject(this, id, 4.0f);
     voxel->transform = btTransform(btQuaternion(0, 0, 0, 1), pos);
-	//voxel->initPhysics();
+	gameObjects.push_back(voxel);
 
     return id;
 }
