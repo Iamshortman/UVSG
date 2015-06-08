@@ -19,6 +19,7 @@ cubeSize(size)
 		{
 			for (unsigned int z = 0; z < chunkSize; z++)
 			{
+				collisionChunk[x][y][z] = 0;
 				setBlock(x, y, z, 1);
 
 				if (x == 4 && z == 4)
@@ -42,7 +43,7 @@ void VoxelObject::initPhysics()
 	rigidBody->setUserPointer(this);
 	worldPtr->worldPhysics->addRigidBody(rigidBody);
 
-	collisionChunk[0][0][0] = new btBoxShape(btVector3(0, 0, 0));
+	collisionChunk[0][0][0] = cube;
 	voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), collisionChunk[0][0][0]);
 }
 
@@ -145,11 +146,20 @@ void VoxelObject::updateChunk()
 				tempPos *= cubeSize;
 
 				BlockID id = getBlock(x, y, z);
+				if (id == 0)
+				{
+					if (collisionChunk[x][y][z] != 0)
+					{
+						voxels->removeChildShape(collisionChunk[x][y][z]);
+						collisionChunk[x][y][z] = 0;
+					}
+				}
+
 				if (id == 1)
 				{
 					tempMass += 1.0F;
 
-					collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
+					collisionChunk[x][y][z] = cube;
 					voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z) * cubeSize), collisionChunk[x][y][z]);
 
 					//If surrounded by blocks do nothing
@@ -293,4 +303,9 @@ void VoxelObject::updateChunk()
 VoxelObject::~VoxelObject()
 {
 
+}
+
+bool VoxelObject::isVoxel()
+{
+	return true;
 }

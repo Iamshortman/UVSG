@@ -26,6 +26,7 @@ class VoxelObject : public GameObject
 		BlockID getBlock(int x, int y, int z);
 		void setUpdateChunk();
 		void updateChunk();
+		virtual bool isVoxel();
 
         Mesh voxelMesh;
         btRigidBody* rigidBody;

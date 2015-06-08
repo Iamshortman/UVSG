@@ -11,6 +11,11 @@ object_id(id)
     transform.setIdentity();
 }
 
+bool GameObject::isVoxel()
+{
+	return false;
+}
+
 void GameObject::addComponent(Component* component)
 {
     components.push_back(component);

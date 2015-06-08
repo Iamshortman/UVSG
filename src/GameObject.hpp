@@ -22,6 +22,7 @@ class GameObject
         void removeComponet(Component* componentToRemove);
         virtual void update();
         void destoryObject();
+		virtual bool isVoxel();
 
         virtual void render();
 
