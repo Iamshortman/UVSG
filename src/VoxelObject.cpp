@@ -10,7 +10,7 @@ VoxelObject::VoxelObject(World* worldPtr, unsigned int id, float size) :
 GameObject(worldPtr, id),
 cubeSize(size)
 {
-	cube = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
+	//cube = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
 
 	initPhysics();
 	for (unsigned int x = 0; x < chunkSize; x++)
@@ -43,8 +43,9 @@ void VoxelObject::initPhysics()
 	rigidBody->setUserPointer(this);
 	worldPtr->worldPhysics->addRigidBody(rigidBody);
 
-	collisionChunk[0][0][0] = cube;
-	voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), collisionChunk[0][0][0]);
+	//Add an empty shape so the chunk doesnt crash even if it has no collision shapes.
+	emptyShape = new btEmptyShape();
+	voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), emptyShape);
 }
 
 void VoxelObject::update()
@@ -136,6 +137,7 @@ void VoxelObject::updateChunk()
 
 	btScalar tempMass = 0.1f; //Starts out a little above 0 so its not static.
 	vector3	tempPos(0, 0, 0);
+
 	for (unsigned int x = 0; x < chunkSize; x++)
 	{
 		for (unsigned int y = 0; y < chunkSize; y++)
@@ -151,6 +153,7 @@ void VoxelObject::updateChunk()
 					if (collisionChunk[x][y][z] != 0)
 					{
 						voxels->removeChildShape(collisionChunk[x][y][z]);
+						delete collisionChunk[x][y][z];
 						collisionChunk[x][y][z] = 0;
 					}
 				}
@@ -159,13 +162,23 @@ void VoxelObject::updateChunk()
 				{
 					tempMass += 1.0F;
 
-					collisionChunk[x][y][z] = cube;
-					voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z) * cubeSize), collisionChunk[x][y][z]);
-
 					//If surrounded by blocks do nothing
 					if (getBlock(x + 1, y, z) == 1 && getBlock(x - 1, y, z) == 1 && getBlock(x, y + 1, z) == 1 && getBlock(x, y - 1, z) == 1 && getBlock(x, y, z + 1) == 1 && getBlock(x, y, z - 1) == 1)
 					{
+						if (collisionChunk[x][y][z] != 0)
+						{
+							voxels->removeChildShape(collisionChunk[x][y][z]);
+							delete collisionChunk[x][y][z];
+							collisionChunk[x][y][z] = 0;
+						}
+
 						continue;
+					}
+
+					if (collisionChunk[x][y][z] == 0)
+					{
+						collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
+						voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z) * cubeSize), collisionChunk[x][y][z]);
 					}
 
 					//Top
@@ -290,12 +303,10 @@ void VoxelObject::updateChunk()
 				}
 			}
 		}
-
-
-		btVector3 inertia;
-		rigidBody->getCollisionShape()->calculateLocalInertia(tempMass, inertia);
-		rigidBody->setMassProps(tempMass, inertia);
 	}
+	btVector3 inertia;
+	rigidBody->getCollisionShape()->calculateLocalInertia(tempMass, inertia);
+	rigidBody->setMassProps(tempMass, inertia);
 
 	this->voxelMesh.addVertices(tempVertices, tempColors, tempIndices);
 }

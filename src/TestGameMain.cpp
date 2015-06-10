@@ -44,12 +44,6 @@ int roundBtScalar(btScalar num)
 
 int main()
 {
-	for (int i = 0; i < 11; i++)
-	{
-		btScalar num = 0.1 * i;
-		cout << num << "= " << roundBtScalar(num) << endl;
-	}
-
 	string Title = "UVSG";
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 400;
@@ -177,7 +171,7 @@ int main()
 
     unsigned int voxelId = world.createVoxelObject(btVector3(2.0f, 10.0f, 2.0f));
     VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
-
+	cout << "VoxelID: " << voxelId << endl;
 
     float time = 0;
 
@@ -203,7 +197,7 @@ int main()
         frames++;
         if(currentTime - lastTime > 1000)
         {
-            //cout << "FPS: " << frames << endl;
+            cout << "FPS: " << frames << endl;
             lastTime = currentTime;
             frames = 0;
         }
@@ -253,28 +247,64 @@ int main()
 						btVector3 worldHitPoint = result.m_hitPointWorld;
 						
 						//Moves the point slightly into the collision shape so there are no rounding errors.
-						//worldHitPoint += (camera.getForward() * 0.1f);
-						
+						worldHitPoint += (camera.getForward() * 0.1f);
+
 						matrix4 invModelMatrix;
 						voxel->transform.inverse().getOpenGLMatrix(&invModelMatrix[0][0]);
 						vector4 localHitPoint = invModelMatrix * vector4(worldHitPoint.getX(), worldHitPoint.getY(), worldHitPoint.getZ(), 1.0f);
+
 						int x, y, z;
 						x = roundBtScalar(localHitPoint.x);
 						y = roundBtScalar(localHitPoint.y);
 						z = roundBtScalar(localHitPoint.z);
 						voxel->setBlock(x, y, z, 0);
-						cout << "{ " << x << ", " << y << ", " << z << " }\n";
 					}
 				}
 			}
 		}
 
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
+		if (input.isMouseButtonDown(SDL_BUTTON_LEFT) || input.isKeyboardButtonDown(SDL_SCANCODE_M))
+		{
+			btVector3 rayEnd = camera.getForward() * 1000.0F;
+			rayEnd += camera.getPos();
+			ClosestRayResultCallback result = world.worldPhysics->rayTest(camera.getPos(), rayEnd);
+			if (result.hasHit())
+			{
+				const btRigidBody* rigidBody = btRigidBody::upcast(result.m_collisionObject);
+				GameObject* hitObject = static_cast<GameObject*>(rigidBody->getUserPointer());
+				if (hitObject != 0)
+				{
+					if (hitObject->isVoxel())
+					{
+						VoxelObject* voxel = static_cast<VoxelObject*>(hitObject);
+						btVector3 worldHitPoint = result.m_hitPointWorld;
+
+						//Moves the point slightly into the collision shape so there are no rounding errors.
+						worldHitPoint -= (camera.getForward() * 0.2f);
+
+						matrix4 invModelMatrix;
+						voxel->transform.inverse().getOpenGLMatrix(&invModelMatrix[0][0]);
+						vector4 localHitPoint = invModelMatrix * vector4(worldHitPoint.getX(), worldHitPoint.getY(), worldHitPoint.getZ(), 1.0f);
+
+						int x, y, z;
+						x = roundBtScalar(localHitPoint.x);
+						y = roundBtScalar(localHitPoint.y);
+						z = roundBtScalar(localHitPoint.z);
+						if (voxel->getBlock(x, y, z) == 0)
+						{
+							voxel->setBlock(x, y, z, 1);
+						}
+					}
+				}
+			}
+		}
+
+        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
         {
             unsigned int cubeId = world.createCube(btVector3(20.0f, 40.0f, 20.0f), btVector3(1.0f, 1.0f, 1.0f));
             GameObject* cube = world.getGameObject(cubeId);
             cube->addComponent(new MeshComponent(cube, &boxMesh));
-        }
+        }*/
 
         /*if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {
