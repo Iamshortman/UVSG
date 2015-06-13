@@ -30,21 +30,11 @@ void printVector3(const btVector3 &vec)
         << "}" << endl;
 }
 
-void printGlmVector4(const vector4 &vec)
-{
-    cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << " }\n";
-}
-
 void push3(vector<unsigned int>* vector, unsigned int a, unsigned int b, unsigned int c)
 {
     vector->push_back(a - 1);
     vector->push_back(b - 1);
     vector->push_back(c - 1);
-}
-
-int roundBtScalar(btScalar num)
-{
-	return (int)(num + 0.5f);
 }
 
 int main()
@@ -54,7 +44,8 @@ int main()
 	int SCREEN_HEIGHT = 400;
 
 	Window testWindow(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-    testWindow.setBufferClearColor(0.0F, 0.0F, 1.0F, 1.0F);
+    testWindow.setBufferClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+    //testWindow.setVsync(0);
     InputButton input = InputButton();
 
     Camera camera = Camera();
@@ -144,7 +135,7 @@ int main()
     normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
     normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-    boxMesh.addVertices(vertices, colors, indices);
+    boxMesh.addVertices(vertices, colors, normals, indices);
 
     vector<vector3> vertices1 = vector<vector3>();
     vector<vector3> colors1 = vector<vector3>();
@@ -175,8 +166,6 @@ int main()
     object->addComponent(new MeshComponent(object, &groundMesh));
 
     unsigned int voxelId = world.createVoxelObject(btVector3(2.0f, 10.0f, 2.0f));
-    VoxelObject* voxel = (VoxelObject*)world.getGameObject(voxelId);
-	cout << "VoxelID: " << voxelId << endl;
 
     float time = 0;
 
@@ -231,95 +220,18 @@ int main()
 
         if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
         {
-                //SDL_ShowCursor(SDL_DISABLE);
+                SDL_ShowCursor(SDL_DISABLE);
                 mouseCaptured = true;
         }
 
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_K));
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
         {
-            //voxel->rigidBody->setAngularVelocity(btVector3(0.0f, -1.0f, 0.0f));
-        }
-
-		if (input.isMouseButtonDown(SDL_BUTTON_RIGHT) || input.isKeyboardButtonDown(SDL_SCANCODE_N))
-		{
-			btVector3 rayEnd = camera.getForward() * 1000.0F;
-			rayEnd += camera.getPos();
-			ClosestRayResultCallback result = world.worldPhysics->rayTest(camera.getPos(), rayEnd);
-			if (result.hasHit())
-			{
-				const btRigidBody* rigidBody = btRigidBody::upcast(result.m_collisionObject);
-				GameObject* hitObject = static_cast<GameObject*>(rigidBody->getUserPointer());
-				if (hitObject != 0)
-				{
-					if (hitObject->isVoxel())
-					{
-						VoxelObject* voxel = static_cast<VoxelObject*>(hitObject);
-						btVector3 worldHitPoint = result.m_hitPointWorld;
-
-						//Moves the point slightly into the collision shape so there are no rounding errors.
-						worldHitPoint += (camera.getForward() * 0.1f);
-
-						matrix4 invModelMatrix;
-						voxel->transform.inverse().getOpenGLMatrix(&invModelMatrix[0][0]);
-						vector4 localHitPoint = invModelMatrix * vector4(worldHitPoint.getX(), worldHitPoint.getY(), worldHitPoint.getZ(), 1.0f);
-                        localHitPoint /= voxel->getChunkScale();
-
-
-						int x, y, z;
-						x = roundBtScalar(localHitPoint.x);
-						y = roundBtScalar(localHitPoint.y);
-						z = roundBtScalar(localHitPoint.z);
-						voxel->setBlock(x, y, z, 0);
-					}
-				}
-			}
-		}
-
-		if (input.isMouseButtonDown(SDL_BUTTON_LEFT) || input.isKeyboardButtonDown(SDL_SCANCODE_M))
-		{
-			btVector3 rayEnd = camera.getForward() * 1000.0F;
-			rayEnd += camera.getPos();
-			ClosestRayResultCallback result = world.worldPhysics->rayTest(camera.getPos(), rayEnd);
-			if (result.hasHit())
-			{
-				const btRigidBody* rigidBody = btRigidBody::upcast(result.m_collisionObject);
-				GameObject* hitObject = static_cast<GameObject*>(rigidBody->getUserPointer());
-				if (hitObject != 0)
-				{
-					if (hitObject->isVoxel())
-					{
-						VoxelObject* voxel = static_cast<VoxelObject*>(hitObject);
-						btVector3 worldHitPoint = result.m_hitPointWorld;
-
-						//Moves the point slightly into the collision shape so there are no rounding errors.
-						worldHitPoint -= (camera.getForward() * 0.2f);
-
-						matrix4 invModelMatrix;
-						voxel->transform.inverse().getOpenGLMatrix(&invModelMatrix[0][0]);
-						vector4 localHitPoint = invModelMatrix * vector4(worldHitPoint.getX(), worldHitPoint.getY(), worldHitPoint.getZ(), 1.0f);
-                        localHitPoint /= voxel->getChunkScale();
-
-						int x, y, z;
-						x = roundBtScalar(localHitPoint.x);
-						y = roundBtScalar(localHitPoint.y);
-						z = roundBtScalar(localHitPoint.z);
-						if (voxel->getBlock(x, y, z) == 0)
-						{
-							voxel->setBlock(x, y, z, 1);
-						}
-					}
-				}
-			}
-		}
-
-        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
-        {
-            unsigned int cubeId = world.createCube(btVector3(20.0f, 40.0f, 20.0f), btVector3(1.0f, 1.0f, 1.0f));
+            unsigned int cubeId = world.createCube(btVector3(0.0f, 40.0f, 0.0f), btVector3(1.0f, 1.0f, 1.0f));
             GameObject* cube = world.getGameObject(cubeId);
             cube->addComponent(new MeshComponent(cube, &boxMesh));
-        }*/
+        }
 
-        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {
             btVector3 rayEnd = camera.getForward() * 1000.0F;
             rayEnd += camera.getPos();
@@ -331,7 +243,7 @@ int main()
                     world.deleteGameObject(hitObject->object_id);
                 }
             }
-        }*/
+        }
 
         float speed = 0.2F;
         if(input.isKeyboardButtonDown(SDL_SCANCODE_W))
@@ -403,7 +315,6 @@ int main()
                 object->render();
             }
         }
-
             //End Render
             testWindow.updateBuffer();
 

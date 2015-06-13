@@ -16,7 +16,7 @@ class VoxelObject : public GameObject
 {
     public:
         const static unsigned int chunkSize = 16;
-		VoxelObject(World* worldPtr, unsigned int id, float size = 2.0f);
+		VoxelObject(World* worldPtr, unsigned int id, float size = 1.0f);
         virtual ~VoxelObject();
         virtual void render();
         virtual void update();
@@ -27,6 +27,7 @@ class VoxelObject : public GameObject
 		void setUpdateChunk();
 		void updateChunk();
 		virtual bool isVoxel();
+        const float getChunkScale();
 
         Mesh voxelMesh;
         btRigidBody* rigidBody;
