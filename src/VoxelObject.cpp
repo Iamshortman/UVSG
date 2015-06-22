@@ -20,15 +20,17 @@ cubeSize(size)
 			for (unsigned int z = 0; z < chunkSize; z++)
 			{
 				collisionChunk[x][y][z] = 0;
-				setBlock(x, y, z, 0);
+				setBlock(x, y, z, 1);
 
-				if ((x + y + z) % 2 == 0)
+				/*if ((x + y + z) % 2 == 0)
 				{
 					setBlock(x, y, z, 1);
-				}
+				}*/
 			}
 		}
 	}
+
+	rigidBody->forceActivationState(DISABLE_DEACTIVATION);
 }
 
 void VoxelObject::initPhysics()
@@ -47,6 +49,13 @@ void VoxelObject::initPhysics()
 	emptyShape = new btEmptyShape();
 	voxels->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), emptyShape);
 }
+
+void VoxelObject::setTransform(btTransform transformToSet)
+{
+    this->transform = transformToSet;
+    this->rigidBody->getMotionState()->setWorldTransform(this->transform);
+}
+
 
 void VoxelObject::update()
 {
@@ -137,7 +146,8 @@ void VoxelObject::updateChunk()
 
 	btScalar tempMass = 0.1f; //Starts out a little above 0 so its not static.
 	vector3	tempPos(0, 0, 0);
-    unsigned int tempBlockCount = 0;
+    btVector3 centerOfMass(0, 0, 0);
+    unsigned int blockCount = 0;
 
 	for (unsigned int x = 0; x < chunkSize; x++)
 	{
@@ -159,10 +169,13 @@ void VoxelObject::updateChunk()
 					}
 				}
 
+                //TODO other IDS besides 1
 				if (id == 1)
 				{
-                    tempBlockCount++;
-					tempMass += 1.0F;
+                    btScalar blockMass = 1.0f;
+                    blockCount++;
+					tempMass += blockMass;
+                    centerOfMass += (btVector3(x, y, z) * blockMass);
 
 					//If surrounded by blocks do nothing
 					if (getBlock(x + 1, y, z) == 1 && getBlock(x - 1, y, z) == 1 && getBlock(x, y + 1, z) == 1 && getBlock(x, y - 1, z) == 1 && getBlock(x, y, z + 1) == 1 && getBlock(x, y, z - 1) == 1)
@@ -306,6 +319,31 @@ void VoxelObject::updateChunk()
 			}
 		}
 	}
+	centerOfMass /= blockCount;
+    centerOfMassOffset = centerOfMass;
+
+	//rigidBody->setCenterOfMassTransform(btTransform(btQuaternion(0, 0, 0, 1), centerOfMass));
+	for (unsigned int x = 0; x < chunkSize; x++)
+	{
+		for (unsigned int y = 0; y < chunkSize; y++)
+		{
+			for (unsigned int z = 0; z < chunkSize; z++)
+			{
+                if(collisionChunk[x][y][z] != 0)
+                {
+                    voxels->
+                }
+                btTransform transform = voxels->getChildTransform(i);
+                btVector3 pos = transform.getOrigin();
+                pos -= centerOfMass;
+                transform.setOrigin(pos);
+                voxels->updateChildTransform(i, transform, false);
+            }
+        }
+    }
+
+    //std::cout << "{ " << centerOfMass.getX() << ", " << centerOfMass.getY() << ", " << centerOfMass.getZ() << " }\n";
+
 	btVector3 inertia;
 	rigidBody->getCollisionShape()->calculateLocalInertia(tempMass, inertia);
 	rigidBody->setMassProps(tempMass, inertia);
@@ -313,7 +351,7 @@ void VoxelObject::updateChunk()
 	this->voxelMesh.addVertices(tempVertices, tempColors, tempIndices);
 
 	//If we have no blocks delete the object.
-	if(tempBlockCount == 0)
+	if(blockCount == 0)
 	{
         this->worldPtr->deleteGameObject(this->object_id);
 	}
@@ -326,7 +364,6 @@ const float VoxelObject::getChunkScale()
 
 VoxelObject::~VoxelObject()
 {
-    std::cout << "Voxel Object Delete" << std::endl;
     voxels->removeChildShape(this->emptyShape);
     delete this->emptyShape;
 	for (unsigned int x = 0; x < chunkSize; x++)

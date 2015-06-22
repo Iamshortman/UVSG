@@ -3,6 +3,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <vector>
+#include <iostream>
 #include "World.hpp"
 
 //Prototype class

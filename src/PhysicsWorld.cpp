@@ -14,8 +14,8 @@ PhysicsWorld::PhysicsWorld()
 
     // The world.
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-    //dynamicsWorld->setGravity(btVector3(0.0F, -9.8F, 0.0F));
-	dynamicsWorld->setGravity(btVector3(0.0F, 0.0F, 0.0F));
+    dynamicsWorld->setGravity(btVector3(0.0F, -9.8F, 0.0F));
+	//dynamicsWorld->setGravity(btVector3(0.0F, 0.0F, 0.0F));
 
 }
 

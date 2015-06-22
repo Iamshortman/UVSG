@@ -312,12 +312,10 @@ int main()
 			}
 		}
 
-        /*if(input.isKeyboardButtonDown(SDL_SCANCODE_M))
+        if(input.isKeyboardButtonDown(SDL_SCANCODE_J))
         {
-            unsigned int cubeId = world.createCube(btVector3(20.0f, 40.0f, 20.0f), btVector3(1.0f, 1.0f, 1.0f));
-            GameObject* cube = world.getGameObject(cubeId);
-            cube->addComponent(new MeshComponent(cube, &boxMesh));
-        }*/
+            world.createVoxelObject(btVector3(0.0f, 100.0f, 0.0f));
+        }
 
         /*if(input.isKeyboardButtonDown(SDL_SCANCODE_N))
         {

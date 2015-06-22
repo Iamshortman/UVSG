@@ -15,12 +15,13 @@ typedef unsigned short BlockID;
 class VoxelObject : public GameObject
 {
     public:
-        const static unsigned int chunkSize = 16;
+        const static unsigned int chunkSize = 3;
 		VoxelObject(World* worldPtr, unsigned int id, float size = 1.0f);
         virtual ~VoxelObject();
         virtual void render();
         virtual void update();
 		void initPhysics();
+        void setTransform(btTransform transformToSet);
 
 		void setBlock(int x, int y, int z, BlockID id);
 		BlockID getBlock(int x, int y, int z);
@@ -31,6 +32,8 @@ class VoxelObject : public GameObject
 
         Mesh voxelMesh;
         btRigidBody* rigidBody;
+        btVector3 centerOfMassOffset;
+
     protected:
     private:
 		bool shouldUpdateChunk = false;

@@ -4,6 +4,7 @@
 Mesh::Mesh()
 {
     //We really don't do anything here
+    this->size = -1;
 }
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<unsigned int>& indices)
@@ -58,6 +59,10 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
 
 void Mesh::draw()
 {
+        if(size == -1)
+        {
+            return;
+        }
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
