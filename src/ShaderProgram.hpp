@@ -20,11 +20,13 @@ class ShaderProgram
 {
 
 public:
-    GLuint programID;
+    GLuint programID = 0;
+	ShaderProgram();
 	ShaderProgram(string VertexShaderLoc, string FragmentShaderLoc, AttributeLocation list[], int count);
 	~ShaderProgram();
 	void setActiveProgram();
 	void deactivateProgram();
+	void deleteProgram();
 
 private:
 	GLuint vertexID, fragmentID;

@@ -13,7 +13,8 @@ using namespace std;
 class Window
 {
 	public:
-		Window(int width = 640 , int height = 480, string windowTitle = "");
+		Window();
+		Window(int width, int height, string windowTitle);
 		virtual ~Window();
 		const string getTitleString();
 		void setTitleString(string title);

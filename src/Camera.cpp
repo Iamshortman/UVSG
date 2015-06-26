@@ -60,3 +60,8 @@ matrix4 Camera::getViewMatrix()
     );
 }
 
+matrix4 Camera::getProjectionMatrix(int width, int height)
+{
+	float aspectRatio = ((float)width) / ((float)height);
+	return glm::perspective(frameOfView, aspectRatio, nearClipping, farClipping);
+}

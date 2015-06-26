@@ -1,7 +1,14 @@
 #ifndef RENDERINGMANAGER_HPP
 #define RENDERINGMANAGER_HPP
 
+#include <stddef.h>  // defines NULL
 #include <entityx\entityx.h>
+
+#include "Components.hpp"
+#include "Camera.hpp"
+#include "Window.hpp"
+#include "glmInclude.hpp"
+#include "ShaderProgram.hpp"
 
 class RenderingManager
 {
@@ -9,14 +16,18 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
-	void update(entityx::EntityX ex, float deltaTime);
+	void update(entityx::EntityX &ex, float deltaTime);
 
-	static RenderingManager* getInstance();
+	Camera camera;
+	Window* window = NULL;
+	ShaderProgram basicShader;
+	GLuint uniform_MVP_ID;
 
 protected:
 
 private:
-	static RenderingManager* instance;
+	GLuint VBO, VAO;
+
 };
 
 #endif // RENDERINGMANAGER_HPP

@@ -63,6 +63,7 @@ void Mesh::draw()
         {
             return;
         }
+
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 

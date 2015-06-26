@@ -1,5 +1,11 @@
 #include "Window.hpp"
 
+Window::Window()
+{
+	window = 0;
+	//Do nothing
+};
+
 Window::Window(int width, int height, string windowTitle)
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -44,7 +50,7 @@ void Window::initGL()
 {
     // init OpenGL here
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -118,11 +124,6 @@ const string Window::getTitleString()
 	return SDL_GetWindowTitle(window);
 }
 
-Window::~Window()
-{
-    closeWindow();
-}
-
 bool Window::isWindowActive()
 {
     return keyboardFocus;
@@ -141,6 +142,7 @@ void Window::getMousePos(int &x, int &y)
 void Window::closeWindow()
 {
 	SDL_DestroyWindow(window);
+	window = 0;
 }
 
 /*
@@ -152,4 +154,12 @@ void Window::setVsync(int syncRate)
 {
 	if (syncRate >= 0 && syncRate <= 2)
 	SDL_GL_SetSwapInterval(syncRate);
+}
+
+Window::~Window()
+{
+	if (window != 0)
+	{
+		closeWindow();
+	}
 }

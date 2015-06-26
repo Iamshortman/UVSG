@@ -1,5 +1,12 @@
 #include "ShaderProgram.hpp"
 
+
+ShaderProgram::ShaderProgram()
+{
+	//Do nothing until real constructor is called.
+	this->programID = 0;
+}
+
 ShaderProgram::ShaderProgram(string VertexShader, string FragmentShader, AttributeLocation list[], int count)
 {
 	programID = glCreateProgram();
@@ -33,6 +40,9 @@ ShaderProgram::ShaderProgram(string VertexShader, string FragmentShader, Attribu
 		glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		printf("%s\n", &ProgramErrorMessage[0]);
 	}
+	glDeleteShader(vertexID);
+	glDeleteShader(fragmentID);
+
 	printf("Shader building is finished!!!\n");
 }
 
@@ -48,9 +58,18 @@ void ShaderProgram::deactivateProgram()
 
 ShaderProgram::~ShaderProgram()
 {
-	glDetachShader(programID, vertexID);
-	glDetachShader(programID, fragmentID);
-	glDeleteProgram(programID);
+
+}
+
+void ShaderProgram::deleteProgram()
+{
+	//If they are all not zero, delete them.
+	if (programID && vertexID && fragmentID)
+	{
+		glDetachShader(programID, vertexID);
+		glDetachShader(programID, fragmentID);
+		glDeleteProgram(programID);
+	}
 }
 
 GLuint ShaderProgram::buildShader(string location, GLuint type)

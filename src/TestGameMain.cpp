@@ -20,36 +20,17 @@ using namespace std;
 
 int main()
 {
-	UVSG::getInstance();
+	UVSG* game = new UVSG();
 
-
-	string Title = "UVSG";
-	int SCREEN_WIDTH = 640;
-	int SCREEN_HEIGHT = 400;
-
-	Window testWindow(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-    testWindow.setBufferClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     InputButton input = InputButton();
 
-    Camera camera = Camera();
-    camera.moveCameraPos(btVector3(0.0, 10.0F, 25.0F));
-
     int num_joy = SDL_NumJoysticks();
-    printf("%i joysticks were found.\n\n", num_joy);
+    printf("%i joystick(s) were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
         SDL_Joystick *joystick = SDL_JoystickOpen(i);
         printf("%s\n", SDL_JoystickName(joystick));
     }
-
-    AttributeLocation attributes[] = { {0, "in_Position"}, {1, "in_Color"} };
-
-    ShaderProgram program("basicVertex.vs", "basicFragment.fs", attributes, 2);
-
-	// Get a handle for our "Matrix" uniform
-	GLuint MatrixID = glGetUniformLocation(program.programID, "MVP");
-	GLuint ModelID = glGetUniformLocation(program.programID, "ModelMatrix");
-	GLuint NormalID = glGetUniformLocation(program.programID, "NormalMatrix");
 
     float deltaTime = 0;
 
@@ -60,8 +41,7 @@ int main()
 
     bool mouseCaptured = false;
 
-	bool shouldEnd = false;
-	while(shouldEnd == false)
+	while(!UVSG::getInstance()->getShouldClose())
 	{
 
         //FPS counter stuff
@@ -78,43 +58,10 @@ int main()
 
 		deltaTime = ((float)delta) / 1000.0f;
 
-        SDL_Event event;
-        while( SDL_PollEvent( &event ) )
-        {
-            if(event.window.event == SDL_WINDOWEVENT_CLOSE)
-            {
-                shouldEnd = true;
-            }
-
-            input.HandleEvent(event);
-            testWindow.HandleEvent(event);
-        }
-
-        if(input.isKeyboardButtonDown(SDL_SCANCODE_ESCAPE) || !testWindow.isWindowActive())
-        {
-            SDL_ShowCursor(SDL_ENABLE);
-            mouseCaptured = false;
-        }
-
-        if(input.isMouseButtonDown(SDL_BUTTON_LEFT))
-        {
-                //SDL_ShowCursor(SDL_DISABLE);
-                mouseCaptured = true;
-        }
-
-
 		UVSG::getInstance()->update(deltaTime);
-
-        testWindow.clearBuffer();
-        program.setActiveProgram();
-
-        //End Render
-		testWindow.updateBuffer();
-
 	}
 
-
-	testWindow.closeWindow();
+	delete game;
 
 	return 0;
 }
