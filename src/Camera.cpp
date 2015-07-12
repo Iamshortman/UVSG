@@ -12,52 +12,58 @@ std::ostream &operator<< (std::ostream &out, const vector3 &vec)
 
 Camera::Camera()
 {
-    pos = btVector3(0.0F, 0.0F, 0.0F);
-    forward = btVector3(0.0F, 0.0F, -1.0F);
-    up = btVector3(0.0F, 1.0F, 0.0F);
+    pos = vector3(0.0F, 0.0F, 0.0F);
+    forward = vector3(0.0F, 0.0F, 1.0F);
+    up = vector3(0.0F, 1.0F, 0.0F);
 }
 
-void Camera::moveCameraPos(const btVector3& dist)
+void Camera::setCameraPos(vector3& pos)
+{
+	this->pos = vector3(pos.x, pos.y, pos.z);
+}
+
+void Camera::moveCameraPos(const vector3& dist)
 {
     pos += dist;
 }
 
-void Camera::rotateCamera(const btVector3& direction, float angle)
+void Camera::rotateCamera(const vector3& direction, float angle)
 {
-    forward = forward.rotate(direction, angle);
-    up = up.rotate(direction, angle);
-    forward.normalized();
-    up.normalized();
+	forward = glm::normalize( glm::rotate(forward, angle, direction) );
+	up = glm::normalize( glm::rotate(up, angle, direction) );
+
 }
 
-btVector3 Camera::getForward()
+void Camera::setCameraTransform(vector3& position, quaternion& orientation)
+{
+	pos = position;
+	forward = glm::normalize( orientation * vector3(0.0F, 0.0F, 1.0F) );
+	up = glm::normalize( orientation * vector3(0.0F, 1.0F, 0.0F) );
+}
+
+vector3 Camera::getForward()
 {
     return forward;
 }
 
-btVector3 Camera::getUp()
+vector3 Camera::getUp()
 {
     return up;
 }
 
-btVector3 Camera::getRight()
+vector3 Camera::getRight()
 {
-    return forward.cross(up);
+	return glm::cross(forward, up);
 }
 
-btVector3 Camera::getPos()
+vector3 Camera::getPos()
 {
     return pos;
 }
 
 matrix4 Camera::getViewMatrix()
 {
-    return glm::lookAt
-    (
-        vector3(pos.getX(), pos.getY(), pos.getZ()),
-        vector3(pos.getX(), pos.getY(), pos.getZ()) + vector3(forward.getX(), forward.getY(), forward.getZ()),
-        vector3(up.getX(), up.getY(), up.getZ())
-    );
+    return glm::lookAt(pos, pos + forward, up);
 }
 
 matrix4 Camera::getProjectionMatrix(int width, int height)

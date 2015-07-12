@@ -4,6 +4,7 @@
 #include <entityx\entityx.h>
 #include <entityx\Entity.h>
 #include "RenderingManager.hpp"
+#include "PhysicsWorld.hpp"
 
 class UVSG
 {
@@ -18,7 +19,8 @@ public:
 
 	static UVSG* getInstance();
 
-	RenderingManager renderingManager;
+	RenderingManager* renderingManager;
+	PhysicsWorld* physicsWorld;
 
 protected:
 

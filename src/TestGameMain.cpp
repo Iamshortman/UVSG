@@ -32,6 +32,8 @@ int main()
         printf("%s\n", SDL_JoystickName(joystick));
     }
 
+	
+
     float deltaTime = 0;
 
     Uint32 lastTime = 0;
@@ -57,6 +59,7 @@ int main()
         lastFrameTime = currentTime;
 
 		deltaTime = ((float)delta) / 1000.0f;
+		//cout << "Update delta: " << deltaTime << endl;
 
 		UVSG::getInstance()->update(deltaTime);
 	}

@@ -11,8 +11,9 @@ RenderingManager::RenderingManager()
 	window->setBufferClearColor(0.0F, 0.0F, 1.0F, 1.0F);
 
 	camera = Camera();
-	camera.moveCameraPos(btVector3(0.0, 10.0F, 25.0F));
-	camera.rotateCamera(camera.getRight(), -17.0F / 57.2957795F);
+	camera.moveCameraPos(vector3(0.0, 10.0F, -25.0F));
+	camera.rotateCamera(camera.getRight(), -5.0F / 57.2957795F);
+
 
 	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" } };
 
@@ -26,7 +27,9 @@ void RenderingManager::update(entityx::EntityX &entitySystem, float timeStep)
 {
 	int width, height;
 	window->getWindowSize(width, height);
+
 	matrix4 viewMatrix = camera.getViewMatrix();
+
 	matrix4 projectionMatrix = camera.getProjectionMatrix(width, height);
 	matrix4 modelMatrix = matrix4();
 	matrix4 MVP = matrix4();
@@ -35,18 +38,19 @@ void RenderingManager::update(entityx::EntityX &entitySystem, float timeStep)
 
 	window->clearBuffer();
 
-	entityx::ComponentHandle<MeshComponent> mesh;
-	for (entityx::Entity entity : entitySystem.entities.entities_with_components(mesh))
+	entityx::ComponentHandle<MeshComponent> componentMesh;
+	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentMesh))
 	{
-		entityx::ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
-		modelMatrix = glm::translate(componentMesh->offset);
+		entityx::ComponentHandle<MeshComponent> mesh = entity.component<MeshComponent>();
+		modelMatrix = createModelMatrix(entity);
+		
 		
 		MVP = projectionMatrix * viewMatrix * modelMatrix;
 		
 		basicShader.setActiveProgram();
 		glUniformMatrix4fv(uniform_MVP_ID, 1, GL_FALSE, &MVP[0][0]);
 
-		componentMesh->mesh.draw();
+		mesh->mesh.draw();
 
 		basicShader.deactivateProgram();
 
@@ -55,6 +59,24 @@ void RenderingManager::update(entityx::EntityX &entitySystem, float timeStep)
 
 	window->updateBuffer();
 }
+
+matrix4	RenderingManager::createModelMatrix(entityx::Entity entity)
+{
+	matrix4 PositionMatrix = matrix4();
+	matrix4 RotationMatrix = matrix4();
+	matrix4 ScaleMatrix = matrix4();
+
+	if (entity.has_component<Transform>())
+	{
+		entityx::ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+
+		 PositionMatrix = glm::translate(matrix4(1.0F), componentTransform->position);
+		 RotationMatrix = glm::toMat4(componentTransform->orientation);
+	}
+
+	return PositionMatrix * RotationMatrix * ScaleMatrix;
+}
+
 
 RenderingManager::~RenderingManager()
 {

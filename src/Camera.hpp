@@ -2,7 +2,6 @@
 #define CAMERA_HPP
 
 #include "glmInclude.hpp"
-#include "btBulletDynamicsCommon.h"
 
 class Camera
 {
@@ -11,20 +10,20 @@ public:
 	matrix4 getViewMatrix();
 	matrix4 getProjectionMatrix(int width, int height);
 
-    void moveCameraPos(const btVector3& dist);
-    void rotateCamera(const btVector3& direction, float angle);
+    void moveCameraPos(const vector3& dist);
+    void rotateCamera(const vector3& direction, float angle);
     void setCameraPos(vector3& pos);
-    btVector3 getForward();
-    btVector3 getRight();
-    btVector3 getUp();
-    btVector3 getPos();
+	void setCameraTransform(vector3& position, quaternion& orientation);
 
-    btTransform transform;
+    vector3 getForward();
+    vector3 getRight();
+    vector3 getUp();
+    vector3 getPos();
 
 private:
-    btVector3 forward;
-    btVector3 up;
-    btVector3 pos;
+    vector3 forward;
+    vector3 up;
+    vector3 pos;
 
 	float frameOfView = 45.0f;
 	float nearClipping = 0.1f;

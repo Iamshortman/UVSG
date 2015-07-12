@@ -17,6 +17,7 @@ public:
 	RenderingManager();
 	virtual ~RenderingManager();
 	void update(entityx::EntityX &ex, float deltaTime);
+	matrix4 createModelMatrix(entityx::Entity entity);
 
 	Camera camera;
 	Window* window = NULL;
@@ -30,4 +31,4 @@ private:
 
 };
 
-#endif // RENDERINGMANAGER_HPP
+#endif //RENDERINGMANAGER_HPP
