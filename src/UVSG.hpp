@@ -22,6 +22,10 @@ public:
 	RenderingManager* renderingManager;
 	PhysicsWorld* physicsWorld;
 
+	SDL_Haptic *haptic = NULL;
+	SDL_Joystick *joystick = NULL;
+	SDL_GameController *controller = NULL;
+
 protected:
 
 private:

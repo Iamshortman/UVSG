@@ -25,7 +25,7 @@ PhysicsWorld::PhysicsWorld()
 
 	// The world.
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0.0f, -10.0f, 0.0f));
+	dynamicsWorld->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 }
 
 void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
@@ -53,7 +53,6 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 
 		if (entity.has_component<Velocity>())
 		{
-
 			entityx::ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 			vector3 linear = componentVelocity->linearVelocity;
 			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
@@ -64,10 +63,14 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 				componentRigidBody->rigidBody->activate(true);
 			}
 
+			if (entity.has_component<DebugVelocity>())
+			{
+				printf("Before: (%f, %f, %f)\n", linear.x, linear.y, linear.z);
+			}
+
 		}
 	}
-
-	dynamicsWorld->stepSimulation(timeStep, 10);
+	dynamicsWorld->stepSimulation(timeStep, 4);
 
 	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
@@ -97,6 +100,11 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
 			componentVelocity->angularVelocity = vector3(angular.getX(), angular.getY(), angular.getZ());
 
+			if (entity.has_component<DebugVelocity>())
+			{
+				printf("Before: (%f, %f, %f)\n", linear.getX(), linear.getY(), linear.getZ());
+			}
+
 		}
 	}
 
@@ -107,6 +115,10 @@ void PhysicsWorld::addRigidBody(btRigidBody* body)
 	dynamicsWorld->addRigidBody(body);
 }
 
+void PhysicsWorld::removeRigidBody(btRigidBody* body)
+{
+	dynamicsWorld->removeRigidBody(body);
+}
 
 PhysicsWorld::~PhysicsWorld()
 {

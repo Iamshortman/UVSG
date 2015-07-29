@@ -51,4 +51,6 @@ struct CameraLock
 
 };
 
+struct DebugVelocity{};
+
 #endif // COMPONETS_HPP

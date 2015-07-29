@@ -4,6 +4,7 @@
 #include "RenderingManager.hpp"
 #include "Components.hpp"
 #include "VoxelCollisionShape.hpp"
+#include "TimeToLive.hpp"
 
 UVSG* UVSG::instance;
 
@@ -21,6 +22,8 @@ UVSG::UVSG()
 	this->renderingManager = new RenderingManager();
 	this->physicsWorld = new PhysicsWorld();
 
+	entitySystem.systems.add<TimeToLiveSystem>();
+	entitySystem.systems.configure();
 
 	entityx::Entity entity = entitySystem.entities.create();
 	entity.assign<MeshComponent>();
@@ -58,9 +61,14 @@ UVSG::UVSG()
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
 		entity1.assign<inputControl>();
-		entity1.assign<RigidBody>(physicsWorld, entity1, new VoxelCollisionShape(), 1.0f);
 
-		entity1.component<Transform>()->position = vector3(0.0f, 40.0f, 0.0f);
+		btBoxShape* voxel = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
+		entity1.assign<RigidBody>(physicsWorld, entity1, voxel, 1.0f);
+		/*btVector3 Inertia;
+		voxel->calculateLocalInertia(1.0f, Inertia);
+		entity1.component<RigidBody>()->rigidBody->setMassProps(1.0f, Inertia);*/
+
+		entity1.component<Transform>()->position = vector3(0.0f, 10.76f, 0.0f);
 		entity1.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
 
 		vector<vector3> vertices = vector<vector3>();
@@ -132,6 +140,8 @@ UVSG::UVSG()
 
 void UVSG::update(float timeStep)
 {
+
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -146,17 +156,41 @@ void UVSG::update(float timeStep)
 	physicsWorld->update(entitySystem, timeStep);
 
 	static int lastButton = 0;
-	int Button = SDL_JoystickGetButton(SDL_JoystickOpen(0), 1);
+	int Button = 0;
+
+	int trigger = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+	//If the trigger is more than half pressed.
+	if (trigger > 16390)
+	{
+		Button = 1;
+	}
+	else
+	{
+		Button = 0;
+	}
 
 	if (Button && !lastButton)
 	{
+		printf("Shoot Here!!!!\n");
+
+		if (haptic != NULL)
+		{
+			// Initialize simple rumble
+			SDL_HapticRumbleInit(haptic);
+
+			if (SDL_HapticRumblePlay(haptic, 1.0, 125) != 0)
+			{
+
+			}
+		}
 
 		entityx::Entity entity1 = entitySystem.entities.create();
 		entity1.assign<MeshComponent>();
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
 		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
-		//entity1.assign<CameraLock>();
+		entity1.assign<TimeToLiveComponent>(5.0f);
+		//entity1.assign<DebugVelocity>();
 
 		entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
 		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 200.0f;
@@ -237,6 +271,7 @@ void UVSG::update(float timeStep)
 	//Update Key Bindings
 
 	//#3 game logic updates
+	entitySystem.systems.update_all(timeStep);
 
 	//#4 audio update
 
@@ -256,6 +291,11 @@ const bool UVSG::getShouldClose()
 
 UVSG::~UVSG()
 {
+	for (entityx::Entity entity : entitySystem.entities.entities_for_debugging())
+	{
+		entity.destroy();
+	}
+
 	delete renderingManager;
 	delete physicsWorld;
 }

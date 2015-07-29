@@ -18,8 +18,13 @@
 
 using namespace std;
 
+
+
 int main()
 {
+	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+
 	UVSG* game = new UVSG();
 
     InputButton input = InputButton();
@@ -29,10 +34,16 @@ int main()
     for(int i = 0; i < num_joy; i++)
     {
         SDL_Joystick *joystick = SDL_JoystickOpen(i);
+		game->controller = SDL_GameControllerOpen(i);
         printf("%s\n", SDL_JoystickName(joystick));
+		if (SDL_JoystickIsHaptic(joystick) == 1)
+		{
+			game->haptic = SDL_HapticOpenFromJoystick(joystick);
+			game->joystick = joystick;
+		}
     }
 
-	
+	int num_gameController = 0;
 
     float deltaTime = 0;
 

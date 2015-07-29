@@ -16,5 +16,8 @@ RigidBody::RigidBody(PhysicsWorld* physicsWorld, entityx::Entity entity, btColli
 
 RigidBody::~RigidBody()
 {
-
+	world->removeRigidBody(rigidBody);
+	delete rigidBody->getMotionState();
+	delete rigidBody->getCollisionShape();
+	delete rigidBody;
 }

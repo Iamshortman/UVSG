@@ -2,57 +2,99 @@
 #define VOXELCOLLISIONSHAPE_HPP
 
 #include <btBulletCollisionCommon.h>
-#include <glmInclude.hpp>
-
 #include <map>
 
-struct ChildShapeData
+#include "vector3I.hpp"
+
+enum CollisionShape
 {
-	btTransform offsetFromBlockPos;
-	btCollisionShape* childShape;
+	collisionShapeBox = 1,
 };
 
 
-class VoxelCollisionShape : public btCollisionShape
+//A way to compair two vector3I without polluting the original class;
+struct CompareVectors
 {
-	const static unsigned int chunkSize = 16;
-	btVector3 localAabbMin;
-	btVector3 localAabbMax;
-	btVector3 m_localScaling;
-	btScalar m_collisionMargin;
-
-
-	void addChild(int x, int y, int z, btTransform& transform, btCollisionShape* shape);
-	btCollisionShape* getChildShape(int x, int y, int z);
-	btTransform getChildTransform(int x, int y, int z);
-
-	virtual	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
-	virtual void recalculateLocalAabb();
-
-	virtual void setLocalScaling(const btVector3& scaling);
-
-	virtual const btVector3& getLocalScaling() const
+	bool operator()(const vector3I& a, const vector3I& b)
 	{
-		return m_localScaling;
+		// z trumps, then y, then x
+		if (a.z < b.z)
+		{
+			return true;
+		}
+		else if (a.z == b.z)
+		{
+			if (a.y < b.y)
+			{
+				// a.z == b.z and y < b.y
+				return true;
+			}
+			else if (a.y == b.y)
+			{
+				if (a.x < b.x)
+				{
+					return true;
+				}
+				else if (a.x == b.x)
+				{
+					// completely equal
+					return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				// z==b.z and y >= b.y
+				return false;
+			}
+		}
+		else
+		{
+			// z >= b.z
+			return false;
+		}
 	}
+};
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3& inertia) const;
+struct VoxelShapeData
+{
+	vector3I blockPos;
+	CollisionShape shape;
+	btVector3 size;
+	btVector3 offset;
+	btQuaternion rotation;
+};
 
-	virtual void setMargin(btScalar margin)
-	{
-		m_collisionMargin = margin;
-	}
-	virtual btScalar getMargin() const
-	{
-		return m_collisionMargin;
-	}
+
+class VoxelCollisionShape : public btCompoundShape
+{
+public:
+
+	const float blockSize;
+
 	virtual const char*	getName()const
 	{
 		return "Voxel";
-	}
+	};
+
+	int getNumChildShapes() const
+	{
+		return blocks.size();
+	};
+
+	virtual btCollisionShape* getChildShape(int index);
+	virtual const btCollisionShape* getChildShape(int index) const;
+	virtual btTransform& getChildTransform(int index);
+	virtual const btTransform&	getChildTransform(int index) const;
+	virtual void recalculateLocalAabb();
+	
+
 
 private:
-	std::map<vector3I, ChildShapeData> blocks;
+	std::map<vector3I, VoxelShapeData, CompareVectors> blocks;
 };
 
 

@@ -13,7 +13,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-typedef glm::uvec3 vector3I;
 typedef glm::vec4 vector4;
 typedef glm::vec3 vector3;
 typedef glm::vec2 vector2;

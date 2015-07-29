@@ -12,7 +12,7 @@ RenderingManager::RenderingManager()
 
 	camera = Camera();
 	camera.moveCameraPos(vector3(0.0, 10.0F, -25.0F));
-	camera.rotateCamera(camera.getRight(), -5.0F / 57.2957795F);
+	//camera.rotateCamera(camera.getRight(), -5.0F / 57.2957795F);
 
 
 	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" } };

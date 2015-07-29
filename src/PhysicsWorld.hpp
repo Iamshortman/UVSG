@@ -17,6 +17,7 @@ public:
 	virtual ~PhysicsWorld();
 	void update(entityx::EntityX &ex, float deltaTime);
 	void addRigidBody(btRigidBody* body);
+	void removeRigidBody(btRigidBody* body);
 
 protected:
 
