@@ -1,9 +1,11 @@
 #include "VoxelComponent.hpp"
 
+bool VoxelComponent::getShouldUpdateChunk()
+{
+	return shouldUpdateChunk;
+}
 
-
-
-void VoxelComponent::setUpdateChunk()
+void VoxelComponent::setShouldUpdateChunk()
 {
 	shouldUpdateChunk = true;
 }

@@ -13,10 +13,12 @@ public:
 	const static unsigned int chunkSize = 16;
 
 	void update();
+
 	void setBlock(int x, int y, int z, BlockID id);
 	BlockID getBlock(int x, int y, int z);
-	void setUpdateChunk();
 
+	void setShouldUpdateChunk();
+	bool getShouldUpdateChunk();
 
 private:
 	//Should Physics and Mesh be recalulated for this object?
@@ -29,10 +31,6 @@ private:
 	BlockID chunk[chunkSize][chunkSize][chunkSize];
 
 	float cubeSize = 1.0f;
-
-	//Refrences to the Object's RigidBody
-	btRigidBody* rigidBody;
-	btCompoundShape* compoundShape;
 };
 
 

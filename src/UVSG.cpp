@@ -3,8 +3,8 @@
 
 #include "RenderingManager.hpp"
 #include "Components.hpp"
-#include "VoxelCollisionShape.hpp"
 #include "TimeToLive.hpp"
+#include "VoxelSystem.hpp"
 
 UVSG* UVSG::instance;
 
@@ -23,6 +23,7 @@ UVSG::UVSG()
 	this->physicsWorld = new PhysicsWorld();
 
 	entitySystem.systems.add<TimeToLiveSystem>();
+	entitySystem.systems.add<VoxelSystem>();
 	entitySystem.systems.configure();
 
 	entityx::Entity entity = entitySystem.entities.create();
@@ -57,82 +58,14 @@ UVSG::UVSG()
 	for (int i = 0; i < 1; i++)
 	{
 		entityx::Entity entity1 = entitySystem.entities.create();
-		entity1.assign<MeshComponent>();
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
-		entity1.assign<inputControl>();
+		entity1.assign<VoxelComponent>();
 
 		btBoxShape* voxel = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
-		entity1.assign<RigidBody>(physicsWorld, entity1, voxel, 1.0f);
-		/*btVector3 Inertia;
-		voxel->calculateLocalInertia(1.0f, Inertia);
-		entity1.component<RigidBody>()->rigidBody->setMassProps(1.0f, Inertia);*/
 
-		entity1.component<Transform>()->position = vector3(0.0f, 10.76f, 0.0f);
+		entity1.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
 		entity1.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
-
-		vector<vector3> vertices = vector<vector3>();
-		vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, -1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, -1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, -1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, 1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, 1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, 1.0f, -1.0f));
-
-
-		vector<vector3> colors = vector<vector3>();
-		colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-
-		vector<vector3> normals = vector<vector3>();
-
-		vector<unsigned int> indices = vector<unsigned int>();
-		push3(&indices, 5, 8, 6);//TOP
-		push3(&indices, 8, 7, 6);
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-
-		push3(&indices, 1, 2, 4);//Bottom
-		push3(&indices, 2, 3, 4);
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-
-		push3(&indices, 2, 6, 3);//Back
-		push3(&indices, 6, 7, 3);
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-
-		push3(&indices, 1, 4, 8);//Front
-		push3(&indices, 5, 1, 8);
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-
-		push3(&indices, 1, 5, 2);//Right
-		push3(&indices, 5, 6, 2);
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-
-		push3(&indices, 3, 7, 4);//Left
-		push3(&indices, 7, 8, 4);
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-
-		entityx::ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-		componentMesh1->mesh.addVertices(vertices, colors, indices);
 	}
 
 }
@@ -171,8 +104,6 @@ void UVSG::update(float timeStep)
 
 	if (Button && !lastButton)
 	{
-		printf("Shoot Here!!!!\n");
-
 		if (haptic != NULL)
 		{
 			// Initialize simple rumble
@@ -190,10 +121,10 @@ void UVSG::update(float timeStep)
 		entity1.assign<Velocity>();
 		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
 		entity1.assign<TimeToLiveComponent>(5.0f);
-		//entity1.assign<DebugVelocity>();
+		entity1.assign<DebugVelocity>();
 
 		entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
-		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 200.0f;
+		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
 
 		vector<vector3> vertices = vector<vector3>();
 		vertices.push_back(vector3(1.0f, -1.0f, -1.0f));

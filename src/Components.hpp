@@ -51,6 +51,9 @@ struct CameraLock
 
 };
 
-struct DebugVelocity{};
+struct DebugVelocity
+{
+	vector3 prevPos;
+};
 
 #endif // COMPONETS_HPP

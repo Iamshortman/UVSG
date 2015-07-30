@@ -62,15 +62,11 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 			{
 				componentRigidBody->rigidBody->activate(true);
 			}
-
-			if (entity.has_component<DebugVelocity>())
-			{
-				printf("Before: (%f, %f, %f)\n", linear.x, linear.y, linear.z);
-			}
-
 		}
 	}
-	dynamicsWorld->stepSimulation(timeStep, 4);
+
+	//Run Physics Simulation
+	dynamicsWorld->stepSimulation(timeStep, 0, (1.0f / 120.0f));
 
 	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
@@ -99,12 +95,6 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
 			componentVelocity->angularVelocity = vector3(angular.getX(), angular.getY(), angular.getZ());
-
-			if (entity.has_component<DebugVelocity>())
-			{
-				printf("Before: (%f, %f, %f)\n", linear.getX(), linear.getY(), linear.getZ());
-			}
-
 		}
 	}
 
