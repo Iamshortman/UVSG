@@ -44,8 +44,3 @@ BlockID VoxelComponent::getBlock(int x, int y, int z)
 	}
 	return 0;
 }
-
-void VoxelComponent::draw()
-{
-	voxelMesh.draw();
-}

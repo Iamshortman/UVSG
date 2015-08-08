@@ -2,7 +2,7 @@
 #define RENDERINGMANAGER_HPP
 
 #include <stddef.h>  // defines NULL
-#include <entityx\entityx.h>
+#include <entityxInclude.hpp>
 
 #include "Components.hpp"
 #include "VoxelComponent.hpp"
@@ -18,13 +18,14 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
-	void update(entityx::EntityX &ex, float deltaTime);
-	matrix4 createModelMatrix(entityx::Entity entity);
+	void update(EntityX &ex, float deltaTime);
+	matrix4 createModelMatrix(Entity entity);
 
 	Camera camera;
 	Window* window = NULL;
 	ShaderProgram basicShader;
 	GLuint uniform_MVP_ID;
+	GLuint uniform_Offset_ID;
 
 protected:
 

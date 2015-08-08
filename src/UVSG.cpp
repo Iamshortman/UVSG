@@ -30,13 +30,13 @@ UVSG::UVSG()
 	entitySystem.systems.add<PlayerControlSystem>();
 	entitySystem.systems.configure();
 
-	entityx::Entity camEntity = entitySystem.entities.create();
+	Entity camEntity = entitySystem.entities.create();
 	camEntity.assign<Transform>();
 	camEntity.assign<CameraLock>();
 	camEntity.assign<PlayerControlComponent>(3.0f, 3.0f);
-	camEntity.component<Transform>()->position = vector3(0.0, 10.0f, -2.50f);
+	camEntity.component<Transform>()->position = vector3(0.0, 10.0f, -25.0f);
 
-	entityx::Entity entity = entitySystem.entities.create();
+	Entity entity = entitySystem.entities.create();
 	entity.assign<MeshComponent>();
 	entity.assign<Transform>();
 
@@ -60,22 +60,29 @@ UVSG::UVSG()
 	normals1.push_back(vector3(0.0F, 1.0F, 0.0F));
 	normals1.push_back(vector3(0.0F, 1.0F, 0.0F));
 
-	entityx::ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
+	ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
 	componentMesh->mesh.addVertices(vertices1, colors1, normals1, indices1);
 	componentMesh->offset = vector3(0.0f, 0.0f, 0.0f);
 	entity.assign<RigidBody>(physicsWorld, entity, new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0), 0.0f);
 
+	Entity voxelObject = entitySystem.entities.create();
+	voxelObject.assign<Transform>();
+	voxelObject.assign<Velocity>();
+	voxelObject.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
+	voxelObject.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+	voxelObject.assign<VoxelComponent>();
+	voxelObject.assign<RigidBody>(physicsWorld, voxelObject, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), 10000.0f);
+	voxelObject.assign<MeshComponent>();
 
-	entityx::Entity entity1 = entitySystem.entities.create();
-	entity1.assign<Transform>();
-	entity1.assign<Velocity>();
-	entity1.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
-	entity1.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
-	entity1.assign<VoxelComponent>();
-
-	for (unsigned int i = 0; i < entity1.component<VoxelComponent>()->chunkSize; i++)
+	for (unsigned int i = 0; i < voxelObject.component<VoxelComponent>()->chunkSize; i++)
 	{
-		entity1.component<VoxelComponent>()->setBlock(0, i, 0, 1);
+		for (unsigned int j = 0; j < voxelObject.component<VoxelComponent>()->chunkSize; j++)
+		{
+			for (unsigned int k = 0; k < voxelObject.component<VoxelComponent>()->chunkSize; k++)
+			{
+				voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 1);
+			}
+		}
 	}
 
 }
@@ -125,18 +132,14 @@ void UVSG::update(float timeStep)
 			}
 		}
 
-		entityx::Entity entity1 = entitySystem.entities.create();
+		Entity entity1 = entitySystem.entities.create();
 		entity1.assign<MeshComponent>();
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
 		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
 
-		entity1.assign<TimeToLiveComponent>(50.0f);
-		entity1.assign<DebugVelocity>();
+		entity1.assign<TimeToLiveComponent>(15.0f);
 
-
-		//entity1.component<Transform>()->position = vector3(0, 10, 0);
-		//entity1.component<Velocity>()->linearVelocity = vector3(0, -4, 0);;
 		entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
 		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
 
@@ -200,15 +203,15 @@ void UVSG::update(float timeStep)
 		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-		entityx::ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
+		ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
 		componentMesh1->mesh.addVertices(vertices, colors, indices);
 	}
 	lastButton = Button;
 
-	entityx::ComponentHandle<CameraLock> componentCameraSearch;
-	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch))
+	ComponentHandle<CameraLock> componentCameraSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch))
 	{
-		entityx::ComponentHandle<Transform> transform = entity.component<Transform>();
+		ComponentHandle<Transform> transform = entity.component<Transform>();
 		renderingManager->camera.setCameraTransform(transform->position, transform->orientation);
 	}
 
@@ -236,13 +239,13 @@ const bool UVSG::getShouldClose()
 
 UVSG::~UVSG()
 {
-	for (entityx::Entity entity : entitySystem.entities.entities_for_debugging())
+	for (Entity entity : entitySystem.entities.entities_for_debugging())
 	{
 		entity.destroy();
 	}
 
 	delete renderingManager;
-	//delete physicsWorld;
+	delete physicsWorld;
 }
 
 UVSG* UVSG::getInstance()

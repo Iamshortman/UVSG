@@ -6,24 +6,24 @@
 
 struct TimeToLiveComponent
 {
-	TimeToLiveComponent(entityx::TimeDelta lifeTime)
+	TimeToLiveComponent(TimeDelta lifeTime)
 	{
 		timeToLive = lifeTime;
 	};
 	//The Time left in seconds
-	entityx::TimeDelta timeToLive;
+	TimeDelta timeToLive;
 };
 
-class TimeToLiveSystem : public entityx::System < TimeToLiveSystem >
+class TimeToLiveSystem : public System < TimeToLiveSystem >
 {
-	void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override
+	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
 		//For all entities with the time to live component.
-		entityx::ComponentHandle<TimeToLiveComponent> timeToLiveComponentSearch;
-		for (entityx::Entity entity : es.entities_with_components(timeToLiveComponentSearch))
+		ComponentHandle<TimeToLiveComponent> timeToLiveComponentSearch;
+		for (Entity entity : es.entities_with_components(timeToLiveComponentSearch))
 		{
 			//Get the component
-			entityx::ComponentHandle<TimeToLiveComponent> timeToLiveComponent = entity.component<TimeToLiveComponent>();
+			ComponentHandle<TimeToLiveComponent> timeToLiveComponent = entity.component<TimeToLiveComponent>();
 
 			//Subtract the time from the previous tick
 			timeToLiveComponent->timeToLive -= dt;

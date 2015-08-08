@@ -3,14 +3,14 @@
 
 #include "Mesh.hpp"
 #include <btBulletDynamicsCommon.h>
-#include <entityx\entityx.h>
+#include <entityxInclude.hpp>
 
 class PhysicsWorld;
 
 class RigidBody
 {
 public:
-	RigidBody(PhysicsWorld* physicsWorld, entityx::Entity entity, btCollisionShape* shape, btScalar mass);
+	RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass);
 	virtual ~RigidBody();
 
 	btRigidBody* rigidBody;

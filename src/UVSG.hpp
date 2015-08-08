@@ -1,8 +1,7 @@
 #ifndef UVSG_HPP
 #define UVSG_HPP
 
-#include <entityx\entityx.h>
-#include <entityx\Entity.h>
+#include "entityxInclude.hpp"
 #include "RenderingManager.hpp"
 #include "PhysicsWorld.hpp"
 
@@ -12,7 +11,7 @@ class UVSG
 public:
 	UVSG();
 	virtual ~UVSG();
-	entityx::EntityX entitySystem;
+	EntityX entitySystem;
 	void update(float deltaTime);
 	void exitGame();
 	const bool getShouldClose();

@@ -1,7 +1,7 @@
 #include "Components.hpp"
 #include "PhysicsWorld.hpp"
 
-RigidBody::RigidBody(PhysicsWorld* physicsWorld, entityx::Entity entity, btCollisionShape* shape, btScalar mass)
+RigidBody::RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass)
 {
 	this->world = physicsWorld;
 

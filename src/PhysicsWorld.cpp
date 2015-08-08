@@ -1,16 +1,6 @@
 #include "PhysicsWorld.hpp"
 #include <iostream>
 
-void printQuat(const quaternion quat)
-{
-	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "} \n";
-}
-
-void printVec(const vector3 quat)
-{
-	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << "} \n";
-}
-
 PhysicsWorld::PhysicsWorld()
 {
 	// Build the broadphase
@@ -28,19 +18,19 @@ PhysicsWorld::PhysicsWorld()
 	dynamicsWorld->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 }
 
-void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
+void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 {
-	entityx::ComponentHandle<RigidBody> componentRigidBodySearch;
-	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+	ComponentHandle<RigidBody> componentRigidBodySearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
-		entityx::ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
+		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
 		btTransform transform;
 		componentRigidBody->motionState->getWorldTransform(transform);
 
 		if (entity.has_component<Transform>())
 		{
-			entityx::ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 			vector3 vec = componentTransform->position;
 			transform.setOrigin(btVector3(vec.x, vec.y, vec.z));
 
@@ -53,7 +43,7 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 
 		if (entity.has_component<Velocity>())
 		{
-			entityx::ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
+			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 			vector3 linear = componentVelocity->linearVelocity;
 			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
 			vector3 angular = componentVelocity->angularVelocity;
@@ -68,16 +58,16 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 	//Run Physics Simulation
 	dynamicsWorld->stepSimulation(timeStep, 0, (1.0f / 120.0f));
 
-	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
-		entityx::ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
+		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
 		btTransform transform;
 		componentRigidBody->motionState->getWorldTransform(transform);
 
 		if (entity.has_component<Transform>())
 		{
-			entityx::ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 			btVector3 position = transform.getOrigin();
 			componentTransform->position = vector3(position.getX(), position.getY(), position.getZ());
 
@@ -88,7 +78,7 @@ void PhysicsWorld::update(entityx::EntityX &entitySystem, float timeStep)
 
 		if (entity.has_component<Velocity>())
 		{
-			entityx::ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
+			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 
 			btVector3 linear = componentRigidBody->rigidBody->getLinearVelocity();
 			componentVelocity->linearVelocity = vector3(linear.getX(), linear.getY(), linear.getZ());

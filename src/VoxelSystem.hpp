@@ -6,20 +6,20 @@
 
 #include "VoxelComponent.hpp"
 
-class VoxelSystem : public entityx::System < VoxelSystem >
+class VoxelSystem : public System < VoxelSystem >
 {
 
-	void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override
+	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
 		//For all entities with the Voxel component.
-		entityx::ComponentHandle<VoxelComponent> componentVoxelSearch;
-		for (entityx::Entity entity : es.entities_with_components(componentVoxelSearch))
+		ComponentHandle<VoxelComponent> componentVoxelSearch;
+		for (Entity entity : es.entities_with_components(componentVoxelSearch))
 		{
-			entityx::ComponentHandle<VoxelComponent> componentVoxel = entity.component<VoxelComponent>();
+			ComponentHandle<VoxelComponent> componentVoxel = entity.component<VoxelComponent>();
 
 			if (componentVoxel->getShouldUpdateChunk())
 			{
-				int result = rebuildChunk(componentVoxel);
+				int result = rebuildChunk(entity, componentVoxel);
 
 				//If result = -1, there are no blocks in the chunk, so delte it
 				if (result == -1)
@@ -31,7 +31,7 @@ class VoxelSystem : public entityx::System < VoxelSystem >
 	};
 
 
-	int rebuildChunk(entityx::ComponentHandle<VoxelComponent> &componentVoxel)
+	int rebuildChunk(Entity entity, ComponentHandle<VoxelComponent> &componentVoxel)
 	{
 		float cubeSize = componentVoxel->getCubeSize();
 		unsigned int chunkSize = componentVoxel->chunkSize;
@@ -224,7 +224,10 @@ class VoxelSystem : public entityx::System < VoxelSystem >
 			return -1;
 		}
 
-		componentVoxel->voxelMesh.addVertices(tempVertices, tempColors, tempIndices);
+		if (entity.has_component<MeshComponent>())
+		{
+			entity.component<MeshComponent>()->mesh.addVertices(tempVertices, tempColors, tempIndices);
+		}
 
 		//Done with updates
 		componentVoxel->clearShouldUpdateChunk();
