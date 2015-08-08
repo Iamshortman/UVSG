@@ -10,6 +10,11 @@ void VoxelComponent::setShouldUpdateChunk()
 	shouldUpdateChunk = true;
 }
 
+void VoxelComponent::clearShouldUpdateChunk()
+{
+	shouldUpdateChunk = false;
+}
+
 void VoxelComponent::setBlock(int x, int y, int z, BlockID id)
 {
 	if (x >= 0 && x < chunkSize)
@@ -38,4 +43,9 @@ BlockID VoxelComponent::getBlock(int x, int y, int z)
 		}
 	}
 	return 0;
+}
+
+void VoxelComponent::draw()
+{
+	voxelMesh.draw();
 }

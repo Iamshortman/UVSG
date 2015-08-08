@@ -5,6 +5,8 @@
 #include <entityx\entityx.h>
 
 #include "Components.hpp"
+#include "VoxelComponent.hpp"
+
 #include "Camera.hpp"
 #include "Window.hpp"
 #include "glmInclude.hpp"

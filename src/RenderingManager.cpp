@@ -38,10 +38,10 @@ void RenderingManager::update(entityx::EntityX &entitySystem, float timeStep)
 
 	window->clearBuffer();
 
-	entityx::ComponentHandle<MeshComponent> componentMesh;
-	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentMesh))
+	entityx::ComponentHandle<MeshComponent> componentMeshSearch;
+	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentMeshSearch))
 	{
-		entityx::ComponentHandle<MeshComponent> mesh = entity.component<MeshComponent>();
+		entityx::ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
 		modelMatrix = createModelMatrix(entity);
 		
 		
@@ -50,12 +50,33 @@ void RenderingManager::update(entityx::EntityX &entitySystem, float timeStep)
 		basicShader.setActiveProgram();
 		glUniformMatrix4fv(uniform_MVP_ID, 1, GL_FALSE, &MVP[0][0]);
 
-		mesh->mesh.draw();
+		componentMesh->mesh.draw();
 
 		basicShader.deactivateProgram();
 
 		count++;
 	}
+
+
+	entityx::ComponentHandle<VoxelComponent> componentVoxelSearch;
+	for (entityx::Entity entity : entitySystem.entities.entities_with_components(componentVoxelSearch))
+	{
+		entityx::ComponentHandle<VoxelComponent> componentVoxel = entity.component<VoxelComponent>();
+		modelMatrix = createModelMatrix(entity);
+
+
+		MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+		basicShader.setActiveProgram();
+		glUniformMatrix4fv(uniform_MVP_ID, 1, GL_FALSE, &MVP[0][0]);
+
+		componentVoxel->draw();
+
+		basicShader.deactivateProgram();
+
+		count++;
+	}
+
 
 	window->updateBuffer();
 }

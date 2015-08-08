@@ -1,5 +1,6 @@
 #ifndef GLMINCLUDE_HPP
 #define GLMINCLUDE_HPP
+
 //Used to include GLM in correct order
 #include <stdlib.h>
 #include <iostream>

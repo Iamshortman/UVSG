@@ -26,6 +26,12 @@ class Transform
 public:
 	vector3 position;
 	quaternion orientation;
+	
+	//Getters for the directional vectors.
+	const vector3 getForward(){ return orientation * vector3(0.0f, 0.0f, 1.0f); };
+	const vector3 getUp(){ return orientation * vector3(0.0f, 1.0f, 0.0f); };
+	const vector3 getRight(){ return orientation * vector3(-1.0f, 0.0f, 0.0f); };
+
 };
 
 class Velocity

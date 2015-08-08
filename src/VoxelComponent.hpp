@@ -12,20 +12,22 @@ class VoxelComponent
 public:
 	const static unsigned int chunkSize = 16;
 
-	void update();
-
 	void setBlock(int x, int y, int z, BlockID id);
 	BlockID getBlock(int x, int y, int z);
 
 	void setShouldUpdateChunk();
+	void clearShouldUpdateChunk();
 	bool getShouldUpdateChunk();
 
+	void draw();
+
+	float getCubeSize(){ return cubeSize; };
+
+	Mesh voxelMesh;
 private:
 	//Should Physics and Mesh be recalulated for this object?
-	bool shouldUpdateChunk = false;
-
-	//Stores all the collision shapes for this object
-	btCollisionShape* collisionObjects[chunkSize][chunkSize][chunkSize];
+	//Needs to be ralculated the first update.
+	bool shouldUpdateChunk = true;
 
 	//Stores all the block ideas for this object
 	BlockID chunk[chunkSize][chunkSize][chunkSize];

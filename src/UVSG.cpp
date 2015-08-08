@@ -5,6 +5,7 @@
 #include "Components.hpp"
 #include "TimeToLive.hpp"
 #include "VoxelSystem.hpp"
+#include "PlayerControl.hpp"
 
 UVSG* UVSG::instance;
 
@@ -20,14 +21,24 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
+	//this->renderingManager->window->setVsync(0);
+
 	this->physicsWorld = new PhysicsWorld();
 
 	entitySystem.systems.add<TimeToLiveSystem>();
 	entitySystem.systems.add<VoxelSystem>();
+	entitySystem.systems.add<PlayerControlSystem>();
 	entitySystem.systems.configure();
+
+	entityx::Entity camEntity = entitySystem.entities.create();
+	camEntity.assign<Transform>();
+	camEntity.assign<CameraLock>();
+	camEntity.assign<PlayerControlComponent>(3.0f, 3.0f);
+	camEntity.component<Transform>()->position = vector3(0.0, 10.0f, -2.50f);
 
 	entityx::Entity entity = entitySystem.entities.create();
 	entity.assign<MeshComponent>();
+	entity.assign<Transform>();
 
 	vector<vector3> vertices1 = vector<vector3>();
 	vector<vector3> colors1 = vector<vector3>();
@@ -55,17 +66,16 @@ UVSG::UVSG()
 	entity.assign<RigidBody>(physicsWorld, entity, new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0), 0.0f);
 
 
-	for (int i = 0; i < 1; i++)
+	entityx::Entity entity1 = entitySystem.entities.create();
+	entity1.assign<Transform>();
+	entity1.assign<Velocity>();
+	entity1.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
+	entity1.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+	entity1.assign<VoxelComponent>();
+
+	for (unsigned int i = 0; i < entity1.component<VoxelComponent>()->chunkSize; i++)
 	{
-		entityx::Entity entity1 = entitySystem.entities.create();
-		entity1.assign<Transform>();
-		entity1.assign<Velocity>();
-		entity1.assign<VoxelComponent>();
-
-		btBoxShape* voxel = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
-
-		entity1.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
-		entity1.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+		entity1.component<VoxelComponent>()->setBlock(0, i, 0, 1);
 	}
 
 }
@@ -120,9 +130,13 @@ void UVSG::update(float timeStep)
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
 		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
-		entity1.assign<TimeToLiveComponent>(5.0f);
+
+		entity1.assign<TimeToLiveComponent>(50.0f);
 		entity1.assign<DebugVelocity>();
 
+
+		//entity1.component<Transform>()->position = vector3(0, 10, 0);
+		//entity1.component<Velocity>()->linearVelocity = vector3(0, -4, 0);;
 		entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
 		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
 
@@ -228,7 +242,7 @@ UVSG::~UVSG()
 	}
 
 	delete renderingManager;
-	delete physicsWorld;
+	//delete physicsWorld;
 }
 
 UVSG* UVSG::getInstance()
