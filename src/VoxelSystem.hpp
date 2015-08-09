@@ -1,9 +1,7 @@
 #ifndef VOXELSYSTEM_HPP
 #define VOXELSYSTEM_HPP
 
-#include <entityx/entityx.h>
-#include <entityx\System.h>
-
+#include "entityxInclude.hpp"
 #include "VoxelComponent.hpp"
 
 class VoxelSystem : public System < VoxelSystem >
@@ -33,6 +31,9 @@ class VoxelSystem : public System < VoxelSystem >
 
 	int rebuildChunk(Entity entity, ComponentHandle<VoxelComponent> &componentVoxel)
 	{
+		//Reset flag
+		componentVoxel->clearShouldUpdateChunk();
+
 		float cubeSize = componentVoxel->getCubeSize();
 		unsigned int chunkSize = componentVoxel->chunkSize;
 
@@ -66,7 +67,9 @@ class VoxelSystem : public System < VoxelSystem >
 		std::vector<unsigned int> tempIndices = std::vector<unsigned int>();
 		unsigned int indicesOffset = 0;
 
-		btScalar tempMass = 0.1f; //Starts out a little above 0 so its not static.
+		btScalar totalMass = 0.1f; //Starts out a little above 0 so its not static.
+		btVector3 centerOfMass = btVector3(0.0f, 0.0f, 0.0f);
+
 		vector3	tempPos(0, 0, 0);
 		unsigned int tempBlockCount = 0;
 
@@ -84,15 +87,17 @@ class VoxelSystem : public System < VoxelSystem >
 					if (id == 1)
 					{
 						tempBlockCount++;
-						tempMass += 1.0F;
+						float blockMass = 1.0f;
+
+						totalMass += blockMass;
+						centerOfMass += (btVector3(x, y, z) * blockMass);
+
 
 						//If surrounded by blocks do nothing
 						if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
 						{
 							continue;
 						}
-
-
 
 						//Top
 						if (componentVoxel->getBlock(x, y + 1, z) == 0)
@@ -224,13 +229,85 @@ class VoxelSystem : public System < VoxelSystem >
 			return -1;
 		}
 
+		//Get the final center of mass;
+		centerOfMass /= tempBlockCount;
+
+
 		if (entity.has_component<MeshComponent>())
 		{
-			entity.component<MeshComponent>()->mesh.addVertices(tempVertices, tempColors, tempIndices);
+			ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
+			componentMesh->mesh.addVertices(tempVertices, tempColors, tempIndices);
+			componentMesh->offset = -vector3(centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
 		}
 
-		//Done with updates
-		componentVoxel->clearShouldUpdateChunk();
+
+		//Physics Updates
+		if (entity.has_component<RigidBody>())
+		{
+			ComponentHandle<RigidBody> rigidBody = entity.component<RigidBody>();
+
+			if (rigidBody->collisionShape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+			{
+				btCompoundShape* compoundShape = (btCompoundShape*)rigidBody->collisionShape;
+
+				//Remove all Shapes
+				for (int i = 0; i < compoundShape->getNumChildShapes(); i++)
+				{
+					compoundShape->removeChildShapeByIndex(i);
+				}
+
+
+				//Add all new shapes back
+				for (unsigned int x = 0; x < chunkSize; x++)
+				{
+					for (unsigned int y = 0; y < chunkSize; y++)
+					{
+						for (unsigned int z = 0; z < chunkSize; z++)
+						{
+							//delete all old shapes
+							if (componentVoxel->collisionChunk[x][y][z] != 0)
+							{
+								delete componentVoxel->collisionChunk[x][y][z];
+								componentVoxel->collisionChunk[x][y][z] = 0;
+							}
+
+							//If surrounded by blocks do nothing
+							if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
+							{
+								continue;
+							}
+							
+							//Add new block collider
+							if (componentVoxel->getBlock(x, y, z) == 1)
+							{
+								componentVoxel->collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
+
+								//offset for new center of mass;
+								btVector3 pos = (btVector3(x, y, z) - centerOfMass) * cubeSize;
+								compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), pos), componentVoxel->collisionChunk[x][y][z]);
+							}
+						}
+					}
+				}
+
+
+
+
+				//Readjust the mass properties
+				btVector3 inertia;
+				rigidBody->collisionShape->calculateLocalInertia(totalMass, inertia);
+				rigidBody->rigidBody->setMassProps(totalMass, inertia);
+
+				//Shift position to adjust for new center
+				if (entity.has_component<Transform>())
+				{
+					entity.component<Transform>()->position += vector3(centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
+				}
+
+			}
+		}
+
+
 		return 0;
 	}
 

@@ -89,6 +89,14 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				componentTransform->position += componentTransform->getRight() * distance;
 			}
 
+			int trigger = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+			//If the trigger is more than half pressed.
+			if (trigger > 16390)
+			{
+				
+			}
+
+
 		}
 	};
 };

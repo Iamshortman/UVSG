@@ -68,10 +68,15 @@ UVSG::UVSG()
 	Entity voxelObject = entitySystem.entities.create();
 	voxelObject.assign<Transform>();
 	voxelObject.assign<Velocity>();
-	voxelObject.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
+	voxelObject.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f) - vector3(7.5, 7.5, 7.5);
 	voxelObject.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
 	voxelObject.assign<VoxelComponent>();
-	voxelObject.assign<RigidBody>(physicsWorld, voxelObject, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)), 10000.0f);
+
+	btCompoundShape *compoundShape = new btCompoundShape();
+	compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
+	voxelObject.assign<RigidBody>(physicsWorld, voxelObject, compoundShape, 10000.0f);
+	
+	
 	voxelObject.assign<MeshComponent>();
 
 	for (unsigned int i = 0; i < voxelObject.component<VoxelComponent>()->chunkSize; i++)
@@ -90,8 +95,6 @@ UVSG::UVSG()
 
 void UVSG::update(float timeStep)
 {
-
-
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -104,109 +107,6 @@ void UVSG::update(float timeStep)
 
 	//#1 step Physics
 	physicsWorld->update(entitySystem, timeStep);
-
-	static int lastButton = 0;
-	int Button = 0;
-
-	int trigger = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-	//If the trigger is more than half pressed.
-	if (trigger > 16390)
-	{
-		Button = 1;
-	}
-	else
-	{
-		Button = 0;
-	}
-
-	if (Button && !lastButton)
-	{
-		if (haptic != NULL)
-		{
-			// Initialize simple rumble
-			SDL_HapticRumbleInit(haptic);
-
-			if (SDL_HapticRumblePlay(haptic, 1.0, 125) != 0)
-			{
-
-			}
-		}
-
-		Entity entity1 = entitySystem.entities.create();
-		entity1.assign<MeshComponent>();
-		entity1.assign<Transform>();
-		entity1.assign<Velocity>();
-		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
-
-		entity1.assign<TimeToLiveComponent>(15.0f);
-
-		entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
-		entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
-
-		vector<vector3> vertices = vector<vector3>();
-		vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, -1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, -1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, -1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, 1.0f, -1.0f));
-		vertices.push_back(vector3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, 1.0f, 1.0f));
-		vertices.push_back(vector3(-1.0f, 1.0f, -1.0f));
-
-
-		vector<vector3> colors = vector<vector3>();
-		colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-		colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-		colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-
-		vector<vector3> normals = vector<vector3>();
-
-		vector<unsigned int> indices = vector<unsigned int>();
-		push3(&indices, 5, 8, 6);//TOP
-		push3(&indices, 8, 7, 6);
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-
-		push3(&indices, 1, 2, 4);//Bottom
-		push3(&indices, 2, 3, 4);
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-		normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-
-		push3(&indices, 2, 6, 3);//Back
-		push3(&indices, 6, 7, 3);
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-
-		push3(&indices, 1, 4, 8);//Front
-		push3(&indices, 5, 1, 8);
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-		normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-
-		push3(&indices, 1, 5, 2);//Right
-		push3(&indices, 5, 6, 2);
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-
-		push3(&indices, 3, 7, 4);//Left
-		push3(&indices, 7, 8, 4);
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-		normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-
-		ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-		componentMesh1->mesh.addVertices(vertices, colors, indices);
-	}
-	lastButton = Button;
 
 	ComponentHandle<CameraLock> componentCameraSearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch))

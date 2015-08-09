@@ -11,6 +11,20 @@ class VoxelComponent
 public:
 	const static unsigned int chunkSize = 16;
 
+	VoxelComponent()
+	{
+		for (unsigned int x = 0; x < chunkSize; x++)
+		{
+			for (unsigned int y = 0; y < chunkSize; y++)
+			{
+				for (unsigned int z = 0; z < chunkSize; z++)
+				{
+					collisionChunk[x][y][z] = 0;
+				}
+			}
+		}
+	};
+
 	void setBlock(int x, int y, int z, BlockID id);
 	BlockID getBlock(int x, int y, int z);
 
@@ -19,6 +33,8 @@ public:
 	bool getShouldUpdateChunk();
 
 	float getCubeSize(){ return cubeSize; };
+
+	btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
 private:
 	//Should Physics and Mesh be recalulated for this object?
 	//Needs to be ralculated the first update.
