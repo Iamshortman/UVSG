@@ -10,15 +10,14 @@ class PhysicsWorld;
 class RigidBody
 {
 public:
-	RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass);
+	RigidBody(PhysicsWorld* physicsWorld, Entity& entity, btCollisionShape* shape, btScalar mass);
 	virtual ~RigidBody();
 
 	btRigidBody* rigidBody;
 	btCollisionShape* collisionShape;
 	btMotionState* motionState;
-
-private:
 	PhysicsWorld* world;
+private:
 };
 
 class Transform
@@ -28,9 +27,28 @@ public:
 	quaternion orientation;
 	
 	//Getters for the directional vectors.
+	const vector3 getPos(){ return position; };
 	const vector3 getForward(){ return orientation * vector3(0.0f, 0.0f, 1.0f); };
 	const vector3 getUp(){ return orientation * vector3(0.0f, 1.0f, 0.0f); };
 	const vector3 getRight(){ return orientation * vector3(-1.0f, 0.0f, 0.0f); };
+
+	const matrix4 getModleMatrix()
+	{
+		matrix4 positionMatrix = matrix4();
+		matrix4 rotationMatrix = matrix4();
+		matrix4 scaleMatrix = matrix4();
+
+		positionMatrix = glm::translate(matrix4(1.0F), position);
+		rotationMatrix = glm::toMat4(orientation);
+		//TODO SCALEMatrix
+
+		return positionMatrix * rotationMatrix * scaleMatrix;
+	};
+
+	const matrix3 getNormalMatrix()
+	{
+		return glm::toMat3(orientation);
+	};
 
 };
 

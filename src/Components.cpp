@@ -1,7 +1,7 @@
 #include "Components.hpp"
 #include "PhysicsWorld.hpp"
 
-RigidBody::RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass)
+RigidBody::RigidBody(PhysicsWorld* physicsWorld, Entity& entity, btCollisionShape* shape, btScalar mass)
 {
 	this->world = physicsWorld;
 
@@ -10,6 +10,8 @@ RigidBody::RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape
 	motionState = new btDefaultMotionState();
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, motionState, shape, Inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
+	rigidBody->setUserIndex((entityx::uint64_t) entity.id().id());
+
 	collisionShape = shape;
 	this->world->addRigidBody(rigidBody);
 }

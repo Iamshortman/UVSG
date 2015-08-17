@@ -9,7 +9,7 @@ typedef unsigned short BlockID;
 class VoxelComponent
 {
 public:
-	const static unsigned int chunkSize = 16;
+	const static unsigned int chunkSize = 8;
 
 	VoxelComponent()
 	{
@@ -35,6 +35,8 @@ public:
 	float getCubeSize(){ return cubeSize; };
 
 	btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
+
+	vector3 centerOfMassOffest;
 private:
 	//Should Physics and Mesh be recalulated for this object?
 	//Needs to be ralculated the first update.

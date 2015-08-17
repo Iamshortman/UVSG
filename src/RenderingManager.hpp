@@ -19,12 +19,12 @@ public:
 	RenderingManager();
 	virtual ~RenderingManager();
 	void update(EntityX &ex, float deltaTime);
-	matrix4 createModelMatrix(Entity entity);
 
 	Camera camera;
 	Window* window = NULL;
 	ShaderProgram basicShader;
 	GLuint uniform_MVP_ID;
+	GLuint uniform_Normal_ID;
 	GLuint uniform_Offset_ID;
 
 protected:

@@ -30,3 +30,23 @@ quaternion fromAxes(const vector3 forward, const vector3 up)
 
 	return toQuat(rotationMatrix);
 };
+
+PxVec3 toPxVec3(vector3 vec)
+{
+	return PxVec3(vec.x, vec.y, vec.z);
+}
+
+vector3 toVector3(PxVec3 vec)
+{
+	return vector3(vec.x, vec.y, vec.z);
+}
+
+PxQuat toPxQuat(quaternion quat)
+{
+	return PxQuat(quat.x, quat.y, quat.z, quat.w);
+}
+
+quaternion toQuaternion(PxQuat quat)
+{
+	return quaternion(quat.w, quat.x, quat.y, quat.z);
+}

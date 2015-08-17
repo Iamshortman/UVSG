@@ -21,29 +21,18 @@ using namespace std;
 int main()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
 
 	UVSG* game = new UVSG();
-
-    InputButton input = InputButton();
 
     int num_joy = SDL_NumJoysticks();
     printf("%i joystick(s) were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
-        SDL_Joystick *joystick = SDL_JoystickOpen(i);
-		game->controller = SDL_GameControllerOpen(i);
-        printf("%s\n", SDL_JoystickName(joystick));
-		if (SDL_JoystickIsHaptic(joystick) == 1)
-		{
-			game->haptic = SDL_HapticOpenFromJoystick(joystick);
-			game->joystick = joystick;
-		}
+		game->joystick = SDL_JoystickOpen(i);
+		printf("%s\n", SDL_JoystickName(game->joystick));
     }
 
-	int num_gameController = 0;
-
-    float deltaTime = 0;
+    double deltaTime = 0;
 
     Uint32 lastTime = 0;
     Uint32 lastFrameTime = 0;
@@ -67,7 +56,7 @@ int main()
         Uint32 delta = currentTime - lastFrameTime;
         lastFrameTime = currentTime;
 
-		deltaTime = ((float)delta) / 1000.0f;
+		deltaTime = ((double)delta) / 1000.0;
 		//cout << "Update delta: " << deltaTime << endl;
 
 		UVSG::getInstance()->update(deltaTime);

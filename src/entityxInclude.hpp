@@ -7,6 +7,8 @@
 typedef entityx::EntityX EntityX;
 
 typedef entityx::Entity Entity;
+typedef uint64_t entityxId;
+
 using entityx::ComponentHandle;
 using entityx::System;
 typedef entityx::EntityManager EntityManager;

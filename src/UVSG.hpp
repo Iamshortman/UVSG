@@ -4,6 +4,7 @@
 #include "entityxInclude.hpp"
 #include "RenderingManager.hpp"
 #include "PhysicsWorld.hpp"
+#include "PhysxWorld.hpp"
 
 class UVSG
 {
@@ -12,7 +13,7 @@ public:
 	UVSG();
 	virtual ~UVSG();
 	EntityX entitySystem;
-	void update(float deltaTime);
+	void update(double deltaTime);
 	void exitGame();
 	const bool getShouldClose();
 
@@ -20,6 +21,7 @@ public:
 
 	RenderingManager* renderingManager;
 	PhysicsWorld* physicsWorld;
+	PhysxWorld* physxWorld;
 
 	SDL_Haptic *haptic = NULL;
 	SDL_Joystick *joystick = NULL;

@@ -9,17 +9,18 @@ RenderingManager::RenderingManager()
 	int SCREEN_HEIGHT = 400;
 
 	window = new Window(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-	window->setBufferClearColor(0.0F, 0.0F, 1.0F, 1.0F);
+	window->setBufferClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 
 	camera = Camera();
 
-	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" } };
+	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" }, { 2, "in_Normal" } };
 
-	basicShader = ShaderProgram("basicVertex.vs", "basicFragment.fs", attributes, 2);
+	basicShader = ShaderProgram("basicVertex.vs", "basicFragment.fs", attributes, 3);
 
 	// Get a handle for our "Matrix" uniform
 	uniform_MVP_ID = glGetUniformLocation(basicShader.programID, "MVP");
 	uniform_Offset_ID = glGetUniformLocation(basicShader.programID, "offset");
+	uniform_Normal_ID = glGetUniformLocation(basicShader.programID, "normalMatrix");
 }
 
 void RenderingManager::update(EntityX &entitySystem, float timeStep)
@@ -32,22 +33,29 @@ void RenderingManager::update(EntityX &entitySystem, float timeStep)
 	matrix4 projectionMatrix = camera.getProjectionMatrix(width, height);
 	matrix4 modelMatrix = matrix4();
 	matrix4 MVP = matrix4();
+	matrix3 normalMatrix = matrix3();
 
 	int count = 0;
 
 	window->clearBuffer();
 
 	ComponentHandle<MeshComponent> componentMeshSearch;
-	for (Entity entity : entitySystem.entities.entities_with_components(componentMeshSearch))
+	ComponentHandle<Transform> componentTransformSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentMeshSearch, componentTransformSearch))
 	{
 		ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
-		modelMatrix = createModelMatrix(entity);
-		
+		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+
+		modelMatrix = componentTransform->getModleMatrix();
+		normalMatrix = componentTransform->getNormalMatrix();
+
 		MVP = projectionMatrix * viewMatrix * modelMatrix;
 		
 		basicShader.setActiveProgram();
 		glUniformMatrix4fv(uniform_MVP_ID, 1, GL_FALSE, &MVP[0][0]);
 		glUniform3fv(uniform_Offset_ID, 1, &componentMesh->offset[0]);
+		glUniformMatrix3fv(uniform_Normal_ID, 1, GL_FALSE, &normalMatrix[0][0]);
+
 		componentMesh->mesh.draw();
 
 		basicShader.deactivateProgram();
@@ -57,24 +65,6 @@ void RenderingManager::update(EntityX &entitySystem, float timeStep)
 
 	window->updateBuffer();
 }
-
-matrix4	RenderingManager::createModelMatrix(Entity entity)
-{
-	matrix4 PositionMatrix = matrix4();
-	matrix4 RotationMatrix = matrix4();
-	matrix4 ScaleMatrix = matrix4();
-
-	if (entity.has_component<Transform>())
-	{
-		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
-
-		 PositionMatrix = glm::translate(matrix4(1.0F), componentTransform->position);
-		 RotationMatrix = glm::toMat4(componentTransform->orientation);
-	}
-
-	return PositionMatrix * RotationMatrix * ScaleMatrix;
-}
-
 
 RenderingManager::~RenderingManager()
 {

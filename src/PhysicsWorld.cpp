@@ -24,6 +24,13 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
+		
+		//Do nothing if the entity is not part of this world
+		if (componentRigidBody->world != this)
+		{
+			continue;
+		}
+
 
 		btTransform transform;
 		componentRigidBody->motionState->getWorldTransform(transform);
@@ -32,7 +39,7 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 		{
 			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 			vector3 vec = componentTransform->position;
-			transform.setOrigin(btVector3(vec.x, vec.y, vec.z));
+			transform.setOrigin(toBtVec3(vec));
 
 			quaternion quat = componentTransform->orientation;
 			transform.setRotation(btQuaternion(quat.x, quat.y, quat.z, quat.w));
@@ -45,10 +52,10 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 			vector3 linear = componentVelocity->linearVelocity;
-			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
+			componentRigidBody->rigidBody->setLinearVelocity(toBtVec3(linear));
 			vector3 angular = componentVelocity->angularVelocity;
-			componentRigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
-			if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
+			componentRigidBody->rigidBody->setAngularVelocity(toBtVec3(angular));
+			if (linear.x != 0 || linear.y != 0 || linear.z != 0 || angular.x != 0 || angular.y != 0 || angular.z != 0)
 			{
 				componentRigidBody->rigidBody->activate(true);
 			}
@@ -62,6 +69,12 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
+		//Do nothing if the entity is not part of this world
+		if (componentRigidBody->world != this)
+		{
+			continue;
+		}
+
 		btTransform transform;
 		componentRigidBody->motionState->getWorldTransform(transform);
 
@@ -69,7 +82,7 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 		{
 			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 			btVector3 position = transform.getOrigin();
-			componentTransform->position = vector3(position.getX(), position.getY(), position.getZ());
+			componentTransform->position = toGlmVec3(position);
 
 			btQuaternion orientation = transform.getRotation();
 
@@ -81,10 +94,10 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 
 			btVector3 linear = componentRigidBody->rigidBody->getLinearVelocity();
-			componentVelocity->linearVelocity = vector3(linear.getX(), linear.getY(), linear.getZ());
+			componentVelocity->linearVelocity = toGlmVec3(linear);
 
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
-			componentVelocity->angularVelocity = vector3(angular.getX(), angular.getY(), angular.getZ());
+			componentVelocity->angularVelocity = toGlmVec3(angular);
 		}
 	}
 
@@ -98,6 +111,40 @@ void PhysicsWorld::addRigidBody(btRigidBody* body)
 void PhysicsWorld::removeRigidBody(btRigidBody* body)
 {
 	dynamicsWorld->removeRigidBody(body);
+}
+
+RayTestResult PhysicsWorld::rayTest(vector3 startPos, vector3 endPos)
+{
+	btVector3 start = toBtVec3(startPos);
+	btVector3 end = toBtVec3(endPos);
+
+	btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+	dynamicsWorld->rayTest(start, end, rayCallback);
+	
+	RayTestResult result = RayTestResult(rayCallback.hasHit());
+
+	//If it did hit something
+	if (rayCallback.hasHit())
+	{
+		const btRigidBody* rigidBody = btRigidBody::upcast(rayCallback.m_collisionObject);
+
+		result.entityID = rigidBody->getUserIndex();
+
+		result.worldHitPoint = toGlmVec3(rayCallback.m_hitPointWorld);
+		result.worldHitNormal = toGlmVec3(rayCallback.m_hitNormalWorld);
+	}
+
+	return result;
+}
+
+btVector3 PhysicsWorld::toBtVec3(const vector3& vec)
+{
+	return btVector3(vec.x, vec.y, vec.z);
+}
+
+vector3 PhysicsWorld::toGlmVec3(const btVector3& vec)
+{
+	return vector3(vec.getX(), vec.getY(), vec.getZ());
 }
 
 PhysicsWorld::~PhysicsWorld()

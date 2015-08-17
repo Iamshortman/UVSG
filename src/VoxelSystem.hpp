@@ -64,6 +64,7 @@ class VoxelSystem : public System < VoxelSystem >
 
 		std::vector<vector3> tempVertices = std::vector<vector3>();
 		std::vector<vector3> tempColors = std::vector<vector3>();
+		std::vector<vector3> tempNormals = std::vector<vector3>();
 		std::vector<unsigned int> tempIndices = std::vector<unsigned int>();
 		unsigned int indicesOffset = 0;
 
@@ -116,6 +117,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[5]);
 							tempColors.push_back(colorsCube[6]);
 							tempColors.push_back(colorsCube[7]);
+							tempNormals.push_back(vector3(0, 1, 0));
+							tempNormals.push_back(vector3(0, 1, 0));
+							tempNormals.push_back(vector3(0, 1, 0));
+							tempNormals.push_back(vector3(0, 1, 0));
+
 							indicesOffset += 4;
 						}
 
@@ -136,6 +142,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[1]);
 							tempColors.push_back(colorsCube[2]);
 							tempColors.push_back(colorsCube[3]);
+							tempNormals.push_back(vector3(0, -1, 0));
+							tempNormals.push_back(vector3(0, -1, 0));
+							tempNormals.push_back(vector3(0, -1, 0));
+							tempNormals.push_back(vector3(0, -1, 0));
+
 							indicesOffset += 4;
 						}
 
@@ -156,6 +167,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[2]);
 							tempColors.push_back(colorsCube[5]);
 							tempColors.push_back(colorsCube[6]);
+							tempNormals.push_back(vector3(0, 0, 1));
+							tempNormals.push_back(vector3(0, 0, 1));
+							tempNormals.push_back(vector3(0, 0, 1));
+							tempNormals.push_back(vector3(0, 0, 1));
+
 							indicesOffset += 4;
 						}
 
@@ -176,6 +192,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[3]);
 							tempColors.push_back(colorsCube[4]);
 							tempColors.push_back(colorsCube[7]);
+							tempNormals.push_back(vector3(0, 0, -1));
+							tempNormals.push_back(vector3(0, 0, -1));
+							tempNormals.push_back(vector3(0, 0, -1));
+							tempNormals.push_back(vector3(0, 0, -1));
+
 							indicesOffset += 4;
 						}
 
@@ -196,6 +217,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[1]);
 							tempColors.push_back(colorsCube[4]);
 							tempColors.push_back(colorsCube[5]);
+							tempNormals.push_back(vector3(1, 0, 0));
+							tempNormals.push_back(vector3(1, 0, 0));
+							tempNormals.push_back(vector3(1, 0, 0));
+							tempNormals.push_back(vector3(1, 0, 0));
+
 							indicesOffset += 4;
 						}
 
@@ -216,6 +242,11 @@ class VoxelSystem : public System < VoxelSystem >
 							tempColors.push_back(colorsCube[3]);
 							tempColors.push_back(colorsCube[6]);
 							tempColors.push_back(colorsCube[7]);
+							tempNormals.push_back(vector3(-1, 0, 0));
+							tempNormals.push_back(vector3(-1, 0, 0));
+							tempNormals.push_back(vector3(-1, 0, 0));
+							tempNormals.push_back(vector3(-1, 0, 0));
+
 							indicesOffset += 4;
 						}
 					}
@@ -232,12 +263,10 @@ class VoxelSystem : public System < VoxelSystem >
 		//Get the final center of mass;
 		centerOfMass /= tempBlockCount;
 
-
 		if (entity.has_component<MeshComponent>())
 		{
 			ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();
-			componentMesh->mesh.addVertices(tempVertices, tempColors, tempIndices);
-			componentMesh->offset = -vector3(centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
+			componentMesh->mesh.addVertices(tempVertices, tempColors, tempNormals, tempIndices);
 		}
 
 
@@ -250,13 +279,6 @@ class VoxelSystem : public System < VoxelSystem >
 			{
 				btCompoundShape* compoundShape = (btCompoundShape*)rigidBody->collisionShape;
 
-				//Remove all Shapes
-				for (int i = 0; i < compoundShape->getNumChildShapes(); i++)
-				{
-					compoundShape->removeChildShapeByIndex(i);
-				}
-
-
 				//Add all new shapes back
 				for (unsigned int x = 0; x < chunkSize; x++)
 				{
@@ -264,46 +286,42 @@ class VoxelSystem : public System < VoxelSystem >
 					{
 						for (unsigned int z = 0; z < chunkSize; z++)
 						{
-							//delete all old shapes
-							if (componentVoxel->collisionChunk[x][y][z] != 0)
+
+							//If surrounded by blocks, no collision shape should be made.
+							if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
 							{
+								if (componentVoxel->collisionChunk[x][y][z] != 0)
+								{
+									compoundShape->removeChildShape(componentVoxel->collisionChunk[x][y][z]);
+									delete componentVoxel->collisionChunk[x][y][z];
+									componentVoxel->collisionChunk[x][y][z] = 0;
+								}
+
+								continue;
+							}
+
+
+							if (componentVoxel->getBlock(x, y, z) == 1 && componentVoxel->collisionChunk[x][y][z] == 0)
+							{
+								componentVoxel->collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
+								compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z) * cubeSize), componentVoxel->collisionChunk[x][y][z]);
+							}
+
+							if (componentVoxel->getBlock(x, y, z) == 0 && componentVoxel->collisionChunk[x][y][z] != 0)
+							{
+								compoundShape->removeChildShape(componentVoxel->collisionChunk[x][y][z]);
 								delete componentVoxel->collisionChunk[x][y][z];
 								componentVoxel->collisionChunk[x][y][z] = 0;
 							}
 
-							//If surrounded by blocks do nothing
-							if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
-							{
-								continue;
-							}
-							
-							//Add new block collider
-							if (componentVoxel->getBlock(x, y, z) == 1)
-							{
-								componentVoxel->collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
-
-								//offset for new center of mass;
-								btVector3 pos = (btVector3(x, y, z) - centerOfMass) * cubeSize;
-								compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), pos), componentVoxel->collisionChunk[x][y][z]);
-							}
 						}
 					}
 				}
-
-
-
 
 				//Readjust the mass properties
 				btVector3 inertia;
 				rigidBody->collisionShape->calculateLocalInertia(totalMass, inertia);
 				rigidBody->rigidBody->setMassProps(totalMass, inertia);
-
-				//Shift position to adjust for new center
-				if (entity.has_component<Transform>())
-				{
-					entity.component<Transform>()->position += vector3(centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
-				}
-
 			}
 		}
 

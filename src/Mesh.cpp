@@ -66,6 +66,7 @@ void Mesh::draw()
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glVertexAttribPointer(
@@ -102,6 +103,7 @@ void Mesh::draw()
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 }
 
 Mesh::~Mesh()
