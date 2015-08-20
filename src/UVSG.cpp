@@ -23,7 +23,6 @@ UVSG::UVSG()
 	this->renderingManager = new RenderingManager();
 	this->renderingManager->window->setVsync(1);
 
-	//this->physicsWorld = new PhysicsWorld();
 	this->physxWorld = new PhysxWorld();
 
 	entitySystem.systems.add<TimeToLiveSystem>();
@@ -34,7 +33,7 @@ UVSG::UVSG()
 	Entity camEntity = entitySystem.entities.create();
 	camEntity.assign<Transform>();
 	camEntity.assign<CameraLock>();
-	camEntity.assign<PlayerControlComponent>(3.0f, 3.0f);
+	camEntity.assign<PlayerControlComponent>(6.0f, 3.0f);
 	camEntity.component<Transform>()->position = vector3(0.0, 10.1f, -25.0f);
 
 	Entity groundEntity = entitySystem.entities.create();
@@ -64,19 +63,20 @@ UVSG::UVSG()
 	ComponentHandle<MeshComponent> componentMesh = groundEntity.component<MeshComponent>();
 	componentMesh->mesh.addVertices(vertices1, colors1, normals1, indices1);
 	componentMesh->offset = vector3(0.0f, 0.0f, 0.0f);
-	//entity.assign<RigidBody>(physicsWorld, entity, new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0), 0.0f);
+	
 
-	/*Entity voxelObject = entitySystem.entities.create();
+	Entity voxelObject = entitySystem.entities.create();
+
 	voxelObject.assign<Transform>();
 	voxelObject.assign<Velocity>();
 	voxelObject.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f) - vector3(7.5, 7.5, 7.5);
 	voxelObject.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
 	voxelObject.assign<VoxelComponent>();
 
-	btCompoundShape *compoundShape = new btCompoundShape();
-	compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), new btEmptyShape());
-	voxelObject.assign<RigidBody>(physicsWorld, voxelObject, compoundShape, 10000.0f);
-	
+	//2-Creating dynamic cube	
+	PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.0, 0.0, 0.0);
+	physx::PxBoxGeometry* boxGeometry1 = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
+	voxelObject.assign<RigidBodyPx>(this->physxWorld, voxelObject, boxGeometry1, material, 1.0f);
 	
 	voxelObject.assign<MeshComponent>();
 
@@ -89,16 +89,15 @@ UVSG::UVSG()
 				voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 1);
 			}
 		}
-	}*/
+	}
 
-	Entity entity = entitySystem.entities.create();
+	/*Entity entity = entitySystem.entities.create();
 	entity.assign<Transform>();
 	entity.assign<Velocity>();
-	entity.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f);
+	entity.component<Transform>()->position = vector3(0.0f, 15.0f, 0.0f);
 	entity.assign<MeshComponent>();
 
 	//2-Creating dynamic cube	
-	PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.0, 0.0, 0.0);
 	physx::PxBoxGeometry* boxGeometry = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
 	entity.assign<RigidBodyPx>(this->physxWorld, entity, boxGeometry, material, 1.0f);
 
@@ -162,7 +161,7 @@ UVSG::UVSG()
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-	entity.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);
+	entity.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);*/
 }
 
 
@@ -200,6 +199,11 @@ void UVSG::update(double timeStep)
 
 	//#5 rendering
 	renderingManager->update(entitySystem, timeStep);
+}
+
+Entity UVSG::getEntityFromId(entityxId id)
+{
+	return entitySystem.entities.get(entitySystem.entities.create_id(id));
 }
 
 void UVSG::exitGame()

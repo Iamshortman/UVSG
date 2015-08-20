@@ -1,8 +1,10 @@
 #ifndef VOXELCOMPONENT_HPP
 #define VOXELCOMPONENT_HPP
 
+//#include <btBulletDynamicsCommon.h>
+
 #include "Mesh.hpp"
-#include <btBulletDynamicsCommon.h>
+#include "physxInclude.hpp"
 
 typedef unsigned short BlockID;
 
@@ -19,7 +21,7 @@ public:
 			{
 				for (unsigned int z = 0; z < chunkSize; z++)
 				{
-					collisionChunk[x][y][z] = 0;
+					collisionChunk1[x][y][z] = 0;
 				}
 			}
 		}
@@ -34,9 +36,13 @@ public:
 
 	float getCubeSize(){ return cubeSize; };
 
-	btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
+	//btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
+	physx::PxShape* collisionChunk1[chunkSize][chunkSize][chunkSize];
 
 	vector3 centerOfMassOffest;
+
+	PxMaterial* material = nullptr;
+	physx::PxBoxGeometry* cube = nullptr;
 private:
 	//Should Physics and Mesh be recalulated for this object?
 	//Needs to be ralculated the first update.
@@ -45,7 +51,8 @@ private:
 	//Stores all the block ideas for this object
 	BlockID chunk[chunkSize][chunkSize][chunkSize];
 
-	float cubeSize = 1.0f;
+	//The width of each cubes in the chunk.
+	float cubeSize = 3.0f;
 };
 
 

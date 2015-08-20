@@ -68,8 +68,8 @@ class VoxelSystem : public System < VoxelSystem >
 		std::vector<unsigned int> tempIndices = std::vector<unsigned int>();
 		unsigned int indicesOffset = 0;
 
-		btScalar totalMass = 0.1f; //Starts out a little above 0 so its not static.
-		btVector3 centerOfMass = btVector3(0.0f, 0.0f, 0.0f);
+		float totalMass = 0.1f; //Starts out a little above 0 so its not static.
+		vector3 centerOfMass = vector3(0.0f, 0.0f, 0.0f);
 
 		vector3	tempPos(0, 0, 0);
 		unsigned int tempBlockCount = 0;
@@ -91,8 +91,7 @@ class VoxelSystem : public System < VoxelSystem >
 						float blockMass = 1.0f;
 
 						totalMass += blockMass;
-						centerOfMass += (btVector3(x, y, z) * blockMass);
-
+						centerOfMass += (vector3(x, y, z) * blockMass);
 
 						//If surrounded by blocks do nothing
 						if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
@@ -271,58 +270,52 @@ class VoxelSystem : public System < VoxelSystem >
 
 
 		//Physics Updates
-		if (entity.has_component<RigidBody>())
+		if (entity.has_component<RigidBodyPx>())
 		{
-			ComponentHandle<RigidBody> rigidBody = entity.component<RigidBody>();
+			ComponentHandle<RigidBodyPx> rigidBody = entity.component<RigidBodyPx>();
 
-			if (rigidBody->collisionShape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+			if (componentVoxel->material == nullptr)
 			{
-				btCompoundShape* compoundShape = (btCompoundShape*)rigidBody->collisionShape;
+				componentVoxel->material = rigidBody->getPhysxWorld()->gPhysicsSDK->createMaterial(0.0f, 0.0f, 0.0f);
+			}
 
-				//Add all new shapes back
-				for (unsigned int x = 0; x < chunkSize; x++)
+			if (componentVoxel->cube == nullptr)
+			{
+				componentVoxel->cube = new physx::PxBoxGeometry(PxVec3(cubeSize / 2));
+			}
+
+			rigidBody->body->setCMassLocalPose(PxTransform( PxVec3(centerOfMass.x, centerOfMass.y, centerOfMass.z) ));
+			rigidBody->body->setMass(totalMass * cubeSize);
+
+			rigidBody->body->setMassSpaceInertiaTensor(PxVec3(totalMass * 5.0f * cubeSize));
+
+			for (unsigned int x = 0; x < chunkSize; x++)
+			{
+				for (unsigned int y = 0; y < chunkSize; y++)
 				{
-					for (unsigned int y = 0; y < chunkSize; y++)
+					for (unsigned int z = 0; z < chunkSize; z++)
 					{
-						for (unsigned int z = 0; z < chunkSize; z++)
+						if (componentVoxel->collisionChunk1[x][y][z] == 0 && componentVoxel->getBlock(x, y, z) != 0)
 						{
+							//Memory Leak Heaven!!!!!!
 
-							//If surrounded by blocks, no collision shape should be made.
-							if (componentVoxel->getBlock(x + 1, y, z) == 1 && componentVoxel->getBlock(x - 1, y, z) == 1 && componentVoxel->getBlock(x, y + 1, z) == 1 && componentVoxel->getBlock(x, y - 1, z) == 1 && componentVoxel->getBlock(x, y, z + 1) == 1 && componentVoxel->getBlock(x, y, z - 1) == 1)
-							{
-								if (componentVoxel->collisionChunk[x][y][z] != 0)
-								{
-									compoundShape->removeChildShape(componentVoxel->collisionChunk[x][y][z]);
-									delete componentVoxel->collisionChunk[x][y][z];
-									componentVoxel->collisionChunk[x][y][z] = 0;
-								}
-
-								continue;
-							}
-
-
-							if (componentVoxel->getBlock(x, y, z) == 1 && componentVoxel->collisionChunk[x][y][z] == 0)
-							{
-								componentVoxel->collisionChunk[x][y][z] = new btBoxShape(btVector3(cubeSize / 2.0f, cubeSize / 2.0f, cubeSize / 2.0f));
-								compoundShape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z) * cubeSize), componentVoxel->collisionChunk[x][y][z]);
-							}
-
-							if (componentVoxel->getBlock(x, y, z) == 0 && componentVoxel->collisionChunk[x][y][z] != 0)
-							{
-								compoundShape->removeChildShape(componentVoxel->collisionChunk[x][y][z]);
-								delete componentVoxel->collisionChunk[x][y][z];
-								componentVoxel->collisionChunk[x][y][z] = 0;
-							}
-
+							PxTransform transform = PxTransform(PxVec3((PxReal)x, (PxReal)y, (PxReal)z) * ((PxReal)cubeSize), PxQuat(0, 0, 0, 1));
+							componentVoxel->collisionChunk1[x][y][z] = rigidBody->getPhysxWorld()->gPhysicsSDK->createShape(*componentVoxel->cube, *componentVoxel->material, true);
+							componentVoxel->collisionChunk1[x][y][z]->setLocalPose(transform);
+							rigidBody->body->attachShape(*componentVoxel->collisionChunk1[x][y][z]);
 						}
+						else if (componentVoxel->collisionChunk1[x][y][z] != 0 && componentVoxel->getBlock(x, y, z) == 0)
+						{
+							rigidBody->body->detachShape(*componentVoxel->collisionChunk1[x][y][z]);
+							
+							//OH GOD, THE MEMORY LEAKS!!!!!! idk ill figure out how this works later.
+							componentVoxel->collisionChunk1[x][y][z] = 0;
+						}
+
 					}
 				}
-
-				//Readjust the mass properties
-				btVector3 inertia;
-				rigidBody->collisionShape->calculateLocalInertia(totalMass, inertia);
-				rigidBody->rigidBody->setMassProps(totalMass, inertia);
 			}
+
 		}
 
 

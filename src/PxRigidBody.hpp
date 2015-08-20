@@ -15,6 +15,7 @@ public:
 	RigidBodyPx(PhysxWorld* world, Entity& entity, PxGeometry* shape, PxMaterial* material, float mass);
 
 	physx::PxRigidDynamic* body;
+	const PhysxWorld* getPhysxWorld(){ return phyxsWorld; };
 
 private:
 	PhysxWorld* phyxsWorld;

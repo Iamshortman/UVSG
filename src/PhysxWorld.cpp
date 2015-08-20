@@ -15,7 +15,7 @@ void PhysxWorld::InitializePhysX()
 
 	// Create the scene
 	physx::PxSceneDesc sceneDesc(gPhysicsSDK->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, 0.0f, 0.0f);
 
 	if (!sceneDesc.cpuDispatcher)
 	{
@@ -39,7 +39,7 @@ void PhysxWorld::InitializePhysX()
 
 }
 
-void PhysxWorld::update(EntityX &entitySystem, float deltaTime)
+void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 {
 	ComponentHandle<RigidBodyPx> componentRigidBodySearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
@@ -59,14 +59,14 @@ void PhysxWorld::update(EntityX &entitySystem, float deltaTime)
 		}
 
 		//Applies the update
-		componentRigidBody->body->setGlobalPose(transform);
+		componentRigidBody->body->setGlobalPose(transform, false);
 
 		//Updates the Velocity of the object
 		if (entity.has_component<Velocity>())
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			componentRigidBody->body->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity));
-			componentRigidBody->body->setAngularVelocity(toPxVec3(componentVelocity->angularVelocity));
+			componentRigidBody->body->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity), false);
+			componentRigidBody->body->setAngularVelocity(toPxVec3(componentVelocity->angularVelocity), false);
 		}
 	}
 
@@ -75,7 +75,7 @@ void PhysxWorld::update(EntityX &entitySystem, float deltaTime)
 	if (dt == 0.0)
 	{
 		//If the delta is too short, set it to some small number.
-		dt = 1.0 / 120.0;
+		dt = 1.0f / 120.0f;
 	}
 
 	gScene->simulate(dt);
@@ -93,9 +93,9 @@ void PhysxWorld::update(EntityX &entitySystem, float deltaTime)
 		{
 			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 			//Position
-			componentTransform->position = toVector3(transform.p);
+			componentTransform->position = toGlmVec3(transform.p);
 			//Orientation
-			componentTransform->orientation = toQuaternion(transform.q);
+			componentTransform->orientation = toGlmQuat(transform.q);
 		}
 
 
@@ -104,12 +104,42 @@ void PhysxWorld::update(EntityX &entitySystem, float deltaTime)
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 			//Linear Velocity updates
-			componentVelocity->linearVelocity = toVector3(componentRigidBody->body->getLinearVelocity());
+			componentVelocity->linearVelocity = toGlmVec3(componentRigidBody->body->getLinearVelocity());
 			//Angular Velocity updates
-			componentVelocity->angularVelocity = toVector3(componentRigidBody->body->getAngularVelocity());
+			componentVelocity->angularVelocity = toGlmVec3(componentRigidBody->body->getAngularVelocity());
 		}
 	}
 
+}
+
+raycastSingleResult PhysxWorld::raycastSingle(vector3 start, vector3 direction, float distance)
+{
+	raycastSingleResult result;
+	result.hasHitEntity = false; //sets this value just incase;
+
+	PxVec3 origin = toPxVec3(start); // [in] Ray origin
+	PxVec3 unitDir = toPxVec3(direction).getNormalized(); // [in] Normalized ray direction
+	PxReal maxDistance = distance; // [in] Raycast max distance
+	physx::PxRaycastBuffer hit; // [out] Raycast results
+
+	// Raycast against all static & dynamic objects (no filtering)
+	// The main result from this call is the closest hit, stored in the 'hit.block' structure
+	result.hasHit = this->gScene->raycast(origin, unitDir, maxDistance, hit);
+	
+	if (result.hasHit)
+	{
+		result.worldHitPos = toGlmVec3(hit.block.position);
+		result.worldHitNormal = toGlmVec3(hit.block.normal);
+
+		entityxId* entityId = static_cast<entityxId*>(hit.block.actor->userData);
+		if (entityId != nullptr)
+		{
+			result.hitEntity = UVSG::getInstance()->getEntityFromId(*entityId);
+			result.hasHitEntity = true;
+		}
+	}
+
+	return result;
 }
 
 

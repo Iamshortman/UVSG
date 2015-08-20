@@ -23,7 +23,7 @@ RenderingManager::RenderingManager()
 	uniform_Normal_ID = glGetUniformLocation(basicShader.programID, "normalMatrix");
 }
 
-void RenderingManager::update(EntityX &entitySystem, float timeStep)
+void RenderingManager::update(EntityX &entitySystem, double timeStep)
 {
 	int width, height;
 	window->getWindowSize(width, height);

@@ -12,9 +12,9 @@ void printQuat(const quaternion quat);
 void printVec(const vector3 quat);
 quaternion fromAxes(const vector3 forward, const vector3 up);
 PxVec3 toPxVec3(vector3 vec);
-vector3 toVector3(PxVec3 vec);
+vector3 toGlmVec3(PxVec3 vec);
 PxQuat toPxQuat(quaternion quat);
-quaternion toQuaternion(PxQuat quat);
+quaternion toGlmQuat(PxQuat quat);
 
 
 #endif //UTIL_HPP

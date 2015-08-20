@@ -15,6 +15,8 @@ RigidBodyPx::RigidBodyPx(PhysxWorld* world, Entity& entity, PxGeometry* shape, P
 	world->gScene->addActor(*body);
 	phyxsWorld = world;
 
+	body->setName("RigidBody");
+
 	//Sets a pointer to a value in mem that the id is stored.
 	entityxId* id = new entityxId(entity.id().id());
 	body->userData = (void*)id;

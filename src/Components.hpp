@@ -5,21 +5,6 @@
 #include <btBulletDynamicsCommon.h>
 #include <entityxInclude.hpp>
 
-class PhysicsWorld;
-
-class RigidBody
-{
-public:
-	RigidBody(PhysicsWorld* physicsWorld, Entity& entity, btCollisionShape* shape, btScalar mass);
-	virtual ~RigidBody();
-
-	btRigidBody* rigidBody;
-	btCollisionShape* collisionShape;
-	btMotionState* motionState;
-	PhysicsWorld* world;
-private:
-};
-
 class Transform
 {
 public:

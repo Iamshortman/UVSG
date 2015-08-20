@@ -3,7 +3,6 @@
 
 #include "entityxInclude.hpp"
 #include "RenderingManager.hpp"
-#include "PhysicsWorld.hpp"
 #include "PhysxWorld.hpp"
 
 class UVSG
@@ -16,11 +15,11 @@ public:
 	void update(double deltaTime);
 	void exitGame();
 	const bool getShouldClose();
+	Entity getEntityFromId(entityxId id);
 
 	static UVSG* getInstance();
 
 	RenderingManager* renderingManager;
-	PhysicsWorld* physicsWorld;
 	PhysxWorld* physxWorld;
 
 	SDL_Haptic *haptic = NULL;

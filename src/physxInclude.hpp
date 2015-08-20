@@ -6,6 +6,7 @@
 #include <extensions/pxdefaulterrorcallback.h>
 #include <extensions/pxdefaultallocator.h>
 
+typedef physx::PxReal PxReal;
 typedef physx::PxVec3 PxVec3;
 typedef physx::PxQuat PxQuat;
 typedef physx::PxTransform PxTransform;

@@ -18,7 +18,7 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
-	void update(EntityX &ex, float deltaTime);
+	void update(EntityX &ex, double deltaTime);
 
 	Camera camera;
 	Window* window = NULL;
