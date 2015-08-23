@@ -27,6 +27,8 @@ void PhysxWorld::InitializePhysX()
 		sceneDesc.filterShader = gDefaultFilterShader;
 
 	gScene = gPhysicsSDK->createScene(sceneDesc);
+	controllerManager = PxCreateControllerManager(*gScene);
+
 
 	//Creating PhysX material
 	PxMaterial* material = gPhysicsSDK->createMaterial(0.0, 0.0, 0.0);
@@ -41,12 +43,12 @@ void PhysxWorld::InitializePhysX()
 
 void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 {
-	ComponentHandle<RigidBodyPx> componentRigidBodySearch;
+	ComponentHandle<RigidBody> componentRigidBodySearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
-		ComponentHandle<RigidBodyPx> componentRigidBody = entity.component<RigidBodyPx>();
+		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
-		physx::PxTransform transform = componentRigidBody->body->getGlobalPose();
+		physx::PxTransform transform = componentRigidBody->physicsBody->getGlobalPose();
 
 		//Updates the Tranform of the object
 		if (entity.has_component<Transform>())
@@ -59,14 +61,14 @@ void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 		}
 
 		//Applies the update
-		componentRigidBody->body->setGlobalPose(transform, false);
+		componentRigidBody->physicsBody->setGlobalPose(transform, false);
 
 		//Updates the Velocity of the object
 		if (entity.has_component<Velocity>())
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			componentRigidBody->body->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity), false);
-			componentRigidBody->body->setAngularVelocity(toPxVec3(componentVelocity->angularVelocity), false);
+			componentRigidBody->physicsBody->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity), false);
+			componentRigidBody->physicsBody->setAngularVelocity(toPxVec3(componentVelocity->angularVelocity), false);
 		}
 	}
 
@@ -84,9 +86,9 @@ void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 	//Updates the entity with the new info
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
-		ComponentHandle<RigidBodyPx> componentRigidBody = entity.component<RigidBodyPx>();
+		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
-		physx::PxTransform transform = componentRigidBody->body->getGlobalPose();
+		physx::PxTransform transform = componentRigidBody->physicsBody->getGlobalPose();
 
 		//Updates the Tranform of the object
 		if (entity.has_component<Transform>())
@@ -104,9 +106,9 @@ void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 			//Linear Velocity updates
-			componentVelocity->linearVelocity = toGlmVec3(componentRigidBody->body->getLinearVelocity());
+			componentVelocity->linearVelocity = toGlmVec3(componentRigidBody->physicsBody->getLinearVelocity());
 			//Angular Velocity updates
-			componentVelocity->angularVelocity = toGlmVec3(componentRigidBody->body->getAngularVelocity());
+			componentVelocity->angularVelocity = toGlmVec3(componentRigidBody->physicsBody->getAngularVelocity());
 		}
 	}
 

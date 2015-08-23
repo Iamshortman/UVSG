@@ -1,5 +1,26 @@
 #include "VoxelComponent.hpp"
 
+
+
+VoxelComponent::VoxelComponent()
+{
+	for (unsigned int x = 0; x < chunkSize; x++)
+	{
+		for (unsigned int y = 0; y < chunkSize; y++)
+		{
+			for (unsigned int z = 0; z < chunkSize; z++)
+			{
+				collisionChunk[x][y][z] = 0;
+			}
+		}
+	}
+};
+
+VoxelComponent::~VoxelComponent()
+{
+	printf("Voxel Death!!!\n");
+}
+
 bool VoxelComponent::getShouldUpdateChunk()
 {
 	return shouldUpdateChunk;

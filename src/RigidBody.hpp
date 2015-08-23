@@ -9,12 +9,12 @@
 //Prototype Class for the world.
 class PhysxWorld;
 
-class RigidBodyPx
+class RigidBody
 {
 public:
-	RigidBodyPx(PhysxWorld* world, Entity& entity, PxGeometry* shape, PxMaterial* material, float mass);
+	RigidBody(PhysxWorld* world, Entity& entity, PxGeometry* shape, PxMaterial* material, float mass);
 
-	physx::PxRigidDynamic* body;
+	physx::PxRigidDynamic* physicsBody;
 	const PhysxWorld* getPhysxWorld(){ return phyxsWorld; };
 
 private:

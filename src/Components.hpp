@@ -2,7 +2,6 @@
 #define COMPONETS_HPP
 
 #include "Mesh.hpp"
-#include <btBulletDynamicsCommon.h>
 #include <entityxInclude.hpp>
 
 class Transform

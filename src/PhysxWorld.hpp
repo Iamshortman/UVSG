@@ -4,7 +4,7 @@
 #include <entityxInclude.hpp>
 #include "physxInclude.hpp"
 #include "Components.hpp"
-#include "PxRigidBody.hpp"
+#include "RigidBody.hpp"
 #include "UVSG.hpp"
 
 using namespace std;
@@ -32,6 +32,7 @@ public:
 
 	physx::PxPhysics* gPhysicsSDK;
 	physx::PxScene* gScene = NULL;
+	physx::PxControllerManager* controllerManager;
 
 private:
 	physx::PxDefaultErrorCallback gDefaultErrorCallback;

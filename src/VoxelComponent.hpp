@@ -13,19 +13,8 @@ class VoxelComponent
 public:
 	const static unsigned int chunkSize = 8;
 
-	VoxelComponent()
-	{
-		for (unsigned int x = 0; x < chunkSize; x++)
-		{
-			for (unsigned int y = 0; y < chunkSize; y++)
-			{
-				for (unsigned int z = 0; z < chunkSize; z++)
-				{
-					collisionChunk1[x][y][z] = 0;
-				}
-			}
-		}
-	};
+	VoxelComponent();
+	~VoxelComponent();
 
 	void setBlock(int x, int y, int z, BlockID id);
 	BlockID getBlock(int x, int y, int z);
@@ -36,8 +25,7 @@ public:
 
 	float getCubeSize(){ return cubeSize; };
 
-	//btCollisionShape* collisionChunk[chunkSize][chunkSize][chunkSize];
-	physx::PxShape* collisionChunk1[chunkSize][chunkSize][chunkSize];
+	physx::PxShape* collisionChunk[chunkSize][chunkSize][chunkSize];
 
 	vector3 centerOfMassOffest;
 

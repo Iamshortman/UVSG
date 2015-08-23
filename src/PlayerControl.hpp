@@ -1,8 +1,6 @@
 #ifndef PLAYERCONTROL_HPP
 #define PLAYERCONTROL_HPP
 
-#include <entityx/entityx.h>
-#include <entityx\System.h>
 #include <entityxInclude.hpp>
 #include <VoxelComponent.hpp>
 
@@ -119,19 +117,19 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 
 						matrix4 inverseModelMatrix = glm::inverse(componentVoxelTransform->getModleMatrix());
 
-						std::printf("Vec3F: {%f, %f, %f}\n", result.worldHitPos.x, result.worldHitPos.y, result.worldHitPos.z);
+						//std::printf("Vec3F: {%f, %f, %f}\n", result.worldHitPos.x, result.worldHitPos.y, result.worldHitPos.z);
 
 						//Get the hit position in local space
 						vector4 worldHitPoint = vector4(result.worldHitPos + (componentTransform->getForward() * 0.2f), 1.0f);
 						vector3 localHitPoint = vector3(inverseModelMatrix * worldHitPoint);
 						localHitPoint /= componentVoxel->getCubeSize();
 
-						std::printf("Vec3F_: {%f, %f, %f}\n", localHitPoint.x, localHitPoint.y, localHitPoint.z);
+						//std::printf("Vec3F_: {%f, %f, %f}\n", localHitPoint.x, localHitPoint.y, localHitPoint.z);
 
 						int x = (int)(localHitPoint.x + 0.5f);
 						int y = (int)(localHitPoint.y + 0.5f);
 						int z = (int)(localHitPoint.z + 0.5f);
-						std::printf("Vec3: {%i, %i, %i}\n", x, y, z);
+						//std::printf("Vec3: {%i, %i, %i}\n", x, y, z);
 
 						if (componentVoxel->getBlock(x, y, z) != 0)
 						{
@@ -163,7 +161,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//2-Creating dynamic cube
 				PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.5, 0.5, 0.0);
 				physx::PxBoxGeometry* boxGeometry = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
-				entity1.assign<RigidBodyPx>(physxWorld, entity, boxGeometry, material, 0.1f);
+				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 0.1f);
 
 				entity1.assign<TimeToLiveComponent>(10.0f);
 

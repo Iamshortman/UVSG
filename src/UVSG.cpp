@@ -73,10 +73,7 @@ UVSG::UVSG()
 	voxelObject.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
 	voxelObject.assign<VoxelComponent>();
 
-	//2-Creating dynamic cube	
-	PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.0, 0.0, 0.0);
-	physx::PxBoxGeometry* boxGeometry1 = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
-	voxelObject.assign<RigidBodyPx>(this->physxWorld, voxelObject, boxGeometry1, material, 1.0f);
+	voxelObject.assign<RigidBody>(this->physxWorld, voxelObject, nullptr, nullptr, 1.0f);
 	
 	voxelObject.assign<MeshComponent>();
 
@@ -87,6 +84,10 @@ UVSG::UVSG()
 			for (unsigned int k = 0; k < voxelObject.component<VoxelComponent>()->chunkSize; k++)
 			{
 				voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 1);
+				if (k > 4)
+				{
+					voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 0);
+				}
 			}
 		}
 	}
