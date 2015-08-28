@@ -40,7 +40,7 @@ private:
 	BlockID chunk[chunkSize][chunkSize][chunkSize];
 
 	//The width of each cubes in the chunk.
-	float cubeSize = 3.0f;
+	float cubeSize = 4.0f;
 };
 
 

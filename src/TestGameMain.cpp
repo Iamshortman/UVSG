@@ -64,5 +64,9 @@ int main()
 
 	delete game;
 
+	//Requires the enter button to be hit before we end.
+	cin.get();
+	
+
 	return 0;
 }

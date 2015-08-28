@@ -306,6 +306,9 @@ class VoxelSystem : public System < VoxelSystem >
 		//Get the final center of mass;
 		centerOfMass /= tempBlockCount;
 
+		//Adjust center of mass for cubesize
+		centerOfMass *= cubeSize;
+
 		//Physics Updates
 		if (entity.has_component<RigidBody>())
 		{

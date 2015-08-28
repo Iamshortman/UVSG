@@ -6,6 +6,7 @@
 #include "TimeToLive.hpp"
 #include "VoxelSystem.hpp"
 #include "PlayerControl.hpp"
+#include "ThrusterControl.hpp"
 
 UVSG* UVSG::instance;
 
@@ -28,6 +29,7 @@ UVSG::UVSG()
 	entitySystem.systems.add<TimeToLiveSystem>();
 	entitySystem.systems.add<VoxelSystem>();
 	entitySystem.systems.add<PlayerControlSystem>();
+	entitySystem.systems.add<ThrusterControlSystem>();
 	entitySystem.systems.configure();
 
 	Entity camEntity = entitySystem.entities.create();
@@ -63,7 +65,6 @@ UVSG::UVSG()
 	ComponentHandle<MeshComponent> componentMesh = groundEntity.component<MeshComponent>();
 	componentMesh->mesh.addVertices(vertices1, colors1, normals1, indices1);
 	componentMesh->offset = vector3(0.0f, 0.0f, 0.0f);
-	
 
 	Entity voxelObject = entitySystem.entities.create();
 
@@ -72,10 +73,11 @@ UVSG::UVSG()
 	voxelObject.component<Transform>()->position = vector3(0.0f, 10.0f, 0.0f) - vector3(7.5, 7.5, 7.5);
 	voxelObject.component<Transform>()->orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
 	voxelObject.assign<VoxelComponent>();
-
 	voxelObject.assign<RigidBody>(this->physxWorld, voxelObject, nullptr, nullptr, 1.0f);
-	
 	voxelObject.assign<MeshComponent>();
+
+	voxelObject.assign<ThrusterControlComponent>();
+	voxelObject.component<ThrusterControlComponent>()->acceleration = 10.0f;
 
 	for (unsigned int i = 0; i < voxelObject.component<VoxelComponent>()->chunkSize; i++)
 	{
@@ -84,10 +86,6 @@ UVSG::UVSG()
 			for (unsigned int k = 0; k < voxelObject.component<VoxelComponent>()->chunkSize; k++)
 			{
 				voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 1);
-				if (k > 4)
-				{
-					voxelObject.component<VoxelComponent>()->setBlock(i, j, k, 0);
-				}
 			}
 		}
 	}

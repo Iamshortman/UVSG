@@ -47,7 +47,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 		
 			int deadzone = 8000;
 
-			int pitchAxis = -SDL_JoystickGetAxis(joystick, 1);
+			int pitchAxis = SDL_JoystickGetAxis(joystick, 5);
 
 			if (pitchAxis > deadzone || pitchAxis < -deadzone)
 			{
@@ -75,25 +75,35 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			}
 
 
-			int hatSwitch= SDL_JoystickGetHat(joystick, 0);
+			int forwardAxis = SDL_JoystickGetAxis(joystick, 1);
 
-			if (hatSwitch == SDL_HAT_UP || hatSwitch == SDL_HAT_DOWN)
+			if (forwardAxis > deadzone || forwardAxis < -deadzone)
 			{
 				//Get between -1 and 1
-				float amount = (hatSwitch == SDL_HAT_UP) ? 1.0f : -1.0f;
+				float amount = ((float)forwardAxis) / 32767.0f;
 				float distance = amount * timestep * playerControlComponent->linearSpeed;
-
-				componentTransform->position += componentTransform->getForward() * distance;
+				componentTransform->position += componentTransform->getForward() * -distance;
 			}
 
-			if (hatSwitch == SDL_HAT_RIGHT || hatSwitch == SDL_HAT_LEFT)
+			int strafeAxis = SDL_JoystickGetAxis(joystick, 0);
+
+			if (strafeAxis > deadzone || strafeAxis < -deadzone)
+			{
+				//Get between -1 and 1
+				float amount = ((float)strafeAxis) / 32767.0f;
+				float distance = amount * timestep * playerControlComponent->linearSpeed;
+				componentTransform->position += componentTransform->getRight() * distance;
+			}
+
+
+			/*if (hatSwitch == SDL_HAT_RIGHT || hatSwitch == SDL_HAT_LEFT)
 			{
 				//Get between -1 and 1
 				float amount = (hatSwitch == SDL_HAT_LEFT) ? 1.0f : -1.0f;
 				float distance = amount * timestep * playerControlComponent->linearSpeed;
 
 				componentTransform->position += componentTransform->getRight() * distance;
-			}
+			}*/
 
 			int Button = SDL_JoystickGetButton(joystick, 0);
 			static int lastButton = 0;
@@ -110,35 +120,37 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//If it hits an object and the object has an assositated entity.
 				if (result.hasHit && result.hasHitEntity)
 				{
-					if (result.hitEntity.has_component<VoxelComponent>() && result.hitEntity.has_component<Transform>())
+					//If the object is this object, ignore it.
+					if (result.hitEntity != entity)
 					{
-						ComponentHandle<VoxelComponent> componentVoxel = result.hitEntity.component<VoxelComponent>();
-						ComponentHandle<Transform> componentVoxelTransform = result.hitEntity.component<Transform>();
-
-						matrix4 inverseModelMatrix = glm::inverse(componentVoxelTransform->getModleMatrix());
-
-						//std::printf("Vec3F: {%f, %f, %f}\n", result.worldHitPos.x, result.worldHitPos.y, result.worldHitPos.z);
-
-						//Get the hit position in local space
-						vector4 worldHitPoint = vector4(result.worldHitPos + (componentTransform->getForward() * 0.2f), 1.0f);
-						vector3 localHitPoint = vector3(inverseModelMatrix * worldHitPoint);
-						localHitPoint /= componentVoxel->getCubeSize();
-
-						//std::printf("Vec3F_: {%f, %f, %f}\n", localHitPoint.x, localHitPoint.y, localHitPoint.z);
-
-						int x = (int)(localHitPoint.x + 0.5f);
-						int y = (int)(localHitPoint.y + 0.5f);
-						int z = (int)(localHitPoint.z + 0.5f);
-						//std::printf("Vec3: {%i, %i, %i}\n", x, y, z);
-
-						if (componentVoxel->getBlock(x, y, z) != 0)
+						if (result.hitEntity.has_component<VoxelComponent>() && result.hitEntity.has_component<Transform>())
 						{
-							componentVoxel->setBlock(x, y, z, 0);
+							ComponentHandle<VoxelComponent> componentVoxel = result.hitEntity.component<VoxelComponent>();
+							ComponentHandle<Transform> componentVoxelTransform = result.hitEntity.component<Transform>();
+
+							matrix4 inverseModelMatrix = glm::inverse(componentVoxelTransform->getModleMatrix());
+
+							//std::printf("Vec3F: {%f, %f, %f}\n", result.worldHitPos.x, result.worldHitPos.y, result.worldHitPos.z);
+
+							//Get the hit position in local space
+							vector4 worldHitPoint = vector4(result.worldHitPos + (componentTransform->getForward() * 0.2f), 1.0f);
+							vector3 localHitPoint = vector3(inverseModelMatrix * worldHitPoint);
+							localHitPoint /= componentVoxel->getCubeSize();
+
+							//std::printf("Vec3F_: {%f, %f, %f}\n", localHitPoint.x, localHitPoint.y, localHitPoint.z);
+
+							int x = (int)(localHitPoint.x + 0.5f);
+							int y = (int)(localHitPoint.y + 0.5f);
+							int z = (int)(localHitPoint.z + 0.5f);
+							//std::printf("Vec3: {%i, %i, %i}\n", x, y, z);
+
+							if (componentVoxel->getBlock(x, y, z) != 0)
+							{
+								componentVoxel->setBlock(x, y, z, 0);
+							}
 						}
 					}
 				}
-
-				
 			}
 			lastButton = Button;
 
@@ -161,7 +173,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//2-Creating dynamic cube
 				PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.5, 0.5, 0.0);
 				physx::PxBoxGeometry* boxGeometry = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
-				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 0.1f);
+				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 100.0f);
 
 				entity1.assign<TimeToLiveComponent>(10.0f);
 

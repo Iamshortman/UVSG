@@ -41,6 +41,11 @@ vector3 toGlmVec3(PxVec3 vec)
 	return vector3(vec.x, vec.y, vec.z);
 }
 
+PxExtendedVec3 toPxExtendedVec3(vector3 vec)
+{
+	return PxExtendedVec3(vec.x, vec.y, vec.z);
+}
+
 PxQuat toPxQuat(quaternion quat)
 {
 	return PxQuat(quat.x, quat.y, quat.z, quat.w);

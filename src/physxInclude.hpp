@@ -9,6 +9,8 @@
 
 typedef physx::PxReal PxReal;
 typedef physx::PxVec3 PxVec3;
+typedef physx::PxExtendedVec3 PxExtendedVec3;
+
 typedef physx::PxQuat PxQuat;
 typedef physx::PxTransform PxTransform;
 typedef physx::PxGeometry PxGeometry;

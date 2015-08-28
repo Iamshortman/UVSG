@@ -1,10 +1,14 @@
 #ifndef PHYSXWORLD_HPP
 #define PHYSXWORLD_HPP
 
+//Protype Class Definition
+class PhysxWorld;
+
 #include <entityxInclude.hpp>
 #include "physxInclude.hpp"
 #include "Components.hpp"
 #include "RigidBody.hpp"
+#include "CharacterController.hpp"
 #include "UVSG.hpp"
 
 using namespace std;

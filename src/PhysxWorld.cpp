@@ -44,6 +44,8 @@ void PhysxWorld::InitializePhysX()
 void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 {
 	ComponentHandle<RigidBody> componentRigidBodySearch;
+	ComponentHandle<CharacterController> componentCharacterControllerSearch;
+
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
@@ -67,9 +69,31 @@ void PhysxWorld::update(EntityX &entitySystem, double deltaTime)
 		if (entity.has_component<Velocity>())
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			componentRigidBody->physicsBody->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity), false);
+			componentRigidBody->physicsBody->setLinearVelocity(toPxVec3(componentVelocity->linearVelocity), true);
 			componentRigidBody->physicsBody->setAngularVelocity(toPxVec3(componentVelocity->angularVelocity), false);
 		}
+	}
+
+	for (Entity entity : entitySystem.entities.entities_with_components(componentCharacterControllerSearch))
+	{
+		ComponentHandle<CharacterController> componentCharacterController = entity.component<CharacterController>();
+
+		//Updates the Tranform of the object
+		if (entity.has_component<Transform>())
+		{
+			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+			
+			componentCharacterController->controller->setPosition(toPxExtendedVec3(componentTransform->getPos()));
+			componentCharacterController->controller->setUpDirection(toPxVec3(componentTransform->getUp()));
+		}
+
+		if (entity.has_component<Velocity>())
+		{
+			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
+
+			componentCharacterController->controller->move(toPxVec3(componentVelocity->linearVelocity), 0.01f, deltaTime, nullptr);
+		}
+
 	}
 
 	//Simulates the Physics

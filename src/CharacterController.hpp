@@ -5,6 +5,7 @@
 #include "physxInclude.hpp"
 #include "PhysxWorld.hpp"
 
+//Prototype Class for the world.
 class PhysxWorld;
 
 class CharacterController
@@ -12,17 +13,9 @@ class CharacterController
 public:
 	physx::PxController* controller;
 
-	CharacterController()
-	{
-		physx::PxCapsuleControllerDesc desc;
+	CharacterController(PhysxWorld* world);
 
-		controller = phyxsWorld->controllerManager->createController(desc);
-	}
-
-	~CharacterController()
-	{
-
-	}
+	~CharacterController();
 
 	const PhysxWorld* getPhysxWorld(){ return phyxsWorld; };
 
