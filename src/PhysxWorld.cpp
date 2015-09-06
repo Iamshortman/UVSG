@@ -15,7 +15,7 @@ void PhysxWorld::InitializePhysX()
 
 	// Create the scene
 	physx::PxSceneDesc sceneDesc(gPhysicsSDK->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, 0.0f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -10.0f, 0.0f);
 
 	if (!sceneDesc.cpuDispatcher)
 	{

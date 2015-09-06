@@ -13,14 +13,24 @@ RenderingManager::RenderingManager()
 
 	camera = Camera();
 
-	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" }, { 2, "in_Normal" } };
-
+	AttributeLocation attributes[] = { { 0, "in_Position" }, { 1, "in_Color" }, { 2, "in_Normal" } }; 
 	basicShader = ShaderProgram("basicVertex.vs", "basicFragment.fs", attributes, 3);
+
+	AttributeLocation attributes1[] = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
+	texturedShader = ShaderProgram("TexturedVertex.vs", "TexturedFragment.fs", attributes1, 3);
 
 	// Get a handle for our "Matrix" uniform
 	uniform_MVP_ID = glGetUniformLocation(basicShader.programID, "MVP");
 	uniform_Offset_ID = glGetUniformLocation(basicShader.programID, "offset");
 	uniform_Normal_ID = glGetUniformLocation(basicShader.programID, "normalMatrix");
+
+	uniform_MVP_ID1 = glGetUniformLocation(texturedShader.programID, "MVP");
+	uniform_Normal_ID1 = glGetUniformLocation(texturedShader.programID, "normalMatrix");
+
+	texturePool.loadTexture("stone.png");
+	bool failed = texturePool.bindTexture("stone.png");
+
+	failed = !failed;
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
@@ -62,6 +72,30 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 		count++;
 	}
+
+	ComponentHandle<TexturedMesh> componentTexturedMeshSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentTexturedMeshSearch, componentTransformSearch))
+	{
+		ComponentHandle<TexturedMesh> componentMesh = entity.component<TexturedMesh>();
+		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+
+		modelMatrix = componentTransform->getModleMatrix();
+		normalMatrix = componentTransform->getNormalMatrix();
+
+		MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+		texturedShader.setActiveProgram();
+		glUniformMatrix4fv(uniform_MVP_ID1, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix3fv(uniform_Normal_ID1, 1, GL_FALSE, &normalMatrix[0][0]);
+
+		texturePool.bindTexture("stone.png");
+		componentMesh->draw();
+
+		texturedShader.deactivateProgram();
+
+		count++;
+	}
+
 
 	window->updateBuffer();
 }

@@ -52,13 +52,25 @@ void Window::initGL()
     glShadeModel(GL_SMOOTH);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	//Setup texture stuff
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NEAREST);
     glEnable(GL_TEXTURE_2D);
-    //glEnable(GL_CULL_FACE);
-    //glFrontFace(GL_CCW);
-    //glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+}
+
+void Window::set3dRendering()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+}
+
+void Window::set2dRendering()
+{
+	//disable the Depth test.
+	glDisable(GL_DEPTH_TEST);
 }
 
 void Window::resizeWindow(int width, int height)

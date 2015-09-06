@@ -12,6 +12,7 @@ public:
 	UVSG();
 	virtual ~UVSG();
 	EntityX entitySystem;
+
 	void update(double deltaTime);
 	void exitGame();
 	const bool getShouldClose();

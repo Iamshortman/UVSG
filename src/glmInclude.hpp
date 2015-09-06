@@ -21,4 +21,6 @@ typedef glm::mat4 matrix4;
 typedef glm::mat3 matrix3;
 typedef glm::quat quaternion;
 
+typedef glm::i64vec3 vector3I;
+
 #endif

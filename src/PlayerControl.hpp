@@ -1,7 +1,7 @@
 #ifndef PLAYERCONTROL_HPP
 #define PLAYERCONTROL_HPP
 
-#include <entityxInclude.hpp>
+#include "entityxInclude.hpp"
 #include <VoxelComponent.hpp>
 
 #include "Util.hpp"
@@ -55,7 +55,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				float amount = ((float)pitchAxis) / 32767.0f;
 				float angle = amount * timestep * playerControlComponent->angularSpeed;
 
-				//Negitive angle because the stick is backwards
+				//Negitive angle because the joystick layout is backwards
 				quaternion pitchQuat = glm::normalize(glm::angleAxis( -angle, componentTransform->getRight() ));
 
 				componentTransform->orientation = pitchQuat * componentTransform->orientation;
@@ -94,7 +94,6 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				float distance = amount * timestep * playerControlComponent->linearSpeed;
 				componentTransform->position += componentTransform->getRight() * distance;
 			}
-
 
 			/*if (hatSwitch == SDL_HAT_RIGHT || hatSwitch == SDL_HAT_LEFT)
 			{
@@ -171,11 +170,11 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
 
 				//2-Creating dynamic cube
-				PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(0.5, 0.5, 0.0);
+				PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(1.0, 1.0, 0.0);
 				physx::PxBoxGeometry* boxGeometry = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
-				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 100.0f);
+				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 1.0f);
 
-				entity1.assign<TimeToLiveComponent>(10.0f);
+				//entity1.assign<TimeToLiveComponent>(10.0f);
 
 				vector<vector3> vertices = vector<vector3>();
 				vertices.push_back(vector3(1.0f, -1.0f, -1.0f));

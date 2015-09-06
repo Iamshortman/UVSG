@@ -2,7 +2,7 @@
 #define RENDERINGMANAGER_HPP
 
 #include <stddef.h>  // defines NULL
-#include <entityxInclude.hpp>
+#include "entityxInclude.hpp"
 
 #include "Components.hpp"
 #include "VoxelComponent.hpp"
@@ -11,6 +11,7 @@
 #include "Window.hpp"
 #include "glmInclude.hpp"
 #include "ShaderProgram.hpp"
+#include "TexturePool.hpp"
 
 class RenderingManager
 {
@@ -22,10 +23,16 @@ public:
 
 	Camera camera;
 	Window* window = NULL;
+	TexturePool texturePool;
+
 	ShaderProgram basicShader;
 	GLuint uniform_MVP_ID;
 	GLuint uniform_Normal_ID;
 	GLuint uniform_Offset_ID;
+
+	ShaderProgram texturedShader;
+	GLuint uniform_MVP_ID1;
+	GLuint uniform_Normal_ID1;
 
 protected:
 

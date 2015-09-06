@@ -22,4 +22,17 @@ private:
 
 };
 
+class StaticBody
+{
+public:
+	StaticBody(PhysxWorld* world, Entity& entity, PxGeometry* shape, PxMaterial* material);
+
+	physx::PxRigidStatic* physicsBody;
+	const PhysxWorld* getPhysxWorld(){ return phyxsWorld; };
+
+private:
+	PhysxWorld* phyxsWorld;
+
+};
+
 #endif //PXRIGIDBODY_HPP

@@ -55,3 +55,8 @@ quaternion toGlmQuat(PxQuat quat)
 {
 	return quaternion(quat.w, quat.x, quat.y, quat.z);
 }
+
+float toRad(float degree)
+{
+	return degree * 0.0174532925f;
+}

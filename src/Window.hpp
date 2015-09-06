@@ -31,11 +31,14 @@ GLclampf alpha);
         void setMousePos(int x, int y);
         void getMousePos(int &x, int &y);
 		void setVsync(int syncRate);
+		void set3dRendering();
+		void set2dRendering();
 
 	private:
         bool keyboardFocus;
 		SDL_GLContext glcontext;
 		void initGL();
+
 };
 
 #endif

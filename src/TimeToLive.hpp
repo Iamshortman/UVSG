@@ -1,7 +1,7 @@
 #ifndef TIMETOLIVE_HPP
 #define TIMETOLIVE_HPP
 
-#include <entityxInclude.hpp>
+#include "entityxInclude.hpp"
 
 struct TimeToLiveComponent
 {

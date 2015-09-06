@@ -1,8 +1,10 @@
 #ifndef COMPONETS_HPP
 #define COMPONETS_HPP
 
+#include "entityxInclude.hpp"
+
 #include "Mesh.hpp"
-#include <entityxInclude.hpp>
+#include "TexturedMesh.hpp"
 
 class Transform
 {
@@ -47,6 +49,11 @@ struct MeshComponent
 {
 	Mesh mesh;
 	vector3 offset;
+};
+
+struct TexturedMeshComponent
+{
+	TexturedMesh mesh;
 };
 
 struct inputControl

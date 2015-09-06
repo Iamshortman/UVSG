@@ -19,6 +19,6 @@ PxExtendedVec3 toPxExtendedVec3(vector3 vec);
 PxQuat toPxQuat(quaternion quat);
 quaternion toGlmQuat(PxQuat quat);
 
-
+float toRad(float degree);
 
 #endif //UTIL_HPP

@@ -7,7 +7,6 @@
 
 #include "UVSG.hpp"
 
-
 #include <SDL2/SDL.h>
 #undef main //Not sure if this is needed
 
@@ -21,6 +20,8 @@ using namespace std;
 int main()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
+	//Disable Events for controllers
+	SDL_GameControllerEventState(SDL_IGNORE);
 
 	UVSG* game = new UVSG();
 
@@ -29,7 +30,8 @@ int main()
     for(int i = 0; i < num_joy; i++)
     {
 		game->joystick = SDL_JoystickOpen(i);
-		printf("%s\n", SDL_JoystickName(game->joystick));
+		game->controller = SDL_GameControllerOpen(i);
+		printf("%s \n", SDL_JoystickName(game->joystick));
     }
 
     double deltaTime = 0;
