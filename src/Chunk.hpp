@@ -1,42 +1,39 @@
-#ifndef VOXELCOMPONENT_HPP
-#define VOXELCOMPONENT_HPP
+#ifndef CHUNK_HPP
+#define CHUNK_HPP
 
-//#include <btBulletDynamicsCommon.h>
-
-#include "Mesh.hpp"
+#include "TexturedMesh.hpp"
 
 typedef unsigned short BlockID;
 
-class VoxelComponent
+class Chunk
 {
+
 public:
 	const static unsigned int chunkSize = 16;
 
-	VoxelComponent();
-	~VoxelComponent();
+	Chunk();
+	~Chunk();
 
 	void setBlock(int x, int y, int z, BlockID id);
 	BlockID getBlock(int x, int y, int z);
 
-	void setShouldUpdateChunk();
-	void clearShouldUpdateChunk();
-	bool getShouldUpdateChunk();
+	void updateChunk();
+	void render();
 
 	float getCubeSize(){ return cubeSize; };
 
-	vector3 centerOfMassOffest;
-
 private:
+
 	//Should Physics and Mesh be recalulated for this object?
 	//Needs to be ralculated the first update.
 	bool shouldUpdateChunk = true;
 
 	//Stores all the block ideas for this object
-	BlockID chunk[chunkSize][chunkSize][chunkSize];
+	BlockID blocks[chunkSize][chunkSize][chunkSize];
 
 	//The width of each cubes in the chunk.
-	float cubeSize = 4.0f;
+	float cubeSize = 1.0f;
+	TexturedMesh* mesh = 0;
 };
 
-
-#endif //VOXELCOMPONENT_HPP
+#endif CHUNK_HPP

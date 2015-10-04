@@ -3,7 +3,6 @@
 
 #include "entityxInclude.hpp"
 #include "VoxelComponent.hpp"
-#include "RigidBody.hpp"
 
 class VoxelSystem : public System < VoxelSystem >
 {
@@ -75,22 +74,6 @@ class VoxelSystem : public System < VoxelSystem >
 		vector3	tempPos(0, 0, 0);
 		unsigned int tempBlockCount = 0;
 
-		ComponentHandle<RigidBody> rigidBody = entity.component<RigidBody>();
-		if (entity.has_component<RigidBody>())
-		{
-			if (componentVoxel->material == nullptr)
-			{
-				componentVoxel->material = rigidBody->getPhysxWorld()->gPhysicsSDK->createMaterial(0.0f, 0.0f, 0.0f);
-			}
-
-			if (componentVoxel->cube == nullptr)
-			{
-				componentVoxel->cube = new physx::PxBoxGeometry(PxVec3(cubeSize / 2));
-			}
-		}
-
-
-
 		for (unsigned int x = 0; x < chunkSize; x++)
 		{
 			for (unsigned int y = 0; y < chunkSize; y++)
@@ -110,35 +93,10 @@ class VoxelSystem : public System < VoxelSystem >
 						&& componentVoxel->getBlock(x, y, z + 1) != 0
 						&& componentVoxel->getBlock(x, y, z - 1) != 0);
 
-					if (entity.has_component<RigidBody>())
-					{
-						if (componentVoxel->collisionChunk[x][y][z] != 0 && (id == 0 || isSurrounded))
-						{
-							rigidBody->physicsBody->detachShape(*componentVoxel->collisionChunk[x][y][z]);
-
-							//OH GOD, THE MEMORY LEAKS!!!!!! idk ill figure out how this works later.
-							componentVoxel->collisionChunk[x][y][z] = 0;
-							continue;
-						}
-					}
-
 					if (id == 1)
 					{
 						tempBlockCount++;
 						float blockMass = 1.0f;
-
-						if (entity.has_component<RigidBody>())
-						{
-							if (componentVoxel->collisionChunk[x][y][z] == 0 && !isSurrounded)
-							{
-								//Memory Leak Heaven!!!!!!
-
-								PxTransform transform = PxTransform(PxVec3((PxReal)x, (PxReal)y, (PxReal)z) * ((PxReal)cubeSize), PxQuat(0, 0, 0, 1));
-								componentVoxel->collisionChunk[x][y][z] = rigidBody->getPhysxWorld()->gPhysicsSDK->createShape(*componentVoxel->cube, *componentVoxel->material, true);
-								componentVoxel->collisionChunk[x][y][z]->setLocalPose(transform);
-								rigidBody->physicsBody->attachShape(*componentVoxel->collisionChunk[x][y][z]);
-							}
-						}
 
 						totalMass += blockMass;
 						centerOfMass += (vector3(x, y, z) * blockMass);
@@ -308,15 +266,6 @@ class VoxelSystem : public System < VoxelSystem >
 
 		//Adjust center of mass for cubesize
 		centerOfMass *= cubeSize;
-
-		//Physics Updates
-		if (entity.has_component<RigidBody>())
-		{
-			rigidBody->physicsBody->setCMassLocalPose(PxTransform(PxVec3(centerOfMass.x, centerOfMass.y, centerOfMass.z)));
-			rigidBody->physicsBody->setMass(totalMass * cubeSize);
-
-			rigidBody->physicsBody->setMassSpaceInertiaTensor(PxVec3(totalMass * 5.0f * cubeSize));
-		}
 
 		if (entity.has_component<MeshComponent>())
 		{

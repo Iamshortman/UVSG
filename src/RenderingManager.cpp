@@ -19,18 +19,35 @@ RenderingManager::RenderingManager()
 	AttributeLocation attributes1[] = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
 	texturedShader = ShaderProgram("TexturedVertex.vs", "TexturedFragment.fs", attributes1, 3);
 
-	// Get a handle for our "Matrix" uniform
-	uniform_MVP_ID = glGetUniformLocation(basicShader.programID, "MVP");
-	uniform_Offset_ID = glGetUniformLocation(basicShader.programID, "offset");
-	uniform_Normal_ID = glGetUniformLocation(basicShader.programID, "normalMatrix");
-
-	uniform_MVP_ID1 = glGetUniformLocation(texturedShader.programID, "MVP");
-	uniform_Normal_ID1 = glGetUniformLocation(texturedShader.programID, "normalMatrix");
+	texturedLightShader = ShaderProgram("TexturedLightVertex.vs", "TexturedLightFragment.fs", attributes1, 3);
 
 	texturePool.loadTexture("stone.png");
-	bool failed = texturePool.bindTexture("stone.png");
+	texturePool.loadTexture("arrow-up.png");
 
+	bool failed = texturePool.bindTexture("stone.png");
 	failed = !failed;
+
+	int chunkSize = chunk.chunkSize;
+
+	for (unsigned int x = 0; x < chunkSize; x++)
+	{
+		for (unsigned int y = 0; y < chunkSize; y++)
+		{
+			for (unsigned int z = 0; z < chunkSize; z++)
+			{
+				if ( (x + y + z) % 2 == 0 )
+				{
+					chunk.setBlock(x, y, z, 1);
+				}
+				else
+				{
+					chunk.setBlock(x, y, z, 1);
+				}
+			}
+		}
+	}
+
+	chunk.updateChunk();
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
@@ -62,9 +79,9 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 		MVP = projectionMatrix * viewMatrix * modelMatrix;
 		
 		basicShader.setActiveProgram();
-		glUniformMatrix4fv(uniform_MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-		glUniform3fv(uniform_Offset_ID, 1, &componentMesh->offset[0]);
-		glUniformMatrix3fv(uniform_Normal_ID, 1, GL_FALSE, &normalMatrix[0][0]);
+		basicShader.setUniform("MVP", MVP);
+		basicShader.setUniform("offset", componentMesh->offset);
+		basicShader.setUniform("normalMatrix", normalMatrix);
 
 		componentMesh->mesh.draw();
 
@@ -85,8 +102,8 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 		MVP = projectionMatrix * viewMatrix * modelMatrix;
 
 		texturedShader.setActiveProgram();
-		glUniformMatrix4fv(uniform_MVP_ID1, 1, GL_FALSE, &MVP[0][0]);
-		glUniformMatrix3fv(uniform_Normal_ID1, 1, GL_FALSE, &normalMatrix[0][0]);
+		texturedShader.setUniform("MVP", MVP);
+		texturedShader.setUniform("normalMatrix", normalMatrix);
 
 		texturePool.bindTexture("stone.png");
 		componentMesh->draw();
@@ -95,6 +112,34 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 		count++;
 	}
+
+	for (int x = 0; x < 1; x++)
+	{
+		for (int z = 0; z < 2; z++)
+		{
+			//Chunk render
+			Transform transform;
+			transform.position += vector3(x * 16, 10, z * 16);
+			modelMatrix = transform.getModleMatrix();
+			normalMatrix = transform.getNormalMatrix();
+			MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+			texturedLightShader.setActiveProgram();
+			texturedLightShader.setUniform("MVP", MVP);
+			texturedLightShader.setUniform("normalMatrix", normalMatrix);
+			texturedLightShader.setUniform("modelMatrix", modelMatrix);
+			texturedLightShader.setUniform("lightColor", vector3(1.0f));
+			texturedLightShader.setUniform("lightPos", camera.getPos());
+
+
+			texturePool.bindTexture("stone.png");
+			chunk.render();
+
+			texturedLightShader.deactivateProgram();
+
+		}
+	}
+
 
 
 	window->updateBuffer();

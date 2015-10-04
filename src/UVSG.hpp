@@ -3,7 +3,6 @@
 
 #include "entityxInclude.hpp"
 #include "RenderingManager.hpp"
-#include "PhysxWorld.hpp"
 
 class UVSG
 {
@@ -21,7 +20,6 @@ public:
 	static UVSG* getInstance();
 
 	RenderingManager* renderingManager;
-	PhysxWorld* physxWorld;
 
 	SDL_Haptic *haptic = NULL;
 	SDL_Joystick *joystick = NULL;

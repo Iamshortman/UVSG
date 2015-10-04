@@ -22,6 +22,11 @@ TexturedMesh::TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned i
 
 void TexturedMesh::draw()
 {
+	if (size == 0)
+	{
+		return;
+	}
+
 	//Enable Attributes
 	glEnableVertexAttribArray(0); //Position
 	glEnableVertexAttribArray(1); //Normal

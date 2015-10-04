@@ -10,7 +10,7 @@ VoxelComponent::VoxelComponent()
 		{
 			for (unsigned int z = 0; z < chunkSize; z++)
 			{
-				collisionChunk[x][y][z] = 0;
+				//collisionChunk[x][y][z] = 0;
 			}
 		}
 	}

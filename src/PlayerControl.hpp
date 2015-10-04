@@ -95,15 +95,6 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				componentTransform->position += componentTransform->getRight() * distance;
 			}
 
-			/*if (hatSwitch == SDL_HAT_RIGHT || hatSwitch == SDL_HAT_LEFT)
-			{
-				//Get between -1 and 1
-				float amount = (hatSwitch == SDL_HAT_LEFT) ? 1.0f : -1.0f;
-				float distance = amount * timestep * playerControlComponent->linearSpeed;
-
-				componentTransform->position += componentTransform->getRight() * distance;
-			}*/
-
 			int Button = SDL_JoystickGetButton(joystick, 0);
 			static int lastButton = 0;
 
@@ -113,43 +104,6 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				vector3 direction = componentTransform->getForward();
 				float distance = 1000.0f;
 
-				PhysxWorld* physxWorld = UVSG::getInstance()->physxWorld;
-				raycastSingleResult result = physxWorld->raycastSingle(start, direction, distance);
-
-				//If it hits an object and the object has an assositated entity.
-				if (result.hasHit && result.hasHitEntity)
-				{
-					//If the object is this object, ignore it.
-					if (result.hitEntity != entity)
-					{
-						if (result.hitEntity.has_component<VoxelComponent>() && result.hitEntity.has_component<Transform>())
-						{
-							ComponentHandle<VoxelComponent> componentVoxel = result.hitEntity.component<VoxelComponent>();
-							ComponentHandle<Transform> componentVoxelTransform = result.hitEntity.component<Transform>();
-
-							matrix4 inverseModelMatrix = glm::inverse(componentVoxelTransform->getModleMatrix());
-
-							//std::printf("Vec3F: {%f, %f, %f}\n", result.worldHitPos.x, result.worldHitPos.y, result.worldHitPos.z);
-
-							//Get the hit position in local space
-							vector4 worldHitPoint = vector4(result.worldHitPos + (componentTransform->getForward() * 0.2f), 1.0f);
-							vector3 localHitPoint = vector3(inverseModelMatrix * worldHitPoint);
-							localHitPoint /= componentVoxel->getCubeSize();
-
-							//std::printf("Vec3F_: {%f, %f, %f}\n", localHitPoint.x, localHitPoint.y, localHitPoint.z);
-
-							int x = (int)(localHitPoint.x + 0.5f);
-							int y = (int)(localHitPoint.y + 0.5f);
-							int z = (int)(localHitPoint.z + 0.5f);
-							//std::printf("Vec3: {%i, %i, %i}\n", x, y, z);
-
-							if (componentVoxel->getBlock(x, y, z) != 0)
-							{
-								componentVoxel->setBlock(x, y, z, 0);
-							}
-						}
-					}
-				}
 			}
 			lastButton = Button;
 
@@ -163,18 +117,12 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				entity1.assign<Transform>();
 				entity1.assign<Velocity>();
 
-				PhysxWorld* physxWorld = UVSG::getInstance()->physxWorld;
 				RenderingManager* renderingManager = UVSG::getInstance()->renderingManager;
 
 				entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
 				entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
 
-				//2-Creating dynamic cube
-				PxMaterial* material = physxWorld->gPhysicsSDK->createMaterial(1.0, 1.0, 0.0);
-				physx::PxBoxGeometry* boxGeometry = new physx::PxBoxGeometry(PxVec3(1, 1, 1)); //Defining geometry for box actor
-				entity1.assign<RigidBody>(physxWorld, entity, boxGeometry, material, 1.0f);
-
-				//entity1.assign<TimeToLiveComponent>(10.0f);
+				entity1.assign<TimeToLiveComponent>(10.0f);
 
 				vector<vector3> vertices = vector<vector3>();
 				vertices.push_back(vector3(1.0f, -1.0f, -1.0f));

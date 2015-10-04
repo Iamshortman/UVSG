@@ -23,6 +23,10 @@ Window::Window(int width, int height, string windowTitle)
         SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE
     );
 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	setVsync(1);
+
     //SDL_MaximizeWindow(window);
 
     if( window == NULL )
@@ -32,8 +36,8 @@ Window::Window(int width, int height, string windowTitle)
 
 	// Create an OpenGL context associated with the window.
 	glcontext = SDL_GL_CreateContext(window);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	setVsync(1);
+
+	//SDL_SetWindowFullscreen(this->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     // Initialize GLEW
 	if (glewInit() != GLEW_OK)
@@ -166,6 +170,24 @@ void Window::setVsync(int syncRate)
 {
 	if (syncRate >= 0 && syncRate <= 2)
 	SDL_GL_SetSwapInterval(syncRate);
+}
+
+//Not working yet
+void Window::setAntiAliasing(int sampleSize)
+{
+	if (sampleSize == 0)
+	{
+		glDisable(GL_MULTISAMPLE);
+		//If value is zero, disable Anti-Aliasing
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+	}
+	else
+	{	
+		glEnable(GL_MULTISAMPLE);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, sampleSize);
+	}
 }
 
 Window::~Window()

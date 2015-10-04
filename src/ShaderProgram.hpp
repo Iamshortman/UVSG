@@ -2,6 +2,7 @@
 #define SHADERPROGRAM_HPP
 
 #include "openGL.hpp"
+#include "glmInclude.hpp"
 
 #include <vector>
 #include <string>
@@ -27,6 +28,12 @@ public:
 	void setActiveProgram();
 	void deactivateProgram();
 	void deleteProgram();
+
+	void setUniform(string name, matrix4& matrix);
+	void setUniform(string name, matrix3& matrix);
+	void setUniform(string name, vector3& vec);
+	void setUniform(string name, vector2& vec);
+	void setUniform(string name, quaternion& quat);
 
 private:
 	GLuint vertexID, fragmentID;

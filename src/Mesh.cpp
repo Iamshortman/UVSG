@@ -57,6 +57,28 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 }
 
+void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors)
+{
+	size = vertices.size();
+
+	//Clear the old one incase
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &cbo);
+	glDeleteBuffers(1, &nbo);
+	glDeleteBuffers(1, &ibo);
+
+	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &cbo);
+	glGenBuffers(1, &nbo);
+	glGenBuffers(1, &ibo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vector3), &vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, cbo);
+	glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(vector3), &colors[0], GL_STATIC_DRAW);
+}
+
 void Mesh::draw()
 {
         if(size == -1)
@@ -100,6 +122,9 @@ void Mesh::draw()
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+
+		// Draw the triangles !
+		//glDrawArrays(GL_TRIANGLES, 0, size);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);

@@ -5,6 +5,7 @@
 
 #include "Mesh.hpp"
 #include "TexturedMesh.hpp"
+#include <vector>
 
 class Transform
 {
@@ -51,14 +52,14 @@ struct MeshComponent
 	vector3 offset;
 };
 
+struct ModelComponent
+{
+	std::vector<MeshComponent> meshes;
+};
+
 struct TexturedMeshComponent
 {
 	TexturedMesh mesh;
-};
-
-struct inputControl
-{
-
 };
 
 struct CameraLock
@@ -69,6 +70,15 @@ struct CameraLock
 struct DebugVelocity
 {
 	vector3 prevPos;
+};
+
+class ShipComponent
+{
+public:
+	const static unsigned int chunkSize = 16;
+
+	unsigned short chunk[chunkSize][chunkSize][chunkSize];
+
 };
 
 #endif // COMPONETS_HPP

@@ -12,6 +12,7 @@
 #include "glmInclude.hpp"
 #include "ShaderProgram.hpp"
 #include "TexturePool.hpp"
+#include "Chunk.hpp"
 
 class RenderingManager
 {
@@ -26,13 +27,11 @@ public:
 	TexturePool texturePool;
 
 	ShaderProgram basicShader;
-	GLuint uniform_MVP_ID;
-	GLuint uniform_Normal_ID;
-	GLuint uniform_Offset_ID;
-
 	ShaderProgram texturedShader;
-	GLuint uniform_MVP_ID1;
-	GLuint uniform_Normal_ID1;
+
+	ShaderProgram texturedLightShader;
+
+	Chunk chunk;
 
 protected:
 
