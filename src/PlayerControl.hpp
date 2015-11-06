@@ -2,7 +2,6 @@
 #define PLAYERCONTROL_HPP
 
 #include "entityxInclude.hpp"
-#include <VoxelComponent.hpp>
 
 #include "Util.hpp"
 
@@ -23,13 +22,6 @@ struct PlayerControlComponent
 class PlayerControlSystem : public System < PlayerControlSystem >
 {
 
-	void push3(vector<unsigned int>* vector, unsigned int a, unsigned int b, unsigned int c)
-	{
-		vector->push_back(a - 1);
-		vector->push_back(b - 1);
-		vector->push_back(c - 1);
-	}
-
 	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
 		float timestep = ((float)dt);
@@ -47,7 +39,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 		
 			int deadzone = 8000;
 
-			int pitchAxis = SDL_JoystickGetAxis(joystick, 5);
+			int pitchAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY); //SDL_JoystickGetAxis(joystick, 5);
 
 			if (pitchAxis > deadzone || pitchAxis < -deadzone)
 			{
@@ -61,7 +53,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				componentTransform->orientation = pitchQuat * componentTransform->orientation;
 			}
 
-			int yawAxis = SDL_JoystickGetAxis(joystick, 2);
+			int yawAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
 
 			if (yawAxis > deadzone || yawAxis < -deadzone)
 			{
@@ -75,7 +67,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			}
 
 
-			int forwardAxis = SDL_JoystickGetAxis(joystick, 1);
+			int forwardAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY); //SDL_JoystickGetAxis(joystick, 1);
 
 			if (forwardAxis > deadzone || forwardAxis < -deadzone)
 			{
@@ -85,7 +77,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				componentTransform->position += componentTransform->getForward() * -distance;
 			}
 
-			int strafeAxis = SDL_JoystickGetAxis(joystick, 0);
+			int strafeAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
 
 			if (strafeAxis > deadzone || strafeAxis < -deadzone)
 			{
@@ -95,100 +87,48 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				componentTransform->position += componentTransform->getRight() * distance;
 			}
 
-			int Button = SDL_JoystickGetButton(joystick, 0);
 			static int lastButton = 0;
 
-			if (Button)
+			int button = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+			if (button && !lastButton)
 			{
-				vector3 start = componentTransform->getPos() + componentTransform->getForward();
-				vector3 direction = componentTransform->getForward();
-				float distance = 1000.0f;
+				float rayDistance = 1000.0f;
+				vector3 startPos = componentTransform->getPos();
+				vector3 endPos = componentTransform->getPos() + (componentTransform->getForward() * rayDistance);
+				SingleRayTestResults result = UVSG::getInstance()->physicsWorld->singleRayTest(startPos, endPos);
+
+				if (result.hasHit)
+				{
+
+					Chunk* chunk = (Chunk*) result.hitBody->getUserPointer();
+					if (chunk != nullptr)
+					{
+						printVec(result.hitPosition); printEndLine();
+						printVec(result.hitNormal); printEndLine();
+
+						Transform chunkTransform = chunk->getTransform();
+						matrix4 invModelMatrix = glm::inverse(chunkTransform.getModleMatrix());
+						vector4 localHitPos4 = invModelMatrix * vector4(result.hitPosition, 1.0f);
+						vector3 localHitPos = vector3(localHitPos4);
+						vector3 normalAdjust = result.hitNormal * -0.5f;
+
+						localHitPos += normalAdjust;
+
+						int x = localHitPos.x;
+						int y = localHitPos.y;
+						int z = localHitPos.z;
+
+						chunk->setBlock(x, y, z, 0);
+
+						std::printf("HitPos: {%i, %i, %i}\n", x, y, z);
+
+					}
+
+				}
 
 			}
-			lastButton = Button;
+			lastButton = button;
 
-			static int lastShot = 0;
-			int shoot = SDL_JoystickGetButton(joystick, 1);
-
-			if (shoot && !lastShot)
-			{
-				Entity entity1 = es.create();
-				entity1.assign<MeshComponent>();
-				entity1.assign<Transform>();
-				entity1.assign<Velocity>();
-
-				RenderingManager* renderingManager = UVSG::getInstance()->renderingManager;
-
-				entity1.component<Transform>()->position = renderingManager->camera.getForward() + renderingManager->camera.getPos();
-				entity1.component<Velocity>()->linearVelocity = renderingManager->camera.getForward() * 50.0f;
-
-				entity1.assign<TimeToLiveComponent>(10.0f);
-
-				vector<vector3> vertices = vector<vector3>();
-				vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
-				vertices.push_back(vector3(1.0f, -1.0f, 1.0f));
-				vertices.push_back(vector3(-1.0f, -1.0f, 1.0f));
-				vertices.push_back(vector3(-1.0f, -1.0f, -1.0f));
-				vertices.push_back(vector3(1.0f, 1.0f, -1.0f));
-				vertices.push_back(vector3(1.0f, 1.0f, 1.0f));
-				vertices.push_back(vector3(-1.0f, 1.0f, 1.0f));
-				vertices.push_back(vector3(-1.0f, 1.0f, -1.0f));
-
-
-				vector<vector3> colors = vector<vector3>();
-				colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-				colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-				colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-				colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-				colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-				colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-				colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-				colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-
-				vector<vector3> normals = vector<vector3>();
-
-				vector<unsigned int> indices = vector<unsigned int>();
-
-				push3(&indices, 5, 8, 6);//TOP
-				push3(&indices, 8, 7, 6);
-				normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-				normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-				normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-
-				push3(&indices, 1, 2, 4);//Bottom
-				push3(&indices, 2, 3, 4);
-				normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-				normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-				normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-
-				push3(&indices, 2, 6, 3);//Back
-				push3(&indices, 6, 7, 3);
-				normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-				normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-				normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-
-				push3(&indices, 1, 4, 8);//Front
-				push3(&indices, 5, 1, 8);
-				normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-				normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-				normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-
-				push3(&indices, 1, 5, 2);//Right
-				push3(&indices, 5, 6, 2);
-				normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-				normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-				normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-
-				push3(&indices, 3, 7, 4);//Left
-				push3(&indices, 7, 8, 4);
-				normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-				normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-				normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-
-				ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-				componentMesh1->mesh.addVertices(vertices, colors, indices);
-			}
-			lastShot = shoot;
 		}
 	};
 };

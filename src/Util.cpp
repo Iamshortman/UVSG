@@ -2,12 +2,17 @@
 
 void printQuat(const quaternion quat)
 {
-	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "} \n";
+	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";
 }
 
 void printVec(const vector3 vec)
 {
-	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "} \n";
+	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+}
+
+void printEndLine()
+{
+	std::cout << std::endl;
 }
 
 quaternion fromAxes(const vector3 forward, const vector3 up)
@@ -30,6 +35,26 @@ quaternion fromAxes(const vector3 forward, const vector3 up)
 
 	return toQuat(rotationMatrix);
 };
+
+btVector3 toBtVec3(const vector3& vec)
+{
+	return btVector3(vec.x, vec.y, vec.z);
+}
+
+vector3 toGlmVec3(const btVector3& vec)
+{
+	return vector3(vec.getX(), vec.getY(), vec.getZ());
+}
+
+btQuaternion toBtQuat(const quaternion& quat)
+{
+	return btQuaternion(quat.x, quat.y, quat.z, quat.w);
+}
+
+quaternion toGlmQuat(const btQuaternion& quat)
+{
+	return quaternion(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
+}
 
 float toRad(float degree)
 {

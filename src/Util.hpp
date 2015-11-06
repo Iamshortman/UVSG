@@ -2,6 +2,7 @@
 #define UTIL_HPP
 
 #include "glmInclude.hpp"
+#include "PhysicsWorld.hpp"
 
 using namespace std;
 
@@ -9,9 +10,14 @@ using namespace std;
 
 void printQuat(const quaternion quat);
 void printVec(const vector3 quat);
+void printEndLine();
+
 quaternion fromAxes(const vector3 forward, const vector3 up);
 
-
+btVector3 toBtVec3(const vector3& vec);
+vector3 toGlmVec3(const btVector3& vec);
+btQuaternion toBtQuat(const quaternion& quat);
+quaternion toGlmQuat(const btQuaternion& quat);
 
 float toRad(float degree);
 
