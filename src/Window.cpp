@@ -60,9 +60,11 @@ void Window::initGL()
 	//Setup texture stuff
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NEAREST);
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_CULL_FACE);
+
+
+    /*glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
+    glCullFace(GL_BACK);*/
 }
 
 void Window::set3dRendering()

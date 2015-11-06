@@ -2,6 +2,8 @@
 #define CHUNK_HPP
 
 #include "TexturedMesh.hpp"
+#include "RigidBody.hpp"
+#include "Components.hpp"
 
 typedef unsigned short BlockID;
 
@@ -19,6 +21,7 @@ public:
 
 	void updateChunk();
 	void render();
+	Transform getTransform();
 
 	float getCubeSize(){ return cubeSize; };
 
@@ -33,7 +36,11 @@ private:
 
 	//The width of each cubes in the chunk.
 	float cubeSize = 1.0f;
-	TexturedMesh* mesh = 0;
+	TexturedMesh* mesh = nullptr;
+
+	//Physics Body for the chunk
+	RigidBody* rigidBody = nullptr;
+
 };
 
 #endif CHUNK_HPP

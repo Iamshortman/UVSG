@@ -23,7 +23,7 @@ class ShaderProgram
 public:
     GLuint programID = 0;
 	ShaderProgram();
-	ShaderProgram(string VertexShaderLoc, string FragmentShaderLoc, AttributeLocation list[], int count);
+	ShaderProgram(string VertexShaderLoc, string FragmentShaderLoc, vector<AttributeLocation> attributeLocation);
 	~ShaderProgram();
 	void setActiveProgram();
 	void deactivateProgram();

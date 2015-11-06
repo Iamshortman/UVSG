@@ -12,12 +12,26 @@ class Transform
 public:
 	vector3 position;
 	quaternion orientation;
-	
+	vector3 scale = vector3(1.0f); //Star scale with a default of 1.0f
+
 	//Getters for the directional vectors.
 	const vector3 getPos(){ return position; };
 	const vector3 getForward(){ return orientation * vector3(0.0f, 0.0f, 1.0f); };
 	const vector3 getUp(){ return orientation * vector3(0.0f, 1.0f, 0.0f); };
 	const vector3 getRight(){ return orientation * vector3(-1.0f, 0.0f, 0.0f); };
+	const quaternion getOrientation(){ return orientation; };
+	const vector3 getScale(){ return scale; };
+
+	void setPos(const vector3& vec){ position = vec; };
+	void setOrientation(const quaternion& quat){ orientation = quat; }
+	void setScale(const vector3& vec){ scale = vec; }
+
+	void setTransform(Transform& transform) 
+	{
+		setPos(transform.getPos());
+		setOrientation(transform.getOrientation());
+		setScale(transform.getScale());
+	};
 
 	const matrix4 getModleMatrix()
 	{
@@ -27,6 +41,7 @@ public:
 
 		positionMatrix = glm::translate(matrix4(1.0F), position);
 		rotationMatrix = glm::toMat4(orientation);
+		scaleMatrix = glm::scale(matrix4(1.0F), scale);
 		//TODO SCALEMatrix
 
 		return positionMatrix * rotationMatrix * scaleMatrix;
@@ -64,20 +79,6 @@ struct TexturedMeshComponent
 
 struct CameraLock
 {
-
-};
-
-struct DebugVelocity
-{
-	vector3 prevPos;
-};
-
-class ShipComponent
-{
-public:
-	const static unsigned int chunkSize = 16;
-
-	unsigned short chunk[chunkSize][chunkSize][chunkSize];
 
 };
 
