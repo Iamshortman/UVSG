@@ -1,8 +1,6 @@
 #include "Chunk.hpp"
 #include "glmInclude.hpp"
-#include "Util.hpp"
 #include <vector>
-#include "UVSG.hpp"
 
 Chunk::Chunk()
 {
@@ -48,34 +46,12 @@ BlockID Chunk::getBlock(int x, int y, int z)
 	return 0;
 }
 
-Transform Chunk::getTransform()
-{
-	Transform transform;
-	transform.setPos(vector3(0, -16.0f, 0));
-	return transform;
-}
-
 
 void Chunk::updateChunk()
 {
-	if (rigidBody == nullptr)
-	{
-		rigidBody = new RigidBody(UVSG::getInstance()->physicsWorld, new btEmptyShape(), 0.0f);
-		rigidBody->rigidBody->setCenterOfMassTransform(btTransform(btQuaternion(), toBtVec3(vector3(0.0f, -16.0f, 0.0f))));
-		rigidBody->rigidBody->setUserPointer(this);
-	}
-
-	if (!shouldUpdateChunk)
-	{
-		return;
-	}
-
-	shouldUpdateChunk = false;
-
-	if (mesh != nullptr)
+	if (mesh != 0)
 	{
 		delete mesh;
-		mesh = nullptr;
 	}
 
 	vector3 vertsCube[] =
@@ -110,8 +86,6 @@ void Chunk::updateChunk()
 	std::vector<unsigned int> indicesVector;
 	unsigned int indicesOffset = 0;
 
-	unsigned int blockCount = 0;
-
 	for (unsigned int x = 0; x < chunkSize; x++)
 	{
 		for (unsigned int y = 0; y < chunkSize; y++)
@@ -120,7 +94,6 @@ void Chunk::updateChunk()
 			{
 				if (blocks[x][y][z] != 0)
 				{
-					blockCount++;
 					vector3 offset = vector3(x, y, z) * cubeSize;
 					
 					//Top
@@ -237,18 +210,7 @@ void Chunk::updateChunk()
 	}
 
 	this->mesh = new TexturedMesh(verticesVector, indicesVector);
-
-	btTriangleMesh *mesh = new btTriangleMesh();
-	for (int i = 0; i < indicesVector.size(); i += 3)
-	{
-		mesh->addTriangle(
-			toBtVec3(verticesVector[ indicesVector[i] ].pos),
-			toBtVec3(verticesVector[ indicesVector[i + 1] ].pos),
-			toBtVec3(verticesVector[ indicesVector[i + 2] ].pos)
-			);
-	}
-	
-	rigidBody->setCollisionShape(true, new btBvhTriangleMeshShape(mesh, true, true));
+	std::cout << "Num Faces: " << indicesVector.size() / 3 << std::endl;
 }
 
 void Chunk::render()

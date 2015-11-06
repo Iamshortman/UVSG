@@ -13,27 +13,25 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "InputButton.hpp"
+
 using namespace std;
 
 int main()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-
-	//Disable Events for controllers cause they suck.
+	//Disable Events for controllers
 	SDL_GameControllerEventState(SDL_IGNORE);
 
 	UVSG* game = new UVSG();
 
     int num_joy = SDL_NumJoysticks();
-    printf("\n%i joystick(s) were found.\n\n", num_joy);
+    printf("%i joystick(s) were found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
 		game->joystick = SDL_JoystickOpen(i);
-		if (SDL_IsGameController(i))
-		{
-			game->controller = SDL_GameControllerOpen(i);
-			printf("%s \n", SDL_JoystickName(game->joystick));
-		}
+		game->controller = SDL_GameControllerOpen(i);
+		printf("%s \n", SDL_JoystickName(game->joystick));
     }
 
     double deltaTime = 0;

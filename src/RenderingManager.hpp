@@ -5,6 +5,7 @@
 #include "entityxInclude.hpp"
 
 #include "Components.hpp"
+#include "VoxelComponent.hpp"
 
 #include "Camera.hpp"
 #include "Window.hpp"
@@ -12,15 +13,6 @@
 #include "ShaderProgram.hpp"
 #include "TexturePool.hpp"
 #include "Chunk.hpp"
-#include "TestChunk.hpp"
-
-struct Star
-{
-	Transform transform;
-	Mesh starMesh;
-	Mesh billboardMesh;
-	vector3 color;
-};
 
 class RenderingManager
 {
@@ -39,11 +31,7 @@ public:
 
 	ShaderProgram texturedLightShader;
 
-	ShaderProgram StarShader;
-	ShaderProgram BillboardShader;
-
-	//TestChunk chunk;
-	Star m_sun;
+	Chunk chunk;
 
 protected:
 

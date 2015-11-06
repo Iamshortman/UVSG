@@ -61,27 +61,13 @@ vector3 Camera::getPos()
     return pos;
 }
 
-quaternion Camera::getOrientation()
-{
-	return fromAxes(forward, up);
-}
-
 matrix4 Camera::getViewMatrix()
 {
     return glm::lookAt(pos, pos + forward, up);
 }
 
-matrix4 Camera::getProjectionMatrix()
+matrix4 Camera::getProjectionMatrix(int width, int height)
 {
 	float aspectRatio = ((float)width) / ((float)height);
 	return glm::perspective(frameOfView, aspectRatio, nearClipping, farClipping);
-}
-
-void Camera::setProjection(float frameOfView, float nearClipping, float farClipping, int screenWidth, int screenHeight)
-{
-	this->frameOfView = frameOfView;
-	this->nearClipping = nearClipping;
-	this->farClipping = farClipping;
-	this->width = screenWidth;
-	this->height = screenHeight;
 }
