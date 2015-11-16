@@ -33,7 +33,7 @@ quaternion fromAxes(const vector3 forward, const vector3 up)
 	rotationMatrix[2][1] = forward.y;
 	rotationMatrix[2][2] = forward.z;
 
-	return toQuat(rotationMatrix);
+	return glm::toQuat(rotationMatrix);
 };
 
 btVector3 toBtVec3(const vector3& vec)

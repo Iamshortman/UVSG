@@ -1,13 +1,13 @@
 #ifndef PHYSICSWORLD_HPP
 #define PHYSICSWORLD_HPP
 
-#include <entityxInclude.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
 #include "Components.hpp"
 #include "glmInclude.hpp"
 #include "Util.hpp"
+#include "entityxInclude.hpp"
 
 struct SingleRayTestResults
 {

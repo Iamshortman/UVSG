@@ -1,8 +1,8 @@
 #ifndef ENTITYXINCLUDE_HPP
 #define ENTITYXINCLUDE_HPP
 
-#include <entityx\entityx.h>
-#include <entityx\Entity.h>
+#include <entityx/entityx.h>
+#include <entityx/Entity.h>
 
 typedef entityx::EntityX EntityX;
 

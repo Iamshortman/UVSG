@@ -15,22 +15,22 @@ public:
 	vector3 scale = vector3(1.0f); //Star scale with a default of 1.0f
 
 	//Getters for the directional vectors.
-	const vector3 getPos(){ return position; };
-	const vector3 getForward(){ return orientation * vector3(0.0f, 0.0f, 1.0f); };
-	const vector3 getUp(){ return orientation * vector3(0.0f, 1.0f, 0.0f); };
-	const vector3 getRight(){ return orientation * vector3(-1.0f, 0.0f, 0.0f); };
-	const quaternion getOrientation(){ return orientation; };
-	const vector3 getScale(){ return scale; };
+	vector3 getPos() const { return position; };
+	vector3 getForward() const { return orientation * vector3(0.0f, 0.0f, 1.0f); };
+	vector3 getUp() const { return orientation * vector3(0.0f, 1.0f, 0.0f); };
+	vector3 getRight() const { return orientation * vector3(-1.0f, 0.0f, 0.0f); };
+	quaternion getOrientation() const { return orientation; };
+	vector3 getScale() const { return scale; };
 
 	void setPos(const vector3& vec){ position = vec; };
 	void setOrientation(const quaternion& quat){ orientation = quat; }
 	void setScale(const vector3& vec){ scale = vec; }
 
-	void setTransform(Transform& transform) 
+	void setTransform(const Transform& transform)
 	{
-		setPos(transform.getPos());
-		setOrientation(transform.getOrientation());
-		setScale(transform.getScale());
+		this->setPos(transform.getPos());
+		this->setOrientation(transform.getOrientation());
+		this->setScale(transform.getScale());
 	};
 
 	const matrix4 getModleMatrix()

@@ -26,7 +26,7 @@ public:
 				chunk[x][y] = 1;
 			}
 		}
-	
+
 	}
 
 	void update(TimeDelta delta)
@@ -86,7 +86,7 @@ public:
 			{
 				if (chunk[x][y] != 0)
 				{
-					shader->setUniform("offset", vector3(x * 2, 0, y * 2));
+					//shader->setUniform("offset", vector3(x * 2, 0, y * 2));
 
 					cube->draw();
 				}

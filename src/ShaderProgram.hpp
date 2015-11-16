@@ -29,11 +29,11 @@ public:
 	void deactivateProgram();
 	void deleteProgram();
 
-	void setUniform(string name, matrix4& matrix);
-	void setUniform(string name, matrix3& matrix);
-	void setUniform(string name, vector3& vec);
-	void setUniform(string name, vector2& vec);
-	void setUniform(string name, quaternion& quat);
+	void setUniform(string name, const matrix4& matrix);
+	void setUniform(string name, const matrix3& matrix);
+	void setUniform(string name, const vector3& vec);
+	void setUniform(string name, const vector2& vec);
+	void setUniform(string name, const quaternion& quat);
 
 private:
 	GLuint vertexID, fragmentID;

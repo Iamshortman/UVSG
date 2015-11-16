@@ -72,23 +72,23 @@ void ShaderProgram::deleteProgram()
 	}
 }
 
-void ShaderProgram::setUniform(string name, matrix4& matrix)
+void ShaderProgram::setUniform(string name, const matrix4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
 }
-void ShaderProgram::setUniform(string name, matrix3& matrix)
+void ShaderProgram::setUniform(string name, const matrix3& matrix)
 {
 	glUniformMatrix3fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
 }
-void ShaderProgram::setUniform(string name, vector3& vec)
+void ShaderProgram::setUniform(string name, const vector3& vec)
 {
 	glUniform3f(glGetUniformLocation(programID, name.c_str()), vec.x, vec.y, vec.z);
 }
-void ShaderProgram::setUniform(string name, vector2& vec)
+void ShaderProgram::setUniform(string name, const vector2& vec)
 {
 	glUniform2f(glGetUniformLocation(programID, name.c_str()), vec.x, vec.y);
 }
-void ShaderProgram::setUniform(string name, quaternion& quat)
+void ShaderProgram::setUniform(string name, const quaternion& quat)
 {
 	//glUniform4f(glGetUniformLocation(programID, name.c_str()), quat.x, quat.y, quat.z);
 }
