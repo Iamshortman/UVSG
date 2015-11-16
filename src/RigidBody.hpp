@@ -13,6 +13,7 @@ class RigidBody
 public:
 	RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass);
 	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass);
+	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia);
 	virtual ~RigidBody();
 
 	void setCollisionShape(bool deleteOldShape, btCollisionShape* newShape);

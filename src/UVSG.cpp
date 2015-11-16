@@ -35,11 +35,11 @@ UVSG::UVSG()
 	camEntity.assign<Transform>();
 	camEntity.assign<CameraLock>();
 	camEntity.assign<PlayerControlComponent>(48.0f, 3.0f);
-	camEntity.component<Transform>()->position = vector3(0.0f);
+	camEntity.component<Transform>()->position = vector3(-55.0f, 35.0f, -55.0f);
 
 	//Sets the camera to look at the center of the world
-	//camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(45.0f), vector3(1, 0, 0)) * camEntity.component<Transform>()->orientation;
-	//camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(-135.0f), vector3(0, 1, 0)) * camEntity.component<Transform>()->orientation;
+	camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(30.0f), vector3(1, 0, 0)) * camEntity.component<Transform>()->orientation;
+	camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(45.0f), vector3(0, 1, 0)) * camEntity.component<Transform>()->orientation;
 
 
 	Entity groundEntity = entitySystem.entities.create();
@@ -59,8 +59,9 @@ UVSG::UVSG()
 	entity1.assign<MeshComponent>();
 	entity1.assign<Transform>();
 	entity1.assign<Velocity>();
-	//entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 10.0f);
-	entity1.component<Transform>()->setPos(vector3(5.0f, 10.0f, 5.0f));
+	entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 20.0f);
+
+	entity1.component<Transform>()->setPos(vector3(5.0f, 5.0f, 5.0f));
 
 	vector<vector3> vertices = vector<vector3>();
 	vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
@@ -122,9 +123,19 @@ UVSG::UVSG()
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-	//ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-	//componentMesh1->mesh.addVertices(vertices, colors, indices);
+	ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
+	componentMesh1->mesh.addVertices(vertices, colors, indices);
 
+
+	Entity player = entitySystem.entities.create();
+	player.assign<MeshComponent>();
+	player.assign<Transform>();
+	player.assign<Velocity>();
+	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.4f, 1.8f), 200.0f);
+	player.component<RigidBody>()->rigidBody->setMassProps(200.0f, btVector3(0.0f, 0.0f, 0.0f));
+	player.component<Transform>()->setPos(vector3(5.0f, 15.0f, 5.0f));
+
+	player.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);;
 
 	//renderingManager->chunk.cube = new Mesh();
 	//renderingManager->chunk.cube->addVertices(vertices, colors, indices);

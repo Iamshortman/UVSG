@@ -42,8 +42,12 @@ public:
 	ShaderProgram StarShader;
 	ShaderProgram BillboardShader;
 
-	//TestChunk chunk;
 	Star m_sun;
+
+	Mesh* ringMesh;
+	TexturedMesh* groundMesh;
+	Mesh* playerMesh;
+
 
 protected:
 

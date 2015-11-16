@@ -37,7 +37,6 @@ private:
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* dynamicsWorld;
-
 };
 
 #endif //PHYSICSWORLD_HPP

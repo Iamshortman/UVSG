@@ -17,6 +17,10 @@ PhysicsWorld::PhysicsWorld()
 	// The world.
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0.0f, -10.0f, 0.0f));
+
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0f, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0f, 0.0f, 0.0f));
+	btRigidBody* rigidBody = new btRigidBody(boxRigidBodyCI);
+	addRigidBody(rigidBody);
 }
 
 void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
