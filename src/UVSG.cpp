@@ -4,10 +4,12 @@
 #include "RenderingManager.hpp"
 #include "Components.hpp"
 #include "TimeToLive.hpp"
+#include "Character.hpp"
 
 #include "PlayerControl.hpp"
 #include "ThrusterControl.hpp"
 #include "RigidBody.hpp"
+#include <BulletCollision\CollisionDispatch\btCollisionObject.h>
 
 UVSG* UVSG::instance;
 
@@ -34,17 +36,18 @@ UVSG::UVSG()
 	Entity camEntity = entitySystem.entities.create();
 	camEntity.assign<Transform>();
 	camEntity.assign<CameraLock>();
-	camEntity.assign<PlayerControlComponent>(48.0f, 3.0f);
-	camEntity.component<Transform>()->position = vector3(-55.0f, 35.0f, -55.0f);
+	camEntity.assign<PlayerControlComponent>(50.0f, 3.0f);
+	camEntity.component<Transform>()->m_position = vector3(-10.0f, 15.0f, -10.0f);
 
 	//Sets the camera to look at the center of the world
-	camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(30.0f), vector3(1, 0, 0)) * camEntity.component<Transform>()->orientation;
-	camEntity.component<Transform>()->orientation = glm::angleAxis(toRad(45.0f), vector3(0, 1, 0)) * camEntity.component<Transform>()->orientation;
+	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(30.0f), vector3(1, 0, 0)) * camEntity.component<Transform>()->m_orientation;
+	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(45.0f), vector3(0, 1, 0)) * camEntity.component<Transform>()->m_orientation;
 
 
 	Entity groundEntity = entitySystem.entities.create();
 	groundEntity.assign<Transform>();
-	groundEntity.component<Transform>()->position = vector3(0.0f, 0.0f, 0.0f);
+	groundEntity.component<Transform>()->setPos( vector3(0.0f, 0.0f, 0.0f) );
+	groundEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(-45.0f), vector3(1, 0, 0));
 
 	vector<Vertex> verticesStruct = vector<Vertex>();
 	Vertex vertex1 = { vector3(-50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F) , vector2(0.0f, 1.0f)};
@@ -54,14 +57,6 @@ UVSG::UVSG()
 	vector<unsigned int> indicesStruct = {0, 1, 2, 2, 1, 3};
 	verticesStruct.push_back(vertex1); verticesStruct.push_back(vertex2); verticesStruct.push_back(vertex3); verticesStruct.push_back(vertex4);
 	groundEntity.assign<TexturedMesh>(verticesStruct, indicesStruct);
-
-	Entity entity1 = entitySystem.entities.create();
-	entity1.assign<MeshComponent>();
-	entity1.assign<Transform>();
-	entity1.assign<Velocity>();
-	entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 20.0f);
-
-	entity1.component<Transform>()->setPos(vector3(5.0f, 5.0f, 5.0f));
 
 	vector<vector3> vertices = vector<vector3>();
 	vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
@@ -123,27 +118,39 @@ UVSG::UVSG()
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-	ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-	componentMesh1->mesh.addVertices(vertices, colors, indices);
+	for (int i = 0; i < 4; i++)
+	{
+		Entity entity1 = entitySystem.entities.create();
+		entity1.assign<MeshComponent>();
+		entity1.assign<Transform>();
+		entity1.assign<Velocity>();
+		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 20.0f);
+		entity1.component<Transform>()->setPos(vector3(0.0f, 5.0f + i, 5.0f));
+		ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
+		componentMesh1->mesh.addVertices(vertices, colors, indices);
+	}
 
 
-	Entity player = entitySystem.entities.create();
+	player = entitySystem.entities.create();
 	player.assign<MeshComponent>();
+	player.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);
+
+	player.assign<Character>();
+	//player.assign<CameraLock>();
 	player.assign<Transform>();
 	player.assign<Velocity>();
-	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.4f, 1.8f), 200.0f);
-	player.component<RigidBody>()->rigidBody->setMassProps(200.0f, btVector3(0.0f, 0.0f, 0.0f));
-	player.component<Transform>()->setPos(vector3(5.0f, 15.0f, 5.0f));
-
-	player.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);;
-
-	//renderingManager->chunk.cube = new Mesh();
-	//renderingManager->chunk.cube->addVertices(vertices, colors, indices);
+	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.5f, 0.5f), 20.0f);
+	player.component<RigidBody>()->rigidBody->setMassProps(20.0f, btVector3(0.0f, 0.0f, 0.0f));
+	player.component<Transform>()->setPos(vector3(0.0f, 5.0f, 0.0f));
+	player.component<Transform>()->setScale(vector3(0.25f, 0.85f, 0.25f));
+	player.component<RigidBody>()->rigidBody->setCollisionFlags(btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	player.component<RigidBody>()->rigidBody->forceActivationState(DISABLE_DEACTIVATION);
 }
 
 
 void UVSG::update(double timeStep)
 {
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -153,7 +160,8 @@ void UVSG::update(double timeStep)
 			exitGame();
 		}
 		renderingManager->window->HandleEvent(event);
-	}
+
+	} 
 
 	//#1 step Physics
 	physicsWorld->update(entitySystem, timeStep);
@@ -162,7 +170,90 @@ void UVSG::update(double timeStep)
 	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch))
 	{
 		ComponentHandle<Transform> transform = entity.component<Transform>();
-		renderingManager->camera.setCameraTransform(transform->position, transform->orientation);
+		renderingManager->camera.setCameraTransform(transform->m_position, transform->m_orientation);
+	}
+
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+	ComponentHandle<Character> character = player.component<Character>();
+	if (state[SDL_SCANCODE_UP] != 0 || state[SDL_SCANCODE_DOWN] != 0)
+	{
+		if (state[SDL_SCANCODE_UP] != 0 && state[SDL_SCANCODE_DOWN] != 0)
+		{
+			character->appiedVelocity.z = 0.0f;
+		}
+		else
+		{
+			character->appiedVelocity.z = (state[SDL_SCANCODE_UP] != 0) ? 4.0f : -4.0f;
+		}
+	}
+	else
+	{
+		character->appiedVelocity.z = 0.0f;
+	}
+
+	if (state[SDL_SCANCODE_LEFT] != 0 || state[SDL_SCANCODE_RIGHT] != 0)
+	{
+		if (state[SDL_SCANCODE_LEFT] != 0 && state[SDL_SCANCODE_RIGHT] != 0)
+		{
+			character->appiedVelocity.x = 0.0f;
+		}
+		else
+		{
+			character->appiedVelocity.x = (state[SDL_SCANCODE_LEFT] != 0) ? 4.0f : -4.0f;
+		}
+	}
+	else
+	{
+		character->appiedVelocity.x = 0.0f;
+	}
+
+	character->appiedVelocity.y = player.component<Velocity>()->linearVelocity.y;
+
+	player.component<Velocity>()->linearVelocity = character->appiedVelocity;
+
+	ComponentHandle<Transform> playerTransform = player.component<Transform>();
+	vector3 startPos = playerTransform->getPos();
+	vector3 endPos = playerTransform->getPos() + (playerTransform->getUp() * -2.0f);
+
+	SingleRayTestResults result = physicsWorld->singleRayTest(startPos, endPos);
+
+	if (result.hasHit)
+	{
+		vector3 diffrance = glm::abs(player.component<Transform>()->getPos() - result.hitPosition);
+		float distance = glm::length(diffrance);
+		//printf("Distance: %f \n", distance);
+
+		//If the player is too close to the ground, adjust it up.
+		if (distance < 1.0f)
+		{
+			float adjustAmount = 1.0f - distance;
+			playerTransform->setPos(playerTransform->getPos() + (playerTransform->getUp() * adjustAmount));
+
+			if (player.component<Velocity>()->linearVelocity.y <= 0.0f)
+			{
+				player.component<Velocity>()->linearVelocity.y = 0.0f;
+			}
+			character->onGround = true;
+
+		}
+		else
+		{
+			character->onGround = false;
+		}
+	}
+	else
+	{
+		false;
+	}
+	
+
+	printf("isOnGround: %d \n", character->onGround);
+
+	if (state[SDL_SCANCODE_SPACE] != 0 && character->onGround)
+	{
+		player.component<Velocity>()->linearVelocity.y += 7.0f;
+		character->onGround = false;
 	}
 
 	//#2 update Input

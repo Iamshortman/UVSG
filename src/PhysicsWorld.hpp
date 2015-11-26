@@ -3,6 +3,8 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+#include "BulletDynamics\Character\btKinematicCharacterController.h"
+#include "BulletCollision\CollisionDispatch\btGhostObject.h"
 
 #include "Components.hpp"
 #include "glmInclude.hpp"
@@ -17,6 +19,7 @@ struct SingleRayTestResults
 	vector3 hitNormal;
 };
 
+
 class PhysicsWorld
 {
 
@@ -28,6 +31,7 @@ public:
 	void removeRigidBody(btRigidBody* body);
 
 	SingleRayTestResults singleRayTest(vector3 startPos, vector3 endPos);
+	btDiscreteDynamicsWorld* dynamicsWorld;
 
 protected:
 
@@ -36,7 +40,7 @@ private:
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* dynamicsWorld;
+	
 };
 
 #endif //PHYSICSWORLD_HPP

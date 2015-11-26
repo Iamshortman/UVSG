@@ -9,7 +9,7 @@ using namespace std;
 //Just a basic util file for some common functions
 
 void printQuat(const quaternion quat);
-void printVec(const vector3 quat);
+void printVec(const vector3 vec);
 void printEndLine();
 
 quaternion fromAxes(const vector3 forward, const vector3 up);

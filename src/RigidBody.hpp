@@ -24,8 +24,12 @@ public:
 
 	btRigidBody* rigidBody;
 
+	void setObjectKinematic(bool kinematic){ isKinematic = kinematic; };
+	bool isObjectKinematic(){ return isKinematic; };
+
 private:
 	PhysicsWorld* world;
+	bool isKinematic = false;
 };
 
 #endif //RIGIDBODY_HPP

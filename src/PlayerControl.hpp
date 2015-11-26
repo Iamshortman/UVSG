@@ -50,7 +50,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//Negitive angle because the joystick layout is backwards
 				quaternion pitchQuat = glm::normalize(glm::angleAxis( -angle, componentTransform->getRight() ));
 
-				componentTransform->orientation = pitchQuat * componentTransform->orientation;
+				componentTransform->m_orientation = pitchQuat * componentTransform->m_orientation;
 			}
 
 			int yawAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
@@ -63,7 +63,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 
 				quaternion yawQuat = glm::normalize(glm::angleAxis( -angle, vector3(0.0f, 1.0f, 0.0f) ));
 
-				componentTransform->orientation = yawQuat * componentTransform->orientation;
+				componentTransform->m_orientation = yawQuat * componentTransform->m_orientation;
 			}
 
 
@@ -74,7 +74,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//Get between -1 and 1
 				float amount = ((float)forwardAxis) / 32767.0f;
 				float distance = amount * timestep * playerControlComponent->linearSpeed;
-				componentTransform->position += componentTransform->getForward() * -distance;
+				componentTransform->m_position += componentTransform->getForward() * -distance;
 			}
 
 			int strafeAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
@@ -84,7 +84,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				//Get between -1 and 1
 				float amount = ((float)strafeAxis) / 32767.0f;
 				float distance = amount * timestep * playerControlComponent->linearSpeed;
-				componentTransform->position += componentTransform->getRight() * distance;
+				componentTransform->m_position += componentTransform->getRight() * distance;
 			}
 
 			static int lastButton = 0;

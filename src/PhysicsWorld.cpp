@@ -2,6 +2,12 @@
 #include "RigidBody.hpp"
 #include <iostream>
 
+bool collisonCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+{
+
+	return true;
+}
+
 PhysicsWorld::PhysicsWorld()
 {
 	// Build the broadphase
@@ -16,11 +22,14 @@ PhysicsWorld::PhysicsWorld()
 
 	// The world.
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0.0f, -10.0f, 0.0f));
+	dynamicsWorld->setGravity(btVector3(0.0f, -9.8f, 0.0f));
 
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0f, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0f, 0.0f, 0.0f));
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0f, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, -1), 0), btVector3(0.0f, 0.0f, 0.0f));
 	btRigidBody* rigidBody = new btRigidBody(boxRigidBodyCI);
 	addRigidBody(rigidBody);
+
+	gContactAddedCallback = collisonCallback;
+
 }
 
 void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
@@ -57,10 +66,16 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
+		//If the Object is Kinematic then dont update the position and rotation.
+		if (componentRigidBody->isObjectKinematic())
+		{
+			continue;
+		}
+
 		if (entity.has_component<Transform>())
 		{
 			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
-			componentTransform->setTransform(componentRigidBody->getWorldTransform());
+			componentTransform->setPositionAndRotationFromTransform(componentRigidBody->getWorldTransform());
 		}
 
 		if (entity.has_component<Velocity>())

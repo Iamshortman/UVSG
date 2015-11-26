@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "IcosphereGenerator.hpp"
+#include "Character.hpp"
 
 RenderingManager::RenderingManager()
 {
@@ -35,7 +36,7 @@ RenderingManager::RenderingManager()
 	//m_sun.color = vector3(1.0f);
 	m_sun.color = vector3(220, 20, 60) / 255.0f;
 	//m_sun.color = vector3(253, 184, 19) / 255.0f;
-	m_sun.transform.setPos(vector3(5000.0f, 0.0f, 25000.0f));
+	m_sun.transform.setPos(vector3(5000.0f, 0.0f, 50000.0f));
 	m_sun.transform.setScale(vector3(2500.0f));
 
 	vector<vector3> vertices = vector<vector3>();
@@ -51,7 +52,6 @@ RenderingManager::RenderingManager()
 	}
 
 	m_sun.starMesh.addVertices(vertices, colors, normals, indices);
-	std::printf("Vertex num: %i", vertices.size());
 
 	vertices.clear();
 	vertices.push_back(vector3(1, 1, 0));
@@ -123,16 +123,6 @@ RenderingManager::RenderingManager()
 
 	ringMesh = new Mesh();
 	ringMesh->addVertices(vertices, colors, normals, indices);
-
-
-	vector<Vertex> verticesStruct = vector<Vertex>();
-	Vertex vertex1 = { vector3(-50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(0.0f, 1.0f) };
-	Vertex vertex2 = { vector3(50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(1.0f, 1.0f) };
-	Vertex vertex3 = { vector3(-50.0f, 0.0f, -50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(0.0f, 0.0f) };
-	Vertex vertex4 = { vector3(50.0f, 0.0f, -50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(1.0f, 0.0f) };
-	vector<unsigned int> indicesStruct = { 0, 1, 2, 2, 1, 3 };
-	verticesStruct.push_back(vertex1); verticesStruct.push_back(vertex2); verticesStruct.push_back(vertex3); verticesStruct.push_back(vertex4);
-	groundMesh = new TexturedMesh(verticesStruct, indicesStruct);
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
@@ -144,7 +134,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 	matrix4 viewMatrix = camera.getViewMatrix();
 
-	camera.setProjection(45.0f, 1.0f, 200000.0f, width, height);
+	camera.setProjection(45.0f, 1.0f, 100000.0f, width, height);
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
 	matrix4 modelMatrix = matrix4();
 	matrix4 MVP = matrix4();
@@ -158,10 +148,20 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	/***************************************************************/
 	StarShader.setActiveProgram();
 
-	modelMatrix = m_sun.transform.getModleMatrix();
-	normalMatrix = m_sun.transform.getNormalMatrix();
+	Transform tempTransform = m_sun.transform;
 
-	StarShader.setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
+	modelMatrix = tempTransform.getModleMatrix();
+	normalMatrix = tempTransform.getNormalMatrix();
+
+	matrix4 modelViewMatrix = viewMatrix * modelMatrix;
+
+	float scaledown = 0.001f;
+	modelViewMatrix = glm::scale(modelViewMatrix, vector3(scaledown));
+	modelViewMatrix[3][0] *= scaledown;
+	modelViewMatrix[3][1] *= scaledown;
+	modelViewMatrix[3][2] *= scaledown;
+
+	StarShader.setUniform("MVP", projectionMatrix * modelViewMatrix);
 	StarShader.setUniform("normalMatrix", normalMatrix);
 	StarShader.setUniform("modelMatrix", modelMatrix);
 	StarShader.setUniform("starColor", m_sun.color);
@@ -169,12 +169,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	m_sun.starMesh.draw();
 	StarShader.deactivateProgram();
 
-	BillboardShader.setActiveProgram();
-	BillboardShader.setUniform("starColor", m_sun.color);
-
-	//Create ModelViewMatrix
-	matrix4 modelViewMatrix = viewMatrix * modelMatrix;
-
+	//Edit ModelViewMatrix
 	//Clear rotations
 	// Column 0:
 	modelViewMatrix[0][0] = 1;
@@ -191,11 +186,11 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	modelViewMatrix[2][1] = 0;
 	modelViewMatrix[2][2] = 1;
 
-	//Create MVP matrix
+	BillboardShader.setActiveProgram();
+	BillboardShader.setUniform("starColor", m_sun.color);
 	BillboardShader.setUniform("MVP", projectionMatrix * modelViewMatrix);
-	BillboardShader.setUniform("scale", m_sun.transform.scale * 3.0f);
+	BillboardShader.setUniform("scale", tempTransform.getScale() * 3.0f * scaledown);
 	m_sun.billboardMesh.draw();
-
 	BillboardShader.deactivateProgram();
 
 
@@ -233,27 +228,33 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	//Far object Rendering End
 	//Set camera param for near rendering
 	camera.setProjection(45.0f, 0.1f, 1000.0f, width, height);
+	projectionMatrix = camera.getProjectionMatrix();
 
+	ComponentHandle<TexturedMesh> componentTexturedMeshSearch;
+	ComponentHandle<Transform> componentTransformSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentTexturedMeshSearch, componentTransformSearch))
+	{
+		ComponentHandle<TexturedMesh> componentTexturedMesh = entity.component<TexturedMesh>();
+		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 
-	/*Ground Rendering****************/
-	Transform groundTransform;
-	modelMatrix = groundTransform.getModleMatrix();
-	normalMatrix = groundTransform.getNormalMatrix();
+		modelMatrix = componentTransform->getModleMatrix();
+		normalMatrix = componentTransform->getNormalMatrix();
 
-	MVP = projectionMatrix * viewMatrix * modelMatrix;
+		MVP = projectionMatrix * viewMatrix * modelMatrix;
 
-	texturedShader.setActiveProgram();
-	texturedShader.setUniform("MVP", MVP);
-	texturedShader.setUniform("normalMatrix", normalMatrix);
+		texturedShader.setActiveProgram();
+		texturedShader.setUniform("MVP", MVP);
+		texturedShader.setUniform("normalMatrix", normalMatrix);
 
-	texturePool.bindTexture("stone.png");
-	groundMesh->draw();
+		texturePool.bindTexture("stone.png");
+		componentTexturedMesh->draw();
 
-	texturedShader.deactivateProgram();
-	/*********************************/
+		texturedShader.deactivateProgram();
+
+		count++;
+	}
 
 	ComponentHandle<MeshComponent> componentMeshSearch;
-	ComponentHandle<Transform> componentTransformSearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentMeshSearch, componentTransformSearch))
 	{
 		ComponentHandle<MeshComponent> componentMesh = entity.component<MeshComponent>();

@@ -45,7 +45,7 @@ public:
 	Star m_sun;
 
 	Mesh* ringMesh;
-	TexturedMesh* groundMesh;
+
 	Mesh* playerMesh;
 
 

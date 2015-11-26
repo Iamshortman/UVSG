@@ -27,6 +27,8 @@ public:
 	SDL_Joystick *joystick = NULL;
 	SDL_GameController *controller = NULL;
 
+	Entity player;
+
 protected:
 
 private:
