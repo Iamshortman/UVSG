@@ -60,3 +60,8 @@ float toRad(float degree)
 {
 	return degree * 0.0174532925f;
 }
+
+double toRad(double degree)
+{
+	return degree * 0.0174532925;
+}

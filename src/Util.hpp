@@ -20,5 +20,6 @@ btQuaternion toBtQuat(const quaternion& quat);
 quaternion toGlmQuat(const btQuaternion& quat);
 
 float toRad(float degree);
+double toRad(double degree);
 
 #endif //UTIL_HPP

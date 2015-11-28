@@ -61,7 +61,7 @@ Transform RigidBody::getWorldTransform()
 void RigidBody::setWorldTranform(Transform transform)
 {
 	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()) );
-	rigidBody->setCenterOfMassTransform(rigidBodyTransform);
+	rigidBody->setWorldTransform(rigidBodyTransform);
 }
 
 RigidBody::~RigidBody()

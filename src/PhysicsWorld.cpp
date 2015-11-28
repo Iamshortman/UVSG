@@ -10,6 +10,8 @@ bool collisonCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colOb
 
 PhysicsWorld::PhysicsWorld()
 {
+
+
 	// Build the broadphase
 	broadphase = new btDbvtBroadphase();
 
@@ -22,9 +24,9 @@ PhysicsWorld::PhysicsWorld()
 
 	// The world.
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0.0f, -9.8f, 0.0f));
+	dynamicsWorld->setGravity(btVector3(0.0f, -9.0f, 0.0f));
 
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0f, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, -1), 0), btVector3(0.0f, 0.0f, 0.0f));
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0L, 0.0L, 0.0L));
 	btRigidBody* rigidBody = new btRigidBody(boxRigidBodyCI);
 	addRigidBody(rigidBody);
 
@@ -48,19 +50,23 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 		if (entity.has_component<Velocity>())
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			vector3 linear = componentVelocity->linearVelocity;
+			f64vec3 linear = componentVelocity->linearVelocity;
 			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
-			vector3 angular = componentVelocity->angularVelocity;
+			f64vec3 angular = componentVelocity->angularVelocity;
 			componentRigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
 			if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
 			{
 				componentRigidBody->rigidBody->activate(true);
 			}
+			else
+			{
+				componentRigidBody->rigidBody->activate(false);
+			}
 		}
 	}
 
 	//Run Physics Simulation
-	dynamicsWorld->stepSimulation(timeStep, 0, (1.0f / 120.0f));
+	dynamicsWorld->stepSimulation(timeStep, 7);
 
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
@@ -83,10 +89,10 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 
 			btVector3 linear = componentRigidBody->rigidBody->getLinearVelocity();
-			componentVelocity->linearVelocity = vector3(linear.getX(), linear.getY(), linear.getZ());
+			componentVelocity->linearVelocity = f64vec3(linear.getX(), linear.getY(), linear.getZ());
 
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
-			componentVelocity->angularVelocity = vector3(angular.getX(), angular.getY(), angular.getZ());
+			componentVelocity->angularVelocity = f64vec3(angular.getX(), angular.getY(), angular.getZ());
 		}
 	}
 
@@ -102,7 +108,7 @@ void PhysicsWorld::removeRigidBody(btRigidBody* body)
 	dynamicsWorld->removeRigidBody(body);
 }
 
-SingleRayTestResults PhysicsWorld::singleRayTest(vector3 startPos, vector3 endPos)
+SingleRayTestResults PhysicsWorld::singleRayTest(f64vec3 startPos, f64vec3 endPos)
 {
 	btVector3 start = toBtVec3(startPos);
 	btVector3 end = toBtVec3(endPos);

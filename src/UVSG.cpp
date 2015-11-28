@@ -25,7 +25,7 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
-	this->renderingManager->window->setVsync(1);
+	this->renderingManager->window->setVsync(0);
 	this->physicsWorld = new PhysicsWorld();
 
 	entitySystem.systems.add<TimeToLiveSystem>();
@@ -37,17 +37,17 @@ UVSG::UVSG()
 	camEntity.assign<Transform>();
 	camEntity.assign<CameraLock>();
 	camEntity.assign<PlayerControlComponent>(50.0f, 3.0f);
-	camEntity.component<Transform>()->m_position = vector3(-10.0f, 15.0f, -10.0f);
+	camEntity.component<Transform>()->m_position = f64vec3(-10.0f, 15.0f, -10.0f);
 
 	//Sets the camera to look at the center of the world
-	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(30.0f), vector3(1, 0, 0)) * camEntity.component<Transform>()->m_orientation;
-	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(45.0f), vector3(0, 1, 0)) * camEntity.component<Transform>()->m_orientation;
+	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(30.0), f64vec3(1, 0, 0)) * camEntity.component<Transform>()->m_orientation;
+	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(45.0), f64vec3(0, 1, 0)) * camEntity.component<Transform>()->m_orientation;
 
 
 	Entity groundEntity = entitySystem.entities.create();
 	groundEntity.assign<Transform>();
-	groundEntity.component<Transform>()->setPos( vector3(0.0f, 0.0f, 0.0f) );
-	groundEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(-45.0f), vector3(1, 0, 0));
+	groundEntity.component<Transform>()->setPos( f64vec3(0.0f, 0.0f, 0.0f) );
+	//groundEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(-45.0f), f64vec3(1, 0, 0));
 
 	vector<Vertex> verticesStruct = vector<Vertex>();
 	Vertex vertex1 = { vector3(-50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F) , vector2(0.0f, 1.0f)};
@@ -59,14 +59,14 @@ UVSG::UVSG()
 	groundEntity.assign<TexturedMesh>(verticesStruct, indicesStruct);
 
 	vector<vector3> vertices = vector<vector3>();
-	vertices.push_back(vector3(1.0f, -1.0f, -1.0f));
-	vertices.push_back(vector3(1.0f, -1.0f, 1.0f));
-	vertices.push_back(vector3(-1.0f, -1.0f, 1.0f));
-	vertices.push_back(vector3(-1.0f, -1.0f, -1.0f));
-	vertices.push_back(vector3(1.0f, 1.0f, -1.0f));
-	vertices.push_back(vector3(1.0f, 1.0f, 1.0f));
-	vertices.push_back(vector3(-1.0f, 1.0f, 1.0f));
-	vertices.push_back(vector3(-1.0f, 1.0f, -1.0f));
+	vertices.push_back(vector3(0.5f, -0.5f, -0.5f));
+	vertices.push_back(vector3(0.5f, -0.5f, 0.5f));
+	vertices.push_back(vector3(-0.5f, -0.5f, 0.5f));
+	vertices.push_back(vector3(-0.5f, -0.5f, -0.5f));
+	vertices.push_back(vector3(0.5f, 0.5f, -0.5f));
+	vertices.push_back(vector3(0.5f, 0.5f, 0.5f));
+	vertices.push_back(vector3(-0.5f, 0.5f, 0.5f));
+	vertices.push_back(vector3(-0.5f, 0.5f, -0.5f));
 
 
 	vector<vector3> colors = vector<vector3>();
@@ -118,14 +118,14 @@ UVSG::UVSG()
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		Entity entity1 = entitySystem.entities.create();
 		entity1.assign<MeshComponent>();
 		entity1.assign<Transform>();
 		entity1.assign<Velocity>();
-		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(1.0f, 1.0f, 1.0f)), 20.0f);
-		entity1.component<Transform>()->setPos(vector3(0.0f, 5.0f + i, 5.0f));
+		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(0.5l, 0.5l, 0.5l)), 20.0f);
+		entity1.component<Transform>()->setPos(f64vec3(0.0f, 5.0f + i * 1.1f, 5.0f));
 		ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
 		componentMesh1->mesh.addVertices(vertices, colors, indices);
 	}
@@ -139,17 +139,21 @@ UVSG::UVSG()
 	//player.assign<CameraLock>();
 	player.assign<Transform>();
 	player.assign<Velocity>();
-	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.5f, 0.5f), 20.0f);
-	player.component<RigidBody>()->rigidBody->setMassProps(20.0f, btVector3(0.0f, 0.0f, 0.0f));
-	player.component<Transform>()->setPos(vector3(0.0f, 5.0f, 0.0f));
-	player.component<Transform>()->setScale(vector3(0.25f, 0.85f, 0.25f));
+	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.5, 0.5f), 20.0);
+	player.component<RigidBody>()->rigidBody->setMassProps(20.0L, btVector3(0.0, 0.0, 0.0));
+	player.component<Transform>()->setPos(f64vec3(0.0f, 5.0f, 0.0f));
+	player.component<Transform>()->setScale(f64vec3(0.25f, 0.85f, 0.25f));
 	player.component<RigidBody>()->rigidBody->setCollisionFlags(btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 	player.component<RigidBody>()->rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+
+	//player.component<CameraLock>()->localOffsetTransform.setPos(f64vec3(0.0f, 0.5f, 0.0f));
+	//player.component<CameraLock>()->localOffsetTransform.m_orientation = glm::angleAxis(toRad(0.0f), player.component<Transform>()->getUp()) * player.component<CameraLock>()->localOffsetTransform.m_orientation;
 }
 
 
 void UVSG::update(double timeStep)
 {
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -167,13 +171,14 @@ void UVSG::update(double timeStep)
 	physicsWorld->update(entitySystem, timeStep);
 
 	ComponentHandle<CameraLock> componentCameraSearch;
-	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch))
+	ComponentHandle<Transform> componentTransformSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch, componentTransformSearch))
 	{
 		ComponentHandle<Transform> transform = entity.component<Transform>();
+		ComponentHandle<CameraLock> cameraLock = entity.component<CameraLock>();
+
 		renderingManager->camera.setCameraTransform(transform->m_position, transform->m_orientation);
 	}
-
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	ComponentHandle<Character> character = player.component<Character>();
 	if (state[SDL_SCANCODE_UP] != 0 || state[SDL_SCANCODE_DOWN] != 0)
@@ -213,26 +218,30 @@ void UVSG::update(double timeStep)
 	player.component<Velocity>()->linearVelocity = character->appiedVelocity;
 
 	ComponentHandle<Transform> playerTransform = player.component<Transform>();
-	vector3 startPos = playerTransform->getPos();
-	vector3 endPos = playerTransform->getPos() + (playerTransform->getUp() * -2.0f);
+	f64vec3 startPos = playerTransform->getPos();
+	f64vec3 endPos = playerTransform->getPos() + (playerTransform->getUp() * -2.0);
 
 	SingleRayTestResults result = physicsWorld->singleRayTest(startPos, endPos);
 
-	if (result.hasHit)
+	if (result.hasHit && result.hitBody != player.component<RigidBody>()->rigidBody)
 	{
-		vector3 diffrance = glm::abs(player.component<Transform>()->getPos() - result.hitPosition);
-		float distance = glm::length(diffrance);
+
+		f64vec3 diffrance = glm::abs(player.component<Transform>()->getPos() - result.hitPosition);
+		double distance = glm::length(diffrance);
 		//printf("Distance: %f \n", distance);
 
 		//If the player is too close to the ground, adjust it up.
-		if (distance < 1.0f)
+		if (distance < 1.2f)
 		{
-			float adjustAmount = 1.0f - distance;
-			playerTransform->setPos(playerTransform->getPos() + (playerTransform->getUp() * adjustAmount));
-
-			if (player.component<Velocity>()->linearVelocity.y <= 0.0f)
+			if (distance < 1.0f)
 			{
-				player.component<Velocity>()->linearVelocity.y = 0.0f;
+				double adjustAmount = 1.0f - distance;
+				playerTransform->setPos(playerTransform->getPos() + (playerTransform->getUp() * adjustAmount));
+
+				if (player.component<Velocity>()->linearVelocity.y <= 0.0f)
+				{
+					player.component<Velocity>()->linearVelocity.y = 0.0f;
+				}
 			}
 			character->onGround = true;
 
@@ -246,15 +255,14 @@ void UVSG::update(double timeStep)
 	{
 		false;
 	}
-	
 
-	printf("isOnGround: %d \n", character->onGround);
-
-	if (state[SDL_SCANCODE_SPACE] != 0 && character->onGround)
+	static Uint8 lastState = 0;
+	if (state[SDL_SCANCODE_SPACE] != 0 && character->onGround && lastState == 0)
 	{
-		player.component<Velocity>()->linearVelocity.y += 7.0f;
+		player.component<Velocity>()->linearVelocity.y += 9.0f;
 		character->onGround = false;
 	}
+	lastState = state[SDL_SCANCODE_SPACE];
 
 	//#2 update Input
 	//Update Key Bindings

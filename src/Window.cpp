@@ -62,9 +62,10 @@ void Window::initGL()
     glEnable(GL_TEXTURE_2D);
 
 
-    glEnable(GL_CULL_FACE);
+    /*glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
+    glCullFace(GL_BACK);*/
+
 }
 
 void Window::set3dRendering()
@@ -74,6 +75,7 @@ void Window::set3dRendering()
 }
 
 void Window::set2dRendering()
+
 {
 	//disable the Depth test.
 	glDisable(GL_DEPTH_TEST);

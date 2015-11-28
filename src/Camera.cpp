@@ -1,74 +1,73 @@
 #include "Camera.hpp"
 #include <iostream>
 
-std::ostream &operator<< (std::ostream &out, const vector3 &vec)
-{
-    out << "{"
-        << vec.x << ", " << vec.y << ", "<< vec.z
-        << "}";
-
-    return out;
-}
-
 Camera::Camera()
 {
-    pos = vector3(0.0F, 0.0F, 0.0F);
-    forward = vector3(0.0F, 0.0F, 1.0F);
-    up = vector3(0.0F, 1.0F, 0.0F);
+    m_Pos = vector3(0.0F, 0.0F, 0.0F);
+    m_Forward = vector3(0.0F, 0.0F, 1.0F);
+    m_Up = vector3(0.0F, 1.0F, 0.0F);
 }
 
-void Camera::setCameraPos(vector3& pos)
+void Camera::setCameraPos(f64vec3& pos)
 {
-	this->pos = vector3(pos.x, pos.y, pos.z);
+	this->m_Pos = pos;
 }
 
-void Camera::moveCameraPos(const vector3& dist)
+void Camera::moveCameraPos(const f64vec3& dist)
 {
-    pos += dist;
+    m_Pos += dist;
 }
 
-void Camera::rotateCamera(const vector3& direction, float angle)
+void Camera::rotateCamera(const f64vec3& direction, double angle)
 {
-	forward = glm::normalize( glm::rotate(forward, angle, direction) );
-	up = glm::normalize( glm::rotate(up, angle, direction) );
+	m_Forward = glm::normalize( glm::rotate(m_Forward, angle, direction) );
+	m_Up = glm::normalize( glm::rotate(m_Up, angle, direction) );
 
 }
 
-void Camera::setCameraTransform(vector3& position, quaternion& orientation)
+void Camera::setCameraTransform(f64vec3& position, f64quat& orientation)
 {
-	pos = position;
-	forward = glm::normalize( orientation * vector3(0.0F, 0.0F, 1.0F) );
-	up = glm::normalize( orientation * vector3(0.0F, 1.0F, 0.0F) );
+	m_Pos = position;
+	m_Forward = glm::normalize( orientation * f64vec3(0.0F, 0.0F, 1.0F) );
+	m_Up = glm::normalize( orientation * f64vec3(0.0F, 1.0F, 0.0F) );
 }
 
-vector3 Camera::getForward()
+f64vec3 Camera::getForward()
 {
-    return forward;
+    return m_Forward;
 }
 
-vector3 Camera::getUp()
+f64vec3 Camera::getUp()
 {
-    return up;
+    return m_Up;
 }
 
-vector3 Camera::getRight()
+f64vec3 Camera::getRight()
 {
-	return glm::cross(forward, up);
+	return glm::cross(m_Forward, m_Up);
 }
 
-vector3 Camera::getPos()
+f64vec3 Camera::getPos()
 {
-    return pos;
+    return m_Pos;
 }
 
 quaternion Camera::getOrientation()
 {
-	return fromAxes(forward, up);
+	return fromAxes(m_Forward, m_Up);
 }
 
 matrix4 Camera::getViewMatrix()
 {
-    return glm::lookAt(pos, pos + forward, up);
+    return glm::lookAt(m_Pos, m_Pos + m_Forward, m_Up);
+}
+
+matrix4 Camera::getOriginViewMatrix()
+{
+	vector3 forward = (vector3)m_Forward;
+	vector3 up = (vector3)m_Up;
+
+	return glm::lookAt(vector3(0.0f), forward, up);
 }
 
 matrix4 Camera::getProjectionMatrix()

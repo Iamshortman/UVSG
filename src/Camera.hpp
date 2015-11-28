@@ -9,25 +9,26 @@ class Camera
 public:
 	Camera();
 	matrix4 getViewMatrix();
+	matrix4 getOriginViewMatrix();
 	matrix4 getProjectionMatrix();
 
-    void moveCameraPos(const vector3& dist);
-    void rotateCamera(const vector3& direction, float angle);
-    void setCameraPos(vector3& pos);
-	void setCameraTransform(vector3& position, quaternion& orientation);
+    void moveCameraPos(const f64vec3& dist);
+    void rotateCamera(const f64vec3& direction, double angle);
+    void setCameraPos(f64vec3& pos);
+	void setCameraTransform(f64vec3& position, f64quat& orientation);
 
-    vector3 getForward();
-    vector3 getRight();
-    vector3 getUp();
-    vector3 getPos();
+    f64vec3 getForward();
+    f64vec3 getRight();
+    f64vec3 getUp();
+    f64vec3 getPos();
 	quaternion getOrientation();
 
 	void setProjection(float frameOfView, float nearClipping, float farClipping, int screenWidth, int screenheight);
 
 private:
-    vector3 forward;
-    vector3 up;
-    vector3 pos;
+    f64vec3 m_Forward;
+	f64vec3 m_Up;
+    f64vec3 m_Pos;
 
 	//Perspective varables
 	float isPerspective = true;

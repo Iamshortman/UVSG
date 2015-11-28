@@ -36,8 +36,9 @@ RenderingManager::RenderingManager()
 	//m_sun.color = vector3(1.0f);
 	m_sun.color = vector3(220, 20, 60) / 255.0f;
 	//m_sun.color = vector3(253, 184, 19) / 255.0f;
-	m_sun.transform.setPos(vector3(5000.0f, 0.0f, 50000.0f));
-	m_sun.transform.setScale(vector3(2500.0f));
+	m_sun.transform.setPos(f64vec3(5000.0, 0.0, 10000000.0));
+	m_sun.transform.setScale(f64vec3(200000.0));
+
 
 	vector<vector3> vertices = vector<vector3>();
 	vector<vector3> colors = vector<vector3>();
@@ -134,7 +135,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 	matrix4 viewMatrix = camera.getViewMatrix();
 
-	camera.setProjection(45.0f, 1.0f, 100000.0f, width, height);
+	camera.setProjection(45.0f, 1.0f, 1000.0f, width, height);
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
 	matrix4 modelMatrix = matrix4();
 	matrix4 MVP = matrix4();
@@ -146,80 +147,103 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 	//Far object Rendering Start
 	/***************************************************************/
-	StarShader.setActiveProgram();
+	if (true)
+	{
+		StarShader.setActiveProgram();
 
-	Transform tempTransform = m_sun.transform;
+		f64vec3 camPos = camera.getPos();
+		f64vec3 offsetPos = m_sun.transform.m_position - camPos;
+		f64vec3 scale = m_sun.transform.getScale();
+		offsetPos /= 10000.0f;
+		scale /= 10000.0f;
 
-	modelMatrix = tempTransform.getModleMatrix();
-	normalMatrix = tempTransform.getNormalMatrix();
+		vector3 floatPos = offsetPos;
+		vector3 floatScale = scale;
 
-	matrix4 modelViewMatrix = viewMatrix * modelMatrix;
+		matrix4 m_positionMatrix = matrix4();
+		matrix4 m_scaleMatrix = matrix4();
+		m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+		m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+		matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
 
-	float scaledown = 0.001f;
-	modelViewMatrix = glm::scale(modelViewMatrix, vector3(scaledown));
-	modelViewMatrix[3][0] *= scaledown;
-	modelViewMatrix[3][1] *= scaledown;
-	modelViewMatrix[3][2] *= scaledown;
+		StarShader.setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+		StarShader.setUniform("normalMatrix", normalMatrix);
+		StarShader.setUniform("modelMatrix", modelMatrix);
+		StarShader.setUniform("starColor", m_sun.color);
 
-	StarShader.setUniform("MVP", projectionMatrix * modelViewMatrix);
-	StarShader.setUniform("normalMatrix", normalMatrix);
-	StarShader.setUniform("modelMatrix", modelMatrix);
-	StarShader.setUniform("starColor", m_sun.color);
+		m_sun.starMesh.draw();
+		StarShader.deactivateProgram();
 
-	m_sun.starMesh.draw();
-	StarShader.deactivateProgram();
+		//Edit ModelViewMatrix
+		//Clear rotations
+		// Column 0:
+		matrix4 modelViewMatrix = camera.getOriginViewMatrix() * modModelMatrix;
 
-	//Edit ModelViewMatrix
-	//Clear rotations
-	// Column 0:
-	modelViewMatrix[0][0] = 1;
-	modelViewMatrix[0][1] = 0;
-	modelViewMatrix[0][2] = 0;
+		modelViewMatrix[0][0] = 1;
+		modelViewMatrix[0][1] = 0;
+		modelViewMatrix[0][2] = 0;
 
-	// Column 1:
-	modelViewMatrix[1][0] = 0;
-	modelViewMatrix[1][1] = 1;
-	modelViewMatrix[1][2] = 0;
+		// Column 1:
+		modelViewMatrix[1][0] = 0;
+		modelViewMatrix[1][1] = 1;
+		modelViewMatrix[1][2] = 0;
 
-	// Column 2:
-	modelViewMatrix[2][0] = 0;
-	modelViewMatrix[2][1] = 0;
-	modelViewMatrix[2][2] = 1;
+		// Column 2:
+		modelViewMatrix[2][0] = 0;
+		modelViewMatrix[2][1] = 0;
+		modelViewMatrix[2][2] = 1;
 
-	BillboardShader.setActiveProgram();
-	BillboardShader.setUniform("starColor", m_sun.color);
-	BillboardShader.setUniform("MVP", projectionMatrix * modelViewMatrix);
-	BillboardShader.setUniform("scale", tempTransform.getScale() * 3.0f * scaledown);
-	m_sun.billboardMesh.draw();
-	BillboardShader.deactivateProgram();
+		BillboardShader.setActiveProgram();
+		BillboardShader.setUniform("starColor", m_sun.color);
+		BillboardShader.setUniform("MVP", projectionMatrix * modelViewMatrix);
+		BillboardShader.setUniform("scale", floatScale * 3.0f);
+		m_sun.billboardMesh.draw();
+		BillboardShader.deactivateProgram();
+	}
 
+	if (true)
+	{
+		Transform planet;
+		planet.setPos(f64vec3(500000.0, 0.0, 0.0));
+		planet.setScale(f64vec3(100000.0));
+		planet.setOrientation(f64quat(0.959, 0.0, 0.0, 0.284));
 
-	Transform planet;
-	planet.setPos(vector3(5000.0f, 0.0f, 0.0f));
-	planet.setScale(vector3(1000.0f));
-	planet.setOrientation(quaternion(0.959f, 0.0f, 0.0f, 0.284f));
+		StarShader.setActiveProgram();
 
-	StarShader.setActiveProgram();
+		f64vec3 camPos = camera.getPos();
+		f64vec3 offsetPos = planet.m_position - camPos;
+		f64vec3 scale = planet.getScale();
+		offsetPos /= 10000.0f;
+		scale /= 10000.0f;
 
-	modelMatrix = planet.getModleMatrix();
-	normalMatrix = planet.getNormalMatrix();
+		vector3 floatPos = offsetPos;
+		vector3 floatScale = scale;
 
-	StarShader.setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
-	StarShader.setUniform("normalMatrix", normalMatrix);
-	StarShader.setUniform("modelMatrix", modelMatrix);
-	StarShader.setUniform("starColor", vector3(148, 0, 211) / 255.0f);
+		matrix4 m_positionMatrix = matrix4();
+		matrix4 m_scaleMatrix = matrix4();
+		m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+		m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+		matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
 
-	m_sun.starMesh.draw();
-	StarShader.deactivateProgram();
+		normalMatrix = planet.getNormalMatrix();
 
-	basicShader.setActiveProgram();
+		StarShader.setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+		StarShader.setUniform("normalMatrix", normalMatrix);
+		StarShader.setUniform("modelMatrix", modelMatrix);
+		StarShader.setUniform("starColor", vector3(148, 0, 211) / 255.0f);
 
-	basicShader.setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
-	basicShader.setUniform("normalMatrix", normalMatrix);
+		m_sun.starMesh.draw();
+		StarShader.deactivateProgram();
 
-	ringMesh->draw();
+		basicShader.setActiveProgram();
 
-	basicShader.deactivateProgram();
+		basicShader.setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+		basicShader.setUniform("normalMatrix", normalMatrix);
+
+		ringMesh->draw();
+
+		basicShader.deactivateProgram();
+	}
 
 	//Clear depth buffer so any other object in front of far objects.
 	glClear(GL_DEPTH_BUFFER_BIT);

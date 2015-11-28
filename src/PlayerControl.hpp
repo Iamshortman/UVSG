@@ -7,16 +7,16 @@
 
 struct PlayerControlComponent
 {
-	PlayerControlComponent(float linear, float angular)
+	PlayerControlComponent(double linear, double angular)
 	{
 		linearSpeed = linear;
 		angularSpeed = angular;
 	};
 
-	float linearSpeed;
+	double linearSpeed;
 
 	//rad per second
-	float angularSpeed;
+	double angularSpeed;
 };
 
 class PlayerControlSystem : public System < PlayerControlSystem >
@@ -24,7 +24,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 
 	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
-		float timestep = ((float)dt);
+		double timestep = ((double)dt);
 		SDL_GameController* controller = UVSG::getInstance()->controller;
 		SDL_Joystick* joystick = UVSG::getInstance()->joystick;
 
@@ -44,11 +44,11 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			if (pitchAxis > deadzone || pitchAxis < -deadzone)
 			{
 				//Get between -1 and 1
-				float amount = ((float)pitchAxis) / 32767.0f;
-				float angle = amount * timestep * playerControlComponent->angularSpeed;
+				double amount = ((double)pitchAxis) / 32767.0f;
+				double angle = amount * timestep * playerControlComponent->angularSpeed;
 
 				//Negitive angle because the joystick layout is backwards
-				quaternion pitchQuat = glm::normalize(glm::angleAxis( -angle, componentTransform->getRight() ));
+				f64quat pitchQuat = glm::normalize(glm::angleAxis( -angle, componentTransform->getRight() ));
 
 				componentTransform->m_orientation = pitchQuat * componentTransform->m_orientation;
 			}
@@ -58,10 +58,10 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			if (yawAxis > deadzone || yawAxis < -deadzone)
 			{
 				//Get between -1 and 1
-				float amount = ((float)yawAxis) / 32767.0f;
-				float angle = amount * timestep * playerControlComponent->angularSpeed;
+				double amount = ((double)yawAxis) / 32767.0f;
+				double angle = amount * timestep * playerControlComponent->angularSpeed;
 
-				quaternion yawQuat = glm::normalize(glm::angleAxis( -angle, vector3(0.0f, 1.0f, 0.0f) ));
+				f64quat yawQuat = glm::normalize(glm::angleAxis( -angle, f64vec3(0.0f, 1.0f, 0.0f) ));
 
 				componentTransform->m_orientation = yawQuat * componentTransform->m_orientation;
 			}
@@ -72,8 +72,8 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			if (forwardAxis > deadzone || forwardAxis < -deadzone)
 			{
 				//Get between -1 and 1
-				float amount = ((float)forwardAxis) / 32767.0f;
-				float distance = amount * timestep * playerControlComponent->linearSpeed;
+				double amount = ((double)forwardAxis) / 32767.0f;
+				double distance = amount * timestep * playerControlComponent->linearSpeed;
 				componentTransform->m_position += componentTransform->getForward() * -distance;
 			}
 
@@ -82,8 +82,8 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			if (strafeAxis > deadzone || strafeAxis < -deadzone)
 			{
 				//Get between -1 and 1
-				float amount = ((float)strafeAxis) / 32767.0f;
-				float distance = amount * timestep * playerControlComponent->linearSpeed;
+				double amount = ((double)strafeAxis) / 32767.0f;
+				double distance = amount * timestep * playerControlComponent->linearSpeed;
 				componentTransform->m_position += componentTransform->getRight() * distance;
 			}
 
@@ -92,9 +92,9 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			int button = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
 			if (button && !lastButton)
 			{
-				float rayDistance = 1000.0f;
-				vector3 startPos = componentTransform->getPos();
-				vector3 endPos = componentTransform->getPos() + (componentTransform->getForward() * rayDistance);
+				double rayDistance = 1000.0f;
+				f64vec3 startPos = componentTransform->getPos();
+				f64vec3 endPos = componentTransform->getPos() + (componentTransform->getForward() * rayDistance);
 				SingleRayTestResults result = UVSG::getInstance()->physicsWorld->singleRayTest(startPos, endPos);
 
 				if (result.hasHit)
@@ -109,8 +109,8 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 						Transform chunkTransform = chunk->getTransform();
 						matrix4 invModelMatrix = glm::inverse(chunkTransform.getModleMatrix());
 						vector4 localHitPos4 = invModelMatrix * vector4(result.hitPosition, 1.0f);
-						vector3 localHitPos = vector3(localHitPos4);
-						vector3 normalAdjust = result.hitNormal * -0.5f;
+						f64vec3 localHitPos = f64vec3(localHitPos4);
+						f64vec3 normalAdjust = result.hitNormal * -0.5;
 
 						localHitPos += normalAdjust;
 

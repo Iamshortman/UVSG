@@ -11,10 +11,10 @@ struct ThrusterControlComponent
 	bool inertiaDampening;
 
 	//Acceleration in m/s per second;
-	float linearAcceleration;
+	double linearAcceleration;
 
 	//Max Speed in m/s
-	float maxSpeed;
+	double maxSpeed;
 };
 
 class  ThrusterControlSystem : public System < ThrusterControlSystem >
@@ -35,12 +35,12 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 
 			const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-			vector3 linearVelocityDelta(0.0f);
+			f64vec3 linearVelocityDelta(0.0f);
 
 			if (state[SDL_SCANCODE_W] || state[SDL_SCANCODE_S])
 			{
-				float amount = state[SDL_SCANCODE_W] ? 1.0f : -1.0f;
-				vector3 forward = componentTransform->getForward();
+				double amount = state[SDL_SCANCODE_W] ? 1.0f : -1.0f;
+				f64vec3 forward = componentTransform->getForward();
 				forward *= (componentThrusterControl->linearAcceleration * dt);
 				forward *= amount;
 
@@ -49,8 +49,8 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 
 			if (state[SDL_SCANCODE_A] || state[SDL_SCANCODE_D])
 			{
-				float amount = state[SDL_SCANCODE_D] ? 1.0f : -1.0f;
-				vector3 right = componentTransform->getRight();
+				double amount = state[SDL_SCANCODE_D] ? 1.0f : -1.0f;
+				f64vec3 right = componentTransform->getRight();
 				right *= (componentThrusterControl->linearAcceleration * dt);
 				right *= amount;
 
@@ -59,8 +59,8 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 
 			if (state[SDL_SCANCODE_SPACE] || state[SDL_SCANCODE_LSHIFT])
 			{
-				float amount = state[SDL_SCANCODE_SPACE] ? 1.0f : -1.0f;
-				vector3 up = componentTransform->getUp();
+				double amount = state[SDL_SCANCODE_SPACE] ? 1.0f : -1.0f;
+				f64vec3 up = componentTransform->getUp();
 				up *= (componentThrusterControl->linearAcceleration * dt);
 				up *= amount;
 
@@ -81,20 +81,20 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 
 			if (componentThrusterControl->inertiaDampening)
 			{
-				float maxAcceleration = (componentThrusterControl->linearAcceleration * dt);
+				double maxAcceleration = (componentThrusterControl->linearAcceleration * dt);
 
 				//Amount the object is moveing forward(+) or back(-).
-				float forwardVelocity = glm::dot(componentTransform->getForward(), componentVelocity->linearVelocity);
+				double forwardVelocity = glm::dot(componentTransform->getForward(), componentVelocity->linearVelocity);
 
 				//Amount the object is moveing right(+) or left(-).
-				float rightVelocity = glm::dot(componentTransform->getRight(), componentVelocity->linearVelocity);
+				double rightVelocity = glm::dot(componentTransform->getRight(), componentVelocity->linearVelocity);
 
 				//Amount the object is moveing up(+) or down(-).
-				float upVelocity = glm::dot(componentTransform->getUp(), componentVelocity->linearVelocity);
+				double upVelocity = glm::dot(componentTransform->getUp(), componentVelocity->linearVelocity);
 
 				if (!state[SDL_SCANCODE_W] && forwardVelocity > 0.0f)
 				{
-					vector3 slowDown = componentTransform->getForward() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getForward() * maxAcceleration;
 					componentVelocity->linearVelocity -= slowDown;
 
 					//Recalulate the dot product
@@ -108,7 +108,7 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 
 				if (!state[SDL_SCANCODE_S] && forwardVelocity < 0.0f)
 				{
-					vector3 slowDown = componentTransform->getForward() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getForward() * maxAcceleration;
 					componentVelocity->linearVelocity += slowDown;
 
 					//Recalulate the dot product
@@ -123,7 +123,7 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 				//Right Damping
 				if (!state[SDL_SCANCODE_D] && rightVelocity > 0.0f)
 				{
-					vector3 slowDown = componentTransform->getRight() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getRight() * maxAcceleration;
 					componentVelocity->linearVelocity -= slowDown;
 
 					//Recalulate the dot product
@@ -138,7 +138,7 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 				//Left
 				if (!state[SDL_SCANCODE_A] && rightVelocity < 0.0f)
 				{
-					vector3 slowDown = componentTransform->getRight() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getRight() * maxAcceleration;
 					componentVelocity->linearVelocity += slowDown;
 
 					//Recalulate the dot product
@@ -153,7 +153,7 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 				//Up Damping
 				if (!state[SDL_SCANCODE_SPACE] && upVelocity > 0.0f)
 				{
-					vector3 slowDown = componentTransform->getUp() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getUp() * maxAcceleration;
 					componentVelocity->linearVelocity -= slowDown;
 
 					//Recalulate the dot product
@@ -168,7 +168,7 @@ class  ThrusterControlSystem : public System < ThrusterControlSystem >
 				//Down
 				if (!state[SDL_SCANCODE_LSHIFT] && upVelocity < 0.0f)
 				{
-					vector3 slowDown = componentTransform->getUp() * maxAcceleration;
+					f64vec3 slowDown = componentTransform->getUp() * maxAcceleration;
 					componentVelocity->linearVelocity += slowDown;
 
 					//Recalulate the dot product
