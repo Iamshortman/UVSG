@@ -34,9 +34,9 @@ PhysicsWorld::PhysicsWorld()
 
 }
 
-void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
-{
-	ComponentHandle<RigidBody> componentRigidBodySearch;
+void PhysicsWorld::update(float timeStep)
+{  
+	/*ComponentHandle<RigidBody> componentRigidBodySearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
@@ -63,12 +63,12 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 				componentRigidBody->rigidBody->activate(false);
 			}
 		}
-	}
+	}*/
 
 	//Run Physics Simulation
 	dynamicsWorld->stepSimulation(timeStep, 7);
 
-	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+	/*for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
@@ -94,7 +94,7 @@ void PhysicsWorld::update(EntityX &entitySystem, float timeStep)
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
 			componentVelocity->angularVelocity = f64vec3(angular.getX(), angular.getY(), angular.getZ());
 		}
-	}
+	}*/
 
 }
 
@@ -127,9 +127,6 @@ SingleRayTestResults PhysicsWorld::singleRayTest(f64vec3 startPos, f64vec3 endPo
 		result.hitBody = hitBody;
 		result.hitPosition = toGlmVec3(RayCallback.m_hitPointWorld);
 		result.hitNormal = toGlmVec3(RayCallback.m_hitNormalWorld);
-
-
-
 	}
 
 	return result;

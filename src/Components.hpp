@@ -1,8 +1,6 @@
 #ifndef COMPONETS_HPP
 #define COMPONETS_HPP
 
-#include "entityxInclude.hpp"
-
 #include "Mesh.hpp"
 #include "TexturedMesh.hpp"
 #include <vector>
@@ -79,27 +77,6 @@ class Velocity
 public:
 	f64vec3 linearVelocity;
 	f64vec3 angularVelocity;
-};
-
-struct MeshComponent
-{
-	Mesh mesh;
-	f64vec3 offset;
-};
-
-struct ModelComponent
-{
-	std::vector<MeshComponent> meshes;
-};
-
-struct TexturedMeshComponent
-{
-	TexturedMesh mesh;
-};
-
-struct CameraLock
-{
-	Transform localOffsetTransform = Transform();
 };
 
 #endif // COMPONETS_HPP

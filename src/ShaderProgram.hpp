@@ -27,7 +27,6 @@ public:
 	~ShaderProgram();
 	void setActiveProgram();
 	void deactivateProgram();
-	void deleteProgram();
 
 	void setUniform(string name, const matrix4& matrix);
 	void setUniform(string name, const matrix3& matrix);

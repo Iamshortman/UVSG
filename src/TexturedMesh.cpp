@@ -2,7 +2,7 @@
 
 TexturedMesh::TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {
-	size = indices.size();
+	size = (int)indices.size();
 
 	//GenBuffers
 	glGenBuffers(1, &vbo);
@@ -15,8 +15,6 @@ TexturedMesh::TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned i
 	//Adds the indices to the buffer.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-
 }
 
 

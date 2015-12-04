@@ -3,6 +3,7 @@
 
 #include "openGL.hpp"
 #include "glmInclude.hpp"
+#include "Mesh.hpp"
 #include <vector>
 
 struct Vertex
@@ -12,13 +13,13 @@ struct Vertex
 	vector2 uv;
 };
 
-class TexturedMesh
+class TexturedMesh : public Mesh
 {
 public:
 	TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
 	~TexturedMesh();
 
-	void draw();
+	virtual void draw();
 
 private:
 	GLuint vbo;

@@ -3,22 +3,11 @@
 
 #include "RenderingManager.hpp"
 #include "Components.hpp"
-#include "TimeToLive.hpp"
-#include "Character.hpp"
+#include "Renderable.hpp"
 
-#include "PlayerControl.hpp"
-#include "ThrusterControl.hpp"
 #include "RigidBody.hpp"
-#include <BulletCollision\CollisionDispatch\btCollisionObject.h>
 
 UVSG* UVSG::instance;
-
-void push3(vector<unsigned int>* vector, unsigned int a, unsigned int b, unsigned int c)
-{
-	vector->push_back(a - 1);
-	vector->push_back(b - 1);
-	vector->push_back(c - 1);
-}
 
 UVSG::UVSG()
 {
@@ -28,128 +17,18 @@ UVSG::UVSG()
 	this->renderingManager->window->setVsync(0);
 	this->physicsWorld = new PhysicsWorld();
 
-	entitySystem.systems.add<TimeToLiveSystem>();
-	entitySystem.systems.add<PlayerControlSystem>();
-	//entitySystem.systems.add<ThrusterControlSystem>();
-	entitySystem.systems.configure();
-
-	Entity camEntity = entitySystem.entities.create();
-	camEntity.assign<Transform>();
-	camEntity.assign<CameraLock>();
-	camEntity.assign<PlayerControlComponent>(50.0f, 3.0f);
-	camEntity.component<Transform>()->m_position = f64vec3(-10.0f, 15.0f, -10.0f);
-
-	//Sets the camera to look at the center of the world
-	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(30.0), f64vec3(1, 0, 0)) * camEntity.component<Transform>()->m_orientation;
-	camEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(45.0), f64vec3(0, 1, 0)) * camEntity.component<Transform>()->m_orientation;
-
-
-	Entity groundEntity = entitySystem.entities.create();
-	groundEntity.assign<Transform>();
-	groundEntity.component<Transform>()->setPos( f64vec3(0.0f, 0.0f, 0.0f) );
-	//groundEntity.component<Transform>()->m_orientation = glm::angleAxis(toRad(-45.0f), f64vec3(1, 0, 0));
-
-	vector<Vertex> verticesStruct = vector<Vertex>();
-	Vertex vertex1 = { vector3(-50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F) , vector2(0.0f, 1.0f)};
-	Vertex vertex2 = { vector3(50.0f, 0.0f, 50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(1.0f, 1.0f) };
-	Vertex vertex3 = { vector3(-50.0f, 0.0f, -50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(0.0f, 0.0f) };
-	Vertex vertex4 = { vector3(50.0f, 0.0f, -50.0f), vector3(0.0F, 1.0F, 0.0F), vector2(1.0f, 0.0f) };
-	vector<unsigned int> indicesStruct = {0, 1, 2, 2, 1, 3};
-	verticesStruct.push_back(vertex1); verticesStruct.push_back(vertex2); verticesStruct.push_back(vertex3); verticesStruct.push_back(vertex4);
-	groundEntity.assign<TexturedMesh>(verticesStruct, indicesStruct);
-
-	vector<vector3> vertices = vector<vector3>();
-	vertices.push_back(vector3(0.5f, -0.5f, -0.5f));
-	vertices.push_back(vector3(0.5f, -0.5f, 0.5f));
-	vertices.push_back(vector3(-0.5f, -0.5f, 0.5f));
-	vertices.push_back(vector3(-0.5f, -0.5f, -0.5f));
-	vertices.push_back(vector3(0.5f, 0.5f, -0.5f));
-	vertices.push_back(vector3(0.5f, 0.5f, 0.5f));
-	vertices.push_back(vector3(-0.5f, 0.5f, 0.5f));
-	vertices.push_back(vector3(-0.5f, 0.5f, -0.5f));
-
-
-	vector<vector3> colors = vector<vector3>();
-	colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-	colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-	colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-	colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-	colors.push_back(vector3(1.0F, 1.0F, 0.0F));
-	colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-	colors.push_back(vector3(1.0F, 0.0F, 1.0F));
-	colors.push_back(vector3(0.0F, 1.0F, 1.0F));
-
-	vector<vector3> normals = vector<vector3>();
-
-	vector<unsigned int> indices = vector<unsigned int>();
-	push3(&indices, 5, 8, 6);//TOP
-	push3(&indices, 8, 7, 6);
-	normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-	normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-	normals.push_back(vector3(0.0F, 1.0F, 0.0F));
-
-	push3(&indices, 1, 2, 4);//Bottom
-	push3(&indices, 2, 3, 4);
-	normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-	normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-	normals.push_back(vector3(0.0F, -1.0F, 0.0F));
-
-	push3(&indices, 2, 6, 3);//Back
-	push3(&indices, 6, 7, 3);
-	normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-	normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-	normals.push_back(vector3(0.0F, 0.0F, -1.0F));
-
-	push3(&indices, 1, 4, 8);//Front
-	push3(&indices, 5, 1, 8);
-	normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-	normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-	normals.push_back(vector3(0.0F, 0.0F, 1.0F));
-
-	push3(&indices, 1, 5, 2);//Right
-	push3(&indices, 5, 6, 2);
-	normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-	normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-	normals.push_back(vector3(1.0F, 0.0F, 0.0F));
-
-	push3(&indices, 3, 7, 4);//Left
-	push3(&indices, 7, 8, 4);
-	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-	normals.push_back(vector3(-1.0F, 0.0F, 0.0F));
-
-	for (int i = 0; i < 3; i++)
-	{
-		Entity entity1 = entitySystem.entities.create();
-		entity1.assign<MeshComponent>();
-		entity1.assign<Transform>();
-		entity1.assign<Velocity>();
-		entity1.assign<RigidBody>(physicsWorld, entity1, new btBoxShape(btVector3(0.5l, 0.5l, 0.5l)), 20.0f);
-		entity1.component<Transform>()->setPos(f64vec3(0.0f, 5.0f + i * 1.1f, 5.0f));
-		ComponentHandle<MeshComponent> componentMesh1 = entity1.component<MeshComponent>();
-		componentMesh1->mesh.addVertices(vertices, colors, indices);
-	}
-
-
-	player = entitySystem.entities.create();
-	player.assign<MeshComponent>();
-	player.component<MeshComponent>()->mesh.addVertices(vertices, colors, indices);
-
-	player.assign<Character>();
-	//player.assign<CameraLock>();
-	player.assign<Transform>();
-	player.assign<Velocity>();
-	player.assign<RigidBody>(physicsWorld, player, new btCapsuleShape(0.5, 0.5f), 20.0);
-	player.component<RigidBody>()->rigidBody->setMassProps(20.0L, btVector3(0.0, 0.0, 0.0));
-	player.component<Transform>()->setPos(f64vec3(0.0f, 5.0f, 0.0f));
-	player.component<Transform>()->setScale(f64vec3(0.25f, 0.85f, 0.25f));
-	player.component<RigidBody>()->rigidBody->setCollisionFlags(btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-	player.component<RigidBody>()->rigidBody->forceActivationState(DISABLE_DEACTIVATION);
-
-	//player.component<CameraLock>()->localOffsetTransform.setPos(f64vec3(0.0f, 0.5f, 0.0f));
-	//player.component<CameraLock>()->localOffsetTransform.m_orientation = glm::angleAxis(toRad(0.0f), player.component<Transform>()->getUp()) * player.component<CameraLock>()->localOffsetTransform.m_orientation;
+	Entity star = entitySystem.entities.create();
+	star.assign<FarZoneRenderable>();
+	star.assign<Transform>();
+	star.component<Transform>()->setPos(f64vec3(0.0, 0.0, 10000000.0));
+	star.component<Transform>()->setScale(f64vec3(200000.0));
+	
+	Model* model = new Model();
+	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
+	model->shader = new ShaderProgram("TexturedVertex.vs", "TexturedFragment.fs", attributes1);
+	model->texture = "stone.png";
+	star.component<FarZoneRenderable>()->models.push_back(model);
 }
-
 
 void UVSG::update(double timeStep)
 {
@@ -168,107 +47,13 @@ void UVSG::update(double timeStep)
 	} 
 
 	//#1 step Physics
-	physicsWorld->update(entitySystem, timeStep);
-
-	ComponentHandle<CameraLock> componentCameraSearch;
-	ComponentHandle<Transform> componentTransformSearch;
-	for (Entity entity : entitySystem.entities.entities_with_components(componentCameraSearch, componentTransformSearch))
-	{
-		ComponentHandle<Transform> transform = entity.component<Transform>();
-		ComponentHandle<CameraLock> cameraLock = entity.component<CameraLock>();
-
-		renderingManager->camera.setCameraTransform(transform->m_position, transform->m_orientation);
-	}
-
-	ComponentHandle<Character> character = player.component<Character>();
-	if (state[SDL_SCANCODE_UP] != 0 || state[SDL_SCANCODE_DOWN] != 0)
-	{
-		if (state[SDL_SCANCODE_UP] != 0 && state[SDL_SCANCODE_DOWN] != 0)
-		{
-			character->appiedVelocity.z = 0.0f;
-		}
-		else
-		{
-			character->appiedVelocity.z = (state[SDL_SCANCODE_UP] != 0) ? 4.0f : -4.0f;
-		}
-	}
-	else
-	{
-		character->appiedVelocity.z = 0.0f;
-	}
-
-	if (state[SDL_SCANCODE_LEFT] != 0 || state[SDL_SCANCODE_RIGHT] != 0)
-	{
-		if (state[SDL_SCANCODE_LEFT] != 0 && state[SDL_SCANCODE_RIGHT] != 0)
-		{
-			character->appiedVelocity.x = 0.0f;
-		}
-		else
-		{
-			character->appiedVelocity.x = (state[SDL_SCANCODE_LEFT] != 0) ? 4.0f : -4.0f;
-		}
-	}
-	else
-	{
-		character->appiedVelocity.x = 0.0f;
-	}
-
-	character->appiedVelocity.y = player.component<Velocity>()->linearVelocity.y;
-
-	player.component<Velocity>()->linearVelocity = character->appiedVelocity;
-
-	ComponentHandle<Transform> playerTransform = player.component<Transform>();
-	f64vec3 startPos = playerTransform->getPos();
-	f64vec3 endPos = playerTransform->getPos() + (playerTransform->getUp() * -2.0);
-
-	SingleRayTestResults result = physicsWorld->singleRayTest(startPos, endPos);
-
-	if (result.hasHit && result.hitBody != player.component<RigidBody>()->rigidBody)
-	{
-
-		f64vec3 diffrance = glm::abs(player.component<Transform>()->getPos() - result.hitPosition);
-		double distance = glm::length(diffrance);
-		//printf("Distance: %f \n", distance);
-
-		//If the player is too close to the ground, adjust it up.
-		if (distance < 1.2f)
-		{
-			if (distance < 1.0f)
-			{
-				double adjustAmount = 1.0f - distance;
-				playerTransform->setPos(playerTransform->getPos() + (playerTransform->getUp() * adjustAmount));
-
-				if (player.component<Velocity>()->linearVelocity.y <= 0.0f)
-				{
-					player.component<Velocity>()->linearVelocity.y = 0.0f;
-				}
-			}
-			character->onGround = true;
-
-		}
-		else
-		{
-			character->onGround = false;
-		}
-	}
-	else
-	{
-		false;
-	}
-
-	static Uint8 lastState = 0;
-	if (state[SDL_SCANCODE_SPACE] != 0 && character->onGround && lastState == 0)
-	{
-		player.component<Velocity>()->linearVelocity.y += 9.0f;
-		character->onGround = false;
-	}
-	lastState = state[SDL_SCANCODE_SPACE];
+	//physicsWorld->update(timeStep);
 
 	//#2 update Input
 	//Update Key Bindings
 
 	//#3 game logic updates
-	entitySystem.systems.update_all(timeStep);
+	
 
 	//#4 audio update
 
@@ -279,11 +64,6 @@ void UVSG::update(double timeStep)
 	//#6 UI Rendering
 	renderingManager->window->set2dRendering();
 
-}
-
-Entity UVSG::getEntityFromId(entityxId id)
-{
-	return entitySystem.entities.get(entitySystem.entities.create_id(id));
 }
 
 void UVSG::exitGame()
@@ -298,17 +78,8 @@ const bool UVSG::getShouldClose()
 
 UVSG::~UVSG()
 {
-	int count = 0;
-	for (Entity entity : entitySystem.entities.entities_for_debugging())
-	{
-		entity.destroy();
-		count++;
-	}
-	printf("Num Entities: %i \n", count);
-
 	delete renderingManager;
-	//delete physicsWorld;
-	//delete physxWorld;
+	delete physicsWorld;
 }
 
 UVSG* UVSG::getInstance()

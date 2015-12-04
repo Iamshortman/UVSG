@@ -1,21 +1,6 @@
 #include "RigidBody.hpp"
 #include "PhysicsWorld.hpp"
 
-RigidBody::RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass)
-{
-	world = physicsWorld;
-
-	btVector3 Inertia = btVector3(0, 0, 0);
-	if (mass > 0.0f)
-	{
-		shape->calculateLocalInertia(mass, Inertia);
-	}
-
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, Inertia);
-	rigidBody = new btRigidBody(boxRigidBodyCI);
-	world->addRigidBody(rigidBody);
-}
-
 RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass)
 {
 	world = physicsWorld;

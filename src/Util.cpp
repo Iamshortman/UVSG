@@ -36,24 +36,24 @@ quaternion fromAxes(const vector3 forward, const vector3 up)
 	return glm::toQuat(rotationMatrix);
 };
 
-btVector3 toBtVec3(const vector3& vec)
+btVector3 toBtVec3(const f64vec3& vec)
 {
 	return btVector3(vec.x, vec.y, vec.z);
 }
 
-vector3 toGlmVec3(const btVector3& vec)
+f64vec3 toGlmVec3(const btVector3& vec)
 {
-	return vector3(vec.getX(), vec.getY(), vec.getZ());
+	return f64vec3(vec.getX(), vec.getY(), vec.getZ());
 }
 
-btQuaternion toBtQuat(const quaternion& quat)
+btQuaternion toBtQuat(const f64quat& quat)
 {
 	return btQuaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
-quaternion toGlmQuat(const btQuaternion& quat)
+f64quat toGlmQuat(const btQuaternion& quat)
 {
-	return quaternion(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
+	return f64quat(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
 }
 
 float toRad(float degree)

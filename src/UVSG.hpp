@@ -1,9 +1,9 @@
 #ifndef UVSG_HPP
 #define UVSG_HPP
 
-#include "entityxInclude.hpp"
 #include "RenderingManager.hpp"
 #include "PhysicsWorld.hpp"
+#include "EntityxInclude.hpp"
 
 class UVSG
 {
@@ -11,12 +11,10 @@ class UVSG
 public:
 	UVSG();
 	virtual ~UVSG();
-	EntityX entitySystem;
 
 	void update(double deltaTime);
 	void exitGame();
 	const bool getShouldClose();
-	Entity getEntityFromId(entityxId id);
 
 	static UVSG* getInstance();
 
@@ -27,7 +25,7 @@ public:
 	SDL_Joystick *joystick = NULL;
 	SDL_GameController *controller = NULL;
 
-	Entity player;
+	EntityX entitySystem;
 
 protected:
 

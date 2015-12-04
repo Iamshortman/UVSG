@@ -9,7 +9,6 @@
 #include "Components.hpp"
 #include "glmInclude.hpp"
 #include "Util.hpp"
-#include "entityxInclude.hpp"
 
 struct SingleRayTestResults
 {
@@ -26,7 +25,7 @@ class PhysicsWorld
 public:
 	PhysicsWorld();
 	virtual ~PhysicsWorld();
-	void update(EntityX &ex, float deltaTime);
+	void update(float deltaTime);
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 

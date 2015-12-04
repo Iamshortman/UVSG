@@ -1,9 +1,6 @@
 #ifndef RENDERINGMANAGER_HPP
 #define RENDERINGMANAGER_HPP
 
-#include <stddef.h>  // defines NULL
-#include "entityxInclude.hpp"
-
 #include "Components.hpp"
 
 #include "Camera.hpp"
@@ -11,16 +8,7 @@
 #include "glmInclude.hpp"
 #include "ShaderProgram.hpp"
 #include "TexturePool.hpp"
-#include "Chunk.hpp"
-#include "TestChunk.hpp"
-
-struct Star
-{
-	Transform transform;
-	Mesh starMesh;
-	Mesh billboardMesh;
-	vector3 color;
-};
+#include "EntityxInclude.hpp"
 
 class RenderingManager
 {
@@ -28,31 +16,18 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
-	void update(EntityX &ex, double deltaTime);
+	void update(EntityX &entitySystem, double deltaTime);
 
 	Camera camera;
 	Window* window = NULL;
 	TexturePool texturePool;
 
-	ShaderProgram basicShader;
-	ShaderProgram texturedShader;
-
-	ShaderProgram texturedLightShader;
-
-	ShaderProgram StarShader;
-	ShaderProgram BillboardShader;
-
-	Star m_sun;
-
-	Mesh* ringMesh;
-
-	Mesh* playerMesh;
+	const double farViewScaleValue = 10000.0;
 
 
 protected:
 
 private:
-	GLuint VBO, VAO;
 
 };
 

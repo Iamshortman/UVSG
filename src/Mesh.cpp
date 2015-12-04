@@ -4,7 +4,7 @@
 Mesh::Mesh()
 {
     //We really don't do anything here
-    this->size = -1;
+    this->size = 0;
 }
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<unsigned int>& indices)
@@ -31,7 +31,7 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors, std::vector<vector3>& normals, std::vector<unsigned int>& indices)
 {
-    size = indices.size();
+	size = (int)indices.size();
 
     //Clear the old one incase
     glDeleteBuffers(1, &vbo);
@@ -59,7 +59,7 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
 
 void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& colors)
 {
-	size = vertices.size();
+	size = (int)vertices.size();
 
 	//Clear the old one incase
 	glDeleteBuffers(1, &vbo);
@@ -81,7 +81,7 @@ void Mesh::addVertices(std::vector<vector3>& vertices, std::vector<vector3>& col
 
 void Mesh::draw()
 {
-        if(size == -1)
+        if(size == 0)
         {
             return;
         }

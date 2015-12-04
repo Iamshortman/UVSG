@@ -58,18 +58,9 @@ void ShaderProgram::deactivateProgram()
 
 ShaderProgram::~ShaderProgram()
 {
-
-}
-
-void ShaderProgram::deleteProgram()
-{
-	//If they are all not zero, delete them.
-	if (programID && vertexID && fragmentID)
-	{
-		glDetachShader(programID, vertexID);
-		glDetachShader(programID, fragmentID);
-		glDeleteProgram(programID);
-	}
+	glDetachShader(programID, vertexID);
+	glDetachShader(programID, fragmentID);
+	glDeleteProgram(programID);
 }
 
 void ShaderProgram::setUniform(string name, const matrix4& matrix)

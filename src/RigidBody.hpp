@@ -2,7 +2,6 @@
 #define RIGIDBODY_HPP
 
 #include <btBulletDynamicsCommon.h>
-#include "entityxInclude.hpp"
 #include "glmInclude.hpp"
 #include "Components.hpp"
 
@@ -11,7 +10,6 @@ class PhysicsWorld;
 class RigidBody
 {
 public:
-	RigidBody(PhysicsWorld* physicsWorld, Entity entity, btCollisionShape* shape, btScalar mass);
 	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass);
 	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia);
 	virtual ~RigidBody();
