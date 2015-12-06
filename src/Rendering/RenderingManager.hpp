@@ -24,7 +24,6 @@ public:
 
 	const double farViewScaleValue = 10000.0;
 
-
 protected:
 
 private:

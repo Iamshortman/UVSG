@@ -14,16 +14,16 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-typedef glm::vec4 vector4;
-typedef glm::vec3 vector3;
-typedef glm::vec2 vector2;
 typedef glm::mat4 matrix4;
 typedef glm::mat3 matrix3;
-typedef glm::quat quaternion;
 
-typedef glm::f64vec3 f64vec3;
-typedef glm::f64quat f64quat;
+typedef glm::vec3 vector3F;
+typedef glm::vec2 vector2F;
+typedef glm::quat quaternionF;
 
-typedef glm::i64vec3 vector3I;
+typedef glm::f64vec3 vector3D;
+typedef glm::f64quat quaternionD;
+
+typedef glm::i16vec3 vector3S;
 
 #endif

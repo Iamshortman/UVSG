@@ -2,8 +2,8 @@
 #define RENDERABLE_HPP
 
 #include "Components.hpp"
-#include "ShaderProgram.hpp"
-#include "Mesh.hpp"
+#include "Rendering/ShaderProgram.hpp"
+#include "Rendering/Mesh.hpp"
 #include <vector>
 
 struct Model

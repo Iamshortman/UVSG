@@ -1,11 +1,12 @@
 #include <stddef.h>  // defines NULL
 #include "UVSG.hpp"
 
-#include "RenderingManager.hpp"
 #include "Components.hpp"
 #include "Renderable.hpp"
 
-#include "RigidBody.hpp"
+#include "Physics/RigidBody.hpp"
+
+#include "Rendering/ObjLoader.hpp"
 
 UVSG* UVSG::instance;
 
@@ -18,20 +19,24 @@ UVSG::UVSG()
 	this->physicsWorld = new PhysicsWorld();
 
 	Entity star = entitySystem.entities.create();
-	star.assign<FarZoneRenderable>();
+	star.assign<NearZoneRenderable>();
 	star.assign<Transform>();
-	star.component<Transform>()->setPos(f64vec3(0.0, 0.0, 10000000.0));
-	star.component<Transform>()->setScale(f64vec3(200000.0));
+	star.component<Transform>()->setPos(vector3D(0.0, 0.0, 100.0));
+	star.component<Transform>()->setScale(vector3D(10.0));
 	
 	Model* model = new Model();
 	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
-	model->shader = new ShaderProgram("TexturedVertex.vs", "TexturedFragment.fs", attributes1);
-	model->texture = "stone.png";
-	star.component<FarZoneRenderable>()->models.push_back(model);
+	model->shader = new ShaderProgram("res/TexturedVertex.vs", "res/TexturedFragment.fs", attributes1);
+	model->texture = "res/stone.png";
+	model->mesh = loadMeshFromFile("res/Sphere.obj");
+
+	star.component<NearZoneRenderable>()->models.push_back(model);
 }
 
 void UVSG::update(double timeStep)
 {
+	editor.Update();
+
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	SDL_Event event;
@@ -42,6 +47,17 @@ void UVSG::update(double timeStep)
 		{
 			exitGame();
 		}
+
+		if (event.type == SDL_CONTROLLERDEVICEADDED)
+		{
+			continue;
+		}
+
+		if (event.type == SDL_CONTROLLERDEVICEREMOVED)
+		{
+			continue;
+		}
+
 		renderingManager->window->HandleEvent(event);
 
 	} 

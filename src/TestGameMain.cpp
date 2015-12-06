@@ -1,9 +1,9 @@
-#include "Camera.hpp"
-#include "Window.hpp"
-#include "ShaderProgram.hpp"
-#include "openGL.hpp"
+#include "Rendering/Camera.hpp"
+#include "Rendering/Window.hpp"
+#include "Rendering/ShaderProgram.hpp"
+#include "Rendering/openGL.hpp"
 #include "glmInclude.hpp"
-#include "Mesh.hpp"
+#include "Rendering/Mesh.hpp"
 
 #include "UVSG.hpp"
 

@@ -14,8 +14,8 @@ RenderingManager::RenderingManager()
 
 	camera = Camera();
 
-	texturePool.loadTexture("stone.png");
-	texturePool.loadTexture("arrow-up.png");
+	texturePool.loadTexture("res/stone.png");
+	texturePool.loadTexture("res/arrow-up.png");
 
 	bool failed = texturePool.bindTexture("stone.png");
 }
@@ -27,7 +27,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 	matrix4 viewMatrix = camera.getViewMatrix();
 
-	camera.setProjection(45.0f, 1.0f, 1000.0f, width, height);
+	camera.setProjection(45.0f, 0.001f, 1000.0f, width, height);
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
 
 	window->clearBuffer();
@@ -42,14 +42,14 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 		ComponentHandle<FarZoneRenderable> componentRenderable = entity.component<FarZoneRenderable>();
 		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
 
-		f64vec3 camPos = camera.getPos();
-		f64vec3 offsetPos = componentTransform->getPos() - camPos;
-		f64vec3 scale = componentTransform->getScale();
+		vector3D camPos = camera.getPos();
+		vector3D offsetPos = componentTransform->getPos() - camPos;
+		vector3D scale = componentTransform->getScale();
 		offsetPos /= farViewScaleValue;
 		scale /= farViewScaleValue;
 
-		vector3 floatPos = offsetPos;
-		vector3 floatScale = scale;
+		vector3F floatPos = (vector3F)offsetPos;
+		vector3F floatScale = (vector3F)scale;
 
 		matrix4 m_positionMatrix = matrix4();
 		matrix4 m_scaleMatrix = matrix4();
@@ -73,9 +73,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->deactivateProgram();
 		}
-
 	}
-
 
 	//Clear depth buffer so any other object in front of far objects.
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -85,6 +83,43 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	//Set camera param for near rendering
 	camera.setProjection(45.0f, 0.1f, 1000.0f, width, height);
 	projectionMatrix = camera.getProjectionMatrix();
+
+	ComponentHandle<NearZoneRenderable> componentNearZoneRenderableSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(componentNearZoneRenderableSearch, componentTransformSearch))
+	{
+		ComponentHandle<NearZoneRenderable> componentRenderable = entity.component<NearZoneRenderable>();
+		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+
+		vector3D camPos = camera.getPos();
+		vector3D offsetPos = componentTransform->getPos() - camPos;
+		vector3D scale = componentTransform->getScale();
+
+		vector3F floatPos = (vector3F)offsetPos;
+		vector3F floatScale = (vector3F)scale;
+
+		matrix4 m_positionMatrix = matrix4();
+		matrix4 m_scaleMatrix = matrix4();
+		m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+		m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+		matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
+
+		for (int i = 0; i < componentRenderable->models.size(); i++)
+		{
+			Model* model = componentRenderable->models[i];
+			model->shader->setActiveProgram();
+			if (model->texture != "")
+			{
+				texturePool.bindTexture(model->texture);
+			}
+
+			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
+
+			model->mesh->draw();
+
+			model->shader->deactivateProgram();
+		}
+	}
 
 	window->updateBuffer();
 }

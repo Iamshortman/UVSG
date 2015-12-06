@@ -14,8 +14,8 @@ struct SingleRayTestResults
 {
 	bool hasHit = false;
 	const btRigidBody* hitBody;
-	f64vec3 hitPosition;
-	f64vec3 hitNormal;
+	vector3D hitPosition;
+	vector3D hitNormal;
 };
 
 
@@ -29,7 +29,7 @@ public:
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 
-	SingleRayTestResults singleRayTest(f64vec3 startPos, f64vec3 endPos);
+	SingleRayTestResults singleRayTest(vector3D startPos, vector3D endPos);
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
 protected:

@@ -3,56 +3,56 @@
 
 Camera::Camera()
 {
-    m_Pos = vector3(0.0F, 0.0F, 0.0F);
-    m_Forward = vector3(0.0F, 0.0F, 1.0F);
-    m_Up = vector3(0.0F, 1.0F, 0.0F);
+    m_Pos = vector3F(0.0F, 0.0F, 0.0F);
+    m_Forward = vector3F(0.0F, 0.0F, 1.0F);
+    m_Up = vector3F(0.0F, 1.0F, 0.0F);
 }
 
-void Camera::setCameraPos(f64vec3& pos)
+void Camera::setCameraPos(vector3D& pos)
 {
 	this->m_Pos = pos;
 }
 
-void Camera::moveCameraPos(const f64vec3& dist)
+void Camera::moveCameraPos(const vector3D& dist)
 {
     m_Pos += dist;
 }
 
-void Camera::rotateCamera(const f64vec3& direction, double angle)
+void Camera::rotateCamera(const vector3D& direction, double angle)
 {
 	m_Forward = glm::normalize( glm::rotate(m_Forward, angle, direction) );
 	m_Up = glm::normalize( glm::rotate(m_Up, angle, direction) );
 
 }
 
-void Camera::setCameraTransform(f64vec3& position, f64quat& orientation)
+void Camera::setCameraTransform(vector3D& position, quaternionD& orientation)
 {
 	m_Pos = position;
-	m_Forward = glm::normalize( orientation * f64vec3(0.0F, 0.0F, 1.0F) );
-	m_Up = glm::normalize( orientation * f64vec3(0.0F, 1.0F, 0.0F) );
+	m_Forward = glm::normalize( orientation * vector3D(0.0F, 0.0F, 1.0F) );
+	m_Up = glm::normalize( orientation * vector3D(0.0F, 1.0F, 0.0F) );
 }
 
-f64vec3 Camera::getForward()
+vector3D Camera::getForward()
 {
     return m_Forward;
 }
 
-f64vec3 Camera::getUp()
+vector3D Camera::getUp()
 {
     return m_Up;
 }
 
-f64vec3 Camera::getRight()
+vector3D Camera::getRight()
 {
 	return glm::cross(m_Forward, m_Up);
 }
 
-f64vec3 Camera::getPos()
+vector3D Camera::getPos()
 {
     return m_Pos;
 }
 
-quaternion Camera::getOrientation()
+quaternionF Camera::getOrientation()
 {
 	return fromAxes(m_Forward, m_Up);
 }
@@ -64,10 +64,10 @@ matrix4 Camera::getViewMatrix()
 
 matrix4 Camera::getOriginViewMatrix()
 {
-	vector3 forward = (vector3)m_Forward;
-	vector3 up = (vector3)m_Up;
+	vector3F forward = (vector3F)m_Forward;
+	vector3F up = (vector3F)m_Up;
 
-	return glm::lookAt(vector3(0.0f), forward, up);
+	return glm::lookAt(vector3F(0.0f), forward, up);
 }
 
 matrix4 Camera::getProjectionMatrix()

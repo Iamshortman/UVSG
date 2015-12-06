@@ -6,17 +6,17 @@
 #include "Mesh.hpp"
 #include <vector>
 
-struct Vertex
+struct TexturedVertex
 {
-	vector3 pos;
-	vector3 normal;
-	vector2 uv;
+	vector3F pos;
+	vector3F normal;
+	vector2F uv;
 };
 
 class TexturedMesh : public Mesh
 {
 public:
-	TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+	TexturedMesh(std::vector<TexturedVertex>& vertices, std::vector<unsigned int>& indices);
 	~TexturedMesh();
 
 	virtual void draw();
@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif // TEXTUREDMESH_HPP
+#endif //TEXTUREDMESH_HPP

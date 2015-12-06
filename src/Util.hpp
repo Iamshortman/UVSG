@@ -2,22 +2,25 @@
 #define UTIL_HPP
 
 #include "glmInclude.hpp"
-#include "PhysicsWorld.hpp"
+#include "Physics/PhysicsWorld.hpp"
 
 using namespace std;
 
 //Just a basic util file for some common functions
 
-void printQuat(const quaternion quat);
-void printVec(const vector3 vec);
+void printQuat(const quaternionF quat);
+void printVec(const vector3F vec);
+void printVec(const vector3S vec);
+void printVec(const vector3D vec);
+
 void printEndLine();
 
-quaternion fromAxes(const vector3 forward, const vector3 up);
+quaternionF fromAxes(const vector3F forward, const vector3F up);
 
-btVector3 toBtVec3(const f64vec3& vec);
-f64vec3 toGlmVec3(const btVector3& vec);
-btQuaternion toBtQuat(const f64quat& quat);
-f64quat toGlmQuat(const btQuaternion& quat);
+btVector3 toBtVec3(const vector3D& vec);
+vector3D toGlmVec3(const btVector3& vec);
+btQuaternion toBtQuat(const quaternionD& quat);
+quaternionD toGlmQuat(const btQuaternion& quat);
 
 float toRad(float degree);
 double toRad(double degree);

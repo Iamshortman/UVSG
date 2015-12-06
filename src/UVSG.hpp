@@ -1,9 +1,10 @@
 #ifndef UVSG_HPP
 #define UVSG_HPP
 
-#include "RenderingManager.hpp"
-#include "PhysicsWorld.hpp"
+#include "Rendering/RenderingManager.hpp"
+#include "Physics/PhysicsWorld.hpp"
 #include "EntityxInclude.hpp"
+#include "Components\ShipEditor.hpp"
 
 class UVSG
 {
@@ -26,6 +27,8 @@ public:
 	SDL_GameController *controller = NULL;
 
 	EntityX entitySystem;
+
+	ShipEditor editor;
 
 protected:
 

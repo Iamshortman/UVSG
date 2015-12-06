@@ -1,11 +1,21 @@
 #include "Util.hpp"
 
-void printQuat(const quaternion quat)
+void printQuat(const quaternionF quat)
 {
 	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";
 }
 
-void printVec(const vector3 vec)
+void printVec(const vector3F vec)
+{
+	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+}
+
+void printVec(const vector3S vec)
+{
+	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+}
+
+void printVec(const vector3D vec)
 {
 	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
@@ -15,9 +25,9 @@ void printEndLine()
 	std::cout << std::endl;
 }
 
-quaternion fromAxes(const vector3 forward, const vector3 up)
+quaternionF fromAxes(const vector3F forward, const vector3F up)
 {
-	vector3 right = glm::normalize(glm::cross(forward, up));
+	vector3F right = glm::normalize(glm::cross(forward, up));
 
 	matrix3 rotationMatrix = matrix3();
 
@@ -36,24 +46,24 @@ quaternion fromAxes(const vector3 forward, const vector3 up)
 	return glm::toQuat(rotationMatrix);
 };
 
-btVector3 toBtVec3(const f64vec3& vec)
+btVector3 toBtVec3(const vector3D& vec)
 {
 	return btVector3(vec.x, vec.y, vec.z);
 }
 
-f64vec3 toGlmVec3(const btVector3& vec)
+vector3D toGlmVec3(const btVector3& vec)
 {
-	return f64vec3(vec.getX(), vec.getY(), vec.getZ());
+	return vector3D(vec.getX(), vec.getY(), vec.getZ());
 }
 
-btQuaternion toBtQuat(const f64quat& quat)
+btQuaternion toBtQuat(const quaternionD& quat)
 {
 	return btQuaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
-f64quat toGlmQuat(const btQuaternion& quat)
+quaternionD toGlmQuat(const btQuaternion& quat)
 {
-	return f64quat(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
+	return quaternionD(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
 }
 
 float toRad(float degree)

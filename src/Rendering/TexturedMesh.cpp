@@ -1,6 +1,6 @@
 #include "TexturedMesh.hpp"
 
-TexturedMesh::TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+TexturedMesh::TexturedMesh(std::vector<TexturedVertex>& vertices, std::vector<unsigned int>& indices)
 {
 	size = (int)indices.size();
 
@@ -10,7 +10,7 @@ TexturedMesh::TexturedMesh(std::vector<Vertex>& vertices, std::vector<unsigned i
 
 	//Adds the data to the buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TexturedVertex), &vertices[0], GL_STATIC_DRAW);
 
 	//Adds the indices to the buffer.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -39,7 +39,7 @@ void TexturedMesh::draw()
 		3,					// size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
-		sizeof(Vertex),     // stride
+		sizeof(TexturedVertex),     // stride
 		(void*)0            // array buffer offset
 		);
 
@@ -49,8 +49,8 @@ void TexturedMesh::draw()
 		3,					// size
 		GL_FLOAT,           // type
 		GL_FALSE ,           // normalized?
-		sizeof(Vertex),     // stride
-		(void*)offsetof(Vertex, normal) // array buffer offset
+		sizeof(TexturedVertex),     // stride
+		(void*)offsetof(TexturedVertex, normal) // array buffer offset
 		);
 
 	//UV
@@ -59,8 +59,8 @@ void TexturedMesh::draw()
 		2,					// uv is a vec2
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
-		sizeof(Vertex),     // stride
-		(void*)offsetof(Vertex, uv) // array buffer offset
+		sizeof(TexturedVertex),     // stride
+		(void*)offsetof(TexturedVertex, uv) // array buffer offset
 		);
 
 

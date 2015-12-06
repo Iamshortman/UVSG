@@ -50,9 +50,9 @@ void PhysicsWorld::update(float timeStep)
 		if (entity.has_component<Velocity>())
 		{
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			f64vec3 linear = componentVelocity->linearVelocity;
+			vector3D linear = componentVelocity->linearVelocity;
 			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
-			f64vec3 angular = componentVelocity->angularVelocity;
+			vector3D angular = componentVelocity->angularVelocity;
 			componentRigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
 			if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
 			{
@@ -89,10 +89,10 @@ void PhysicsWorld::update(float timeStep)
 			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
 
 			btVector3 linear = componentRigidBody->rigidBody->getLinearVelocity();
-			componentVelocity->linearVelocity = f64vec3(linear.getX(), linear.getY(), linear.getZ());
+			componentVelocity->linearVelocity = vector3D(linear.getX(), linear.getY(), linear.getZ());
 
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
-			componentVelocity->angularVelocity = f64vec3(angular.getX(), angular.getY(), angular.getZ());
+			componentVelocity->angularVelocity = vector3D(angular.getX(), angular.getY(), angular.getZ());
 		}
 	}*/
 
@@ -108,7 +108,7 @@ void PhysicsWorld::removeRigidBody(btRigidBody* body)
 	dynamicsWorld->removeRigidBody(body);
 }
 
-SingleRayTestResults PhysicsWorld::singleRayTest(f64vec3 startPos, f64vec3 endPos)
+SingleRayTestResults PhysicsWorld::singleRayTest(vector3D startPos, vector3D endPos)
 {
 	btVector3 start = toBtVec3(startPos);
 	btVector3 end = toBtVec3(endPos);
