@@ -49,11 +49,10 @@ bool TexturePool::bindTexture(string fileLoc)
 	if (textures.count(fileLoc))
 	{
 		glBindTexture(GL_TEXTURE_2D, textures.at(fileLoc));
-
 		return true;
 	}
 
-
+	printf("Error: texture %s is not loaded \n", fileLoc);
 	return false;
 }
 
