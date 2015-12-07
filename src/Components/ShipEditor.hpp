@@ -37,14 +37,22 @@ public:
 
 	void Update();
 	void TempRender(Camera& camera, TexturePool& texturePool);
+	void addCell(vector3S pos);
+	void removeCell(vector3S pos);
+	bool hasCell(vector3S pos);
+	void updateMesh();
 
 	Ship_Map m_shipCells;
 	ColoredMesh* m_OutsideMesh;
 	ColoredMesh* m_InsideMesh;
+	vector3F outsideColor = vector3F(155, 155, 255) / 255.0f;
+	ShaderProgram* shader;
 
 	vector3S m_cursorPos;
 
 	Model* tempModel;
+
+	bool needsUpdate = false;
 };
 
 #endif //SHIPEDITOR_HPP

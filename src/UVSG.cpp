@@ -33,7 +33,7 @@ UVSG::UVSG()
 	Model* model = new Model();
 	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
 	model->shader = new ShaderProgram("res/TexturedVertex.vs", "res/TexturedFragment.fs", attributes1);
-	model->texture = "res/stone.png";
+	model->texture = "res/StarRed.png";
 	model->mesh = loadMeshFromFile("res/Sphere.obj");
 
 	star.component<NearZoneRenderable>()->models.push_back(model);
@@ -42,7 +42,9 @@ UVSG::UVSG()
 	model1->shader = model->shader;
 	model1->texture = model->texture;
 	model1->mesh = loadMeshFromFile("res/Cube.obj");
+
 	editor.tempModel = model1;
+	editor.shader = new ShaderProgram("res/ColoredVertex.vs", "res/ColoredFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
 }
 
 void UVSG::update(double timeStep)

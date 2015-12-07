@@ -17,6 +17,7 @@ RenderingManager::RenderingManager()
 
 	texturePool.loadTexture("res/stone.png");
 	texturePool.loadTexture("res/arrow-up.png");
+	texturePool.loadTexture("res/StarRed.png");
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)

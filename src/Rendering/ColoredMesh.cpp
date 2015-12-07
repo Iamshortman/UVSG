@@ -35,30 +35,30 @@ void ColoredMesh::draw()
 
 	//Position
 	glVertexAttribPointer(
-		0,                  // Position attribute location
-		3,					// size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
+		0,                  //Position attribute location
+		3,					//Position is a vec3
+		GL_FLOAT,           //type
+		GL_FALSE,           //normalized?
 		sizeof(ColoredVertex),     // stride
 		(void*)0            // array buffer offset
 		);
 
 	//Normal
 	glVertexAttribPointer(
-		1,                  // Normal attribute location
-		3,					// size
-		GL_FLOAT,           // type
-		GL_FALSE ,           // normalized?
+		1,                  //Normal attribute location
+		3,					//Normal is a vec3
+		GL_FLOAT,           //type
+		GL_FALSE ,          //normalized?
 		sizeof(ColoredVertex),     // stride
 		(void*)offsetof(ColoredVertex, normal) // array buffer offset
 		);
 
 	//UV
 	glVertexAttribPointer(
-		2,                  // UV attribute location
-		2,					// uv is a vec2
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
+		2,                  //UV attribute location
+		3,					//color is a vec3
+		GL_FLOAT,           //type
+		GL_FALSE,           //normalized?
 		sizeof(ColoredVertex),     // stride
 		(void*)offsetof(ColoredVertex, color) // array buffer offset
 		);
