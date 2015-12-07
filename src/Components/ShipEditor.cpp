@@ -54,6 +54,46 @@ void ShipEditor::Update()
 	lastState_SPACE = state[SDL_SCANCODE_SPACE];
 }
 
+void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
+{
+	Transform transform;
+
+	vector3D camPos = camera.getPos();
+	vector3D offsetPos = transform.getPos() - camPos;
+	vector3D scale = transform.getScale();
+
+	vector3F floatPos = (vector3F)offsetPos;
+	vector3F floatScale = (vector3F)scale;
+
+	matrix4 m_positionMatrix = matrix4();
+	matrix4 m_scaleMatrix = matrix4();
+	m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+	m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+	matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
+
+	tempModel->shader->setActiveProgram();
+	tempModel->shader->setUniform("MVP", camera.getProjectionMatrix() * camera.getOriginViewMatrix() * modModelMatrix);
+	tempModel->shader->setUniform("normalMatrix", transform.getNormalMatrix());
+
+	texturePool.bindTexture("res/stone.png");
+
+	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
+	{
+		Transform localtransform;
+		localtransform.setPos(it->first);
+		tempModel->shader->setUniform("localOffset", localtransform.getModleMatrix());
+		tempModel->mesh->draw();
+	}
+
+	texturePool.bindTexture("res/arrow-up.png");
+	Transform localtransform;
+	localtransform.setPos(m_cursorPos);
+	tempModel->shader->setUniform("localOffset", localtransform.getModleMatrix());
+	tempModel->mesh->draw();
+
+	tempModel->shader->deactivateProgram();
+}
+
 ShipEditor::~ShipEditor()
 {
 

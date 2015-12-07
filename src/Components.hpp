@@ -57,19 +57,6 @@ public:
 	{
 		return glm::toMat3(m_orientation);
 	};
-
-
-	//Scales the transform up or down 
-	//Normaly used for scaling down the planets in the distance;
-	Transform getScaledTransform(double scale)
-	{
-		Transform tempTransform;
-		tempTransform.setOrientation(m_orientation);
-		tempTransform.setPos(m_position * scale);
-		tempTransform.setScale(m_scale * scale);
-		return tempTransform;
-	};
-
 };
 
 class Velocity

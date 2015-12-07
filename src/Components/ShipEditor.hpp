@@ -5,6 +5,9 @@
 
 #include "glmInclude.hpp"
 #include "Rendering/ColoredMesh.hpp"
+#include "Renderable.hpp"
+#include "Rendering\Camera.hpp"
+#include "Rendering\TexturePool.hpp"
 
 struct ShipCell
 {
@@ -24,6 +27,8 @@ struct KeyFuncs
 	}
 };
 
+typedef std::unordered_map<vector3S, int, KeyFuncs, KeyFuncs> Ship_Map;
+
 class ShipEditor
 {
 public:
@@ -31,12 +36,15 @@ public:
 	virtual ~ShipEditor();
 
 	void Update();
+	void TempRender(Camera& camera, TexturePool& texturePool);
 
-	std::unordered_map<vector3S, int, KeyFuncs, KeyFuncs> m_shipCells;
+	Ship_Map m_shipCells;
 	ColoredMesh* m_OutsideMesh;
 	ColoredMesh* m_InsideMesh;
 
 	vector3S m_cursorPos;
+
+	Model* tempModel;
 };
 
 #endif //SHIPEDITOR_HPP

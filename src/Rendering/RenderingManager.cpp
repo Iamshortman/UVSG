@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "Renderable.hpp"
+#include "UVSG.hpp"
 
 RenderingManager::RenderingManager()
 {
@@ -16,8 +17,6 @@ RenderingManager::RenderingManager()
 
 	texturePool.loadTexture("res/stone.png");
 	texturePool.loadTexture("res/arrow-up.png");
-
-	bool failed = texturePool.bindTexture("stone.png");
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
@@ -68,7 +67,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
-
+			model->shader->setUniform("localOffset", matrix4(1.0f));
 			model->mesh->draw();
 
 			model->shader->deactivateProgram();
@@ -114,12 +113,15 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
+			model->shader->setUniform("localOffset", matrix4(1.0f));
 
 			model->mesh->draw();
 
 			model->shader->deactivateProgram();
 		}
 	}
+
+	UVSG::getInstance()->editor.TempRender(camera, texturePool);
 
 	window->updateBuffer();
 }

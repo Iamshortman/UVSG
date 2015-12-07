@@ -15,13 +15,19 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
-	this->renderingManager->window->setVsync(0);
+	this->renderingManager->window->setVsync(1);
 	this->physicsWorld = new PhysicsWorld();
+
+	Transform camTransform;
+	camTransform.setPos(vector3D(-10.0f, 15.0f, -10.0f));
+	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
+	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
+	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
 
 	Entity star = entitySystem.entities.create();
 	star.assign<NearZoneRenderable>();
 	star.assign<Transform>();
-	star.component<Transform>()->setPos(vector3D(0.0, 0.0, 100.0));
+	star.component<Transform>()->setPos(vector3D(100.0, 0.0, 100.0));
 	star.component<Transform>()->setScale(vector3D(10.0));
 	
 	Model* model = new Model();
@@ -31,13 +37,17 @@ UVSG::UVSG()
 	model->mesh = loadMeshFromFile("res/Sphere.obj");
 
 	star.component<NearZoneRenderable>()->models.push_back(model);
+
+	Model* model1 = new Model();
+	model1->shader = model->shader;
+	model1->texture = model->texture;
+	model1->mesh = loadMeshFromFile("res/Cube.obj");
+	editor.tempModel = model1;
 }
 
 void UVSG::update(double timeStep)
 {
 	editor.Update();
-
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))

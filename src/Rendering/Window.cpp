@@ -176,6 +176,11 @@ void Window::setVsync(int syncRate)
 	SDL_GL_SetSwapInterval(syncRate);
 }
 
+int Window::getVsync()
+{
+	return SDL_GL_GetSwapInterval();
+}
+
 //Not working yet
 void Window::setAntiAliasing(int sampleSize)
 {
