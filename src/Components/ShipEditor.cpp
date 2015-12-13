@@ -55,7 +55,8 @@ void ShipEditor::Update()
 
 	if (needsUpdate)
 	{
-		this->updateMesh();
+		this->updateOutsideMesh();
+		this->updateInsideMesh();
 		needsUpdate = false;
 	}
 }
@@ -86,17 +87,25 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 	shader->setUniform("localOffset", matrix4(1.0f));
 	if (m_OutsideMesh != nullptr)
 	{
-		this->m_OutsideMesh->draw();
+		//this->m_OutsideMesh->draw();
 	}
+
+	if (m_InsideMesh != nullptr)
+	{
+		this->m_InsideMesh->draw();
+	}
+
 	shader->deactivateProgram();
 
 	tempModel->shader->setActiveProgram();
 	tempModel->shader->setUniform("MVP", MVP);
 	tempModel->shader->setUniform("normalMatrix", normalMatrix);
 	texturePool.bindTexture("res/arrow-up.png");
-	Transform localtransform;
-	localtransform.setPos(m_cursorPos);
-	tempModel->shader->setUniform("localOffset", localtransform.getModleMatrix());
+	Transform localTransform;
+	localTransform.setPos(m_cursorPos);
+	localTransform.setPos(localTransform.getPos() * (double)cubeSize);
+	localTransform.setScale(vector3D(cubeSize));
+	tempModel->shader->setUniform("localOffset", localTransform.getModleMatrix());
 	tempModel->mesh->draw();
 
 	tempModel->shader->deactivateProgram();
@@ -118,7 +127,7 @@ bool ShipEditor::hasCell(vector3S pos)
 	return m_shipCells.find(pos) != m_shipCells.end();
 }
 
-void ShipEditor::updateMesh()
+void ShipEditor::updateOutsideMesh()
 {
 	if (m_OutsideMesh != 0)
 	{
@@ -128,14 +137,14 @@ void ShipEditor::updateMesh()
 
 	vector3F vertsCube[] =
 	{
-		vector3F(-0.5f, -0.5f, -0.5f),
-		vector3F(-0.5f, -0.5f, 0.5f),
-		vector3F(-0.5f, 0.5f, -0.5f),
-		vector3F(-0.5f, 0.5f, 0.5f),
-		vector3F(0.5f, -0.5f, -0.5f),
-		vector3F(0.5f, -0.5f, 0.5f),
-		vector3F(0.5f, 0.5f, -0.5f),
-		vector3F(0.5f, 0.5f, 0.5f),
+		vector3F(-0.5f, -0.5f, -0.5f) * cubeSize,
+		vector3F(-0.5f, -0.5f,  0.5f) * cubeSize,
+		vector3F(-0.5f,  0.5f, -0.5f) * cubeSize,
+		vector3F(-0.5f,  0.5f,  0.5f) * cubeSize,
+		vector3F( 0.5f, -0.5f, -0.5f) * cubeSize,
+		vector3F( 0.5f, -0.5f,  0.5f) * cubeSize,
+		vector3F( 0.5f,  0.5f, -0.5f) * cubeSize,
+		vector3F( 0.5f,  0.5f,  0.5f) * cubeSize,
 	};
 	vector3F normals[] =
 	{
@@ -164,10 +173,10 @@ void ShipEditor::updateMesh()
 	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
 	{
 		vector3S pos = it->first;
-		vector3F offset = (vector3F)pos;
+		vector3F offset = (vector3F)pos * cubeSize;
 
 		//Top
-		if (!hasCell(pos + cellOffset[0]))
+		if (!hasCell(pos + cellOffset[0]) && false)
 		{
 			verticesVector.push_back({ vertsCube[3] + offset, normals[0], outsideColor });
 			verticesVector.push_back({ vertsCube[7] + offset, normals[0], outsideColor });
@@ -259,19 +268,14 @@ void ShipEditor::updateMesh()
 		//Right
 		if (!hasCell(pos + cellOffset[5]))
 		{
-			verticesVector.push_back({ vertsCube[3] + offset, normals[5], outsideColor });
-			verticesVector.push_back({ vertsCube[2] + offset, normals[5], outsideColor });
-			verticesVector.push_back({ vertsCube[0] + offset, normals[5], outsideColor });
-			verticesVector.push_back({ vertsCube[1] + offset, normals[5], outsideColor });
+			ColoredVertex vertices[] = { 
+			{ vertsCube[3] + offset, normals[5], outsideColor },
+			{ vertsCube[2] + offset, normals[5], outsideColor },
+			{ vertsCube[0] + offset, normals[5], outsideColor },
+			{ vertsCube[1] + offset, normals[5], outsideColor } 
+			};
 
-			//Clockwise ordering
-			indicesVector.push_back(0 + indicesOffset);
-			indicesVector.push_back(1 + indicesOffset);
-			indicesVector.push_back(2 + indicesOffset);
-			indicesVector.push_back(2 + indicesOffset);
-			indicesVector.push_back(3 + indicesOffset);
-			indicesVector.push_back(0 + indicesOffset);
-			indicesOffset += 4;
+			PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
 		}
 	}
 
@@ -279,6 +283,188 @@ void ShipEditor::updateMesh()
 	{
 		this->m_OutsideMesh = new ColoredMesh(verticesVector, indicesVector);
 	}
+}
+
+void ShipEditor::updateInsideMesh()
+{
+	if (m_InsideMesh != 0)
+	{
+		delete m_InsideMesh;
+		m_InsideMesh = nullptr;
+	}
+
+	vector3F vertsCube[] =
+	{
+		vector3F(-0.5f, -0.5f, -0.5f) * (cubeSize - 0.2f),
+		vector3F(-0.5f, -0.5f, 0.5f) * (cubeSize - 0.2f),
+		vector3F(-0.5f, 0.5f, -0.5f) * (cubeSize - 0.2f),
+		vector3F(-0.5f, 0.5f, 0.5f) * (cubeSize - 0.2f),
+		vector3F(0.5f, -0.5f, -0.5f) * (cubeSize - 0.2f),
+		vector3F(0.5f, -0.5f, 0.5f) * (cubeSize - 0.2f),
+		vector3F(0.5f, 0.5f, -0.5f) * (cubeSize - 0.2f),
+		vector3F(0.5f, 0.5f, 0.5f) * (cubeSize - 0.2f),
+	};
+	vector3F normals[] =
+	{
+		vector3F(0, -1, 0),
+		vector3F(0, 1, 0),
+		vector3F(0, 0, -1),
+		vector3F(0, 0, 1),
+		vector3F(-1, 0, 0),
+		vector3F(1, 0, 0),
+	};
+
+	std::vector<ColoredVertex> verticesVector = std::vector<ColoredVertex>();
+	std::vector<unsigned int> indicesVector;
+	unsigned int indicesOffset = 0;
+
+	const float wallThickness = cubeSize - insideCubeSize;
+
+	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
+	{
+		vector3S pos = it->first;
+		vector3F offset = (vector3F)pos * cubeSize;
+
+
+		//Ceiling 
+		if (!hasCell(pos + vector3S(0, 1, 0)))
+		{
+			vector3F topLeft = vector3F(0.5f, 0.5f, 0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(-0.5f, 0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(-0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, 0.5f, -0.5f) * insideCubeSize;
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && !hasCell(pos + vector3S(1, 0, 0)))
+			{
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(0, 0, 1)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 0, 1)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor },
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ topRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomLeft + offset, normals[1], vector3F(1.0f) - outsideColor }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+		//Floor
+		if (!hasCell(pos + vector3S(0, -1, 0)))
+		{
+			vector3F topLeft = vector3F(0.5f, -0.5f, 0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(-0.5f, -0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(-0.5f, -0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, -0.5f, -0.5f) * insideCubeSize;
+
+			if ( hasCell(pos + vector3S(0, 0, 1)) && !hasCell(pos + vector3S(1, 0, 0)) )
+			{
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(0, 0, 1)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 0, 1)) )
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+					{ topRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+	}
+
+	if (!verticesVector.empty())
+	{
+		this->m_InsideMesh = new ColoredMesh(verticesVector, indicesVector);
+	}
+}
+
+void ShipEditor::PushQuad(std::vector<ColoredVertex>& verticesVector, std::vector<unsigned int>& indicesVector, unsigned int& indicesOffset, ColoredVertex verticesToAdd[4])
+{
+	verticesVector.push_back(verticesToAdd[0]);
+	verticesVector.push_back(verticesToAdd[1]);
+	verticesVector.push_back(verticesToAdd[2]);
+	verticesVector.push_back(verticesToAdd[3]);
+
+	//Clockwise ordering
+	indicesVector.push_back(0 + indicesOffset);
+	indicesVector.push_back(1 + indicesOffset);
+	indicesVector.push_back(2 + indicesOffset);
+	indicesVector.push_back(0 + indicesOffset);
+	indicesVector.push_back(2 + indicesOffset);
+	indicesVector.push_back(3 + indicesOffset);
+	indicesOffset += 4;
 }
 
 

@@ -65,7 +65,6 @@ void Window::initGL()
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
-
 }
 
 void Window::set3dRendering()

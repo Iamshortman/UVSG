@@ -40,12 +40,15 @@ public:
 	void addCell(vector3S pos);
 	void removeCell(vector3S pos);
 	bool hasCell(vector3S pos);
-	void updateMesh();
+	void updateOutsideMesh();
+	void updateInsideMesh();
 
 	Ship_Map m_shipCells;
 	ColoredMesh* m_OutsideMesh;
 	ColoredMesh* m_InsideMesh;
 	vector3F outsideColor = vector3F(155, 155, 255) / 255.0f;
+	float cubeSize = 2.2f;
+	float insideCubeSize = 2.0f;
 	ShaderProgram* shader;
 
 	vector3S m_cursorPos;
@@ -53,6 +56,9 @@ public:
 	Model* tempModel;
 
 	bool needsUpdate = false;
+
+
+	void PushQuad(std::vector<ColoredVertex>& verticesVector, std::vector<unsigned int>& indicesVector, unsigned int& indicesOffset, ColoredVertex verticesToAdd[4]);
 };
 
 #endif //SHIPEDITOR_HPP
