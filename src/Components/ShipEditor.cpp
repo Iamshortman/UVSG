@@ -183,7 +183,7 @@ void ShipEditor::updateOutsideMesh()
 			verticesVector.push_back({ vertsCube[6] + offset, normals[0], outsideColor });
 			verticesVector.push_back({ vertsCube[2] + offset, normals[0], outsideColor });
 
-			//Clockwise ordering
+			//CounterClockwise ordering
 			indicesVector.push_back(0 + indicesOffset);
 			indicesVector.push_back(1 + indicesOffset);
 			indicesVector.push_back(2 + indicesOffset);
@@ -201,7 +201,7 @@ void ShipEditor::updateOutsideMesh()
 			verticesVector.push_back({ vertsCube[0] + offset, normals[1], outsideColor });
 			verticesVector.push_back({ vertsCube[4] + offset, normals[1], outsideColor });
 
-			//Clockwise ordering
+			//CounterClockwise ordering
 			indicesVector.push_back(0 + indicesOffset);
 			indicesVector.push_back(1 + indicesOffset);
 			indicesVector.push_back(2 + indicesOffset);
@@ -219,7 +219,7 @@ void ShipEditor::updateOutsideMesh()
 			verticesVector.push_back({ vertsCube[1] + offset, normals[2], outsideColor });
 			verticesVector.push_back({ vertsCube[5] + offset, normals[2], outsideColor });
 
-			//Clockwise ordering
+			//CounterClockwise ordering
 			indicesVector.push_back(0 + indicesOffset);
 			indicesVector.push_back(1 + indicesOffset);
 			indicesVector.push_back(2 + indicesOffset);
@@ -237,7 +237,7 @@ void ShipEditor::updateOutsideMesh()
 			verticesVector.push_back({ vertsCube[4] + offset, normals[3], outsideColor });
 			verticesVector.push_back({ vertsCube[0] + offset, normals[3], outsideColor });
 
-			//Clockwise ordering
+			//CounterClockwise ordering
 			indicesVector.push_back(0 + indicesOffset);
 			indicesVector.push_back(1 + indicesOffset);
 			indicesVector.push_back(2 + indicesOffset);
@@ -255,7 +255,7 @@ void ShipEditor::updateOutsideMesh()
 			verticesVector.push_back({ vertsCube[5] + offset, normals[4], outsideColor });
 			verticesVector.push_back({ vertsCube[4] + offset, normals[4], outsideColor });
 
-			//Clockwise ordering
+			//CounterClockwise ordering
 			indicesVector.push_back(0 + indicesOffset);
 			indicesVector.push_back(1 + indicesOffset);
 			indicesVector.push_back(2 + indicesOffset);
@@ -357,28 +357,28 @@ void ShipEditor::updateInsideMesh()
 			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
 			{
 				ColoredVertex vertices[] = {
-					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor },
-					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1.0f) - outsideColor }
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(0, 1, 0) },
+					{ topLeft + offset, normals[1], vector3F(0, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(0, 1, 0) },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(0, 1, 0) }
 				};
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
 
 				ColoredVertex vertices1[] = {
-					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
-					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
-					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor }
+					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(0, 1, 0) },
+					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(0, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(0, 1, 0) },
+					{ topLeft + offset, normals[1], vector3F(0, 1, 0) }
 				};
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
 			}
 			else
 			{
 				ColoredVertex vertices[] = {
-					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ topRight + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ bottomLeft + offset, normals[1], vector3F(1.0f) - outsideColor }
+					{ topLeft + offset, normals[1], vector3F(0, 1, 0) },
+					{ topRight + offset, normals[1], vector3F(0, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(0, 1, 0) },
+					{ bottomLeft + offset, normals[1], vector3F(0, 1, 0) }
 				};
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
 			}
@@ -392,7 +392,7 @@ void ShipEditor::updateInsideMesh()
 			vector3F bottomRight = vector3F(-0.5f, -0.5f, -0.5f) * insideCubeSize;
 			vector3F bottomLeft = vector3F(0.5f, -0.5f, -0.5f) * insideCubeSize;
 
-			if ( hasCell(pos + vector3S(0, 0, 1)) && !hasCell(pos + vector3S(1, 0, 0)) )
+			if (hasCell(pos + vector3S(0, 0, 1)) && !hasCell(pos + vector3S(1, 0, 0)))
 			{
 				topLeft.z += wallThickness;
 				topRight.z += wallThickness;
@@ -404,7 +404,182 @@ void ShipEditor::updateInsideMesh()
 				bottomLeft.x += wallThickness;
 			}
 
-			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 0, 1)) )
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 0, 1)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1, 0, 1) },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(1, 0, 1) },
+					{ topLeft + offset, normals[1], vector3F(1, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1, 0, 1) },
+					{ topLeft + offset, normals[1], vector3F(1, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(1, 0, 1) },
+					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], vector3F(1, 0, 1) },
+					{ bottomLeft + offset, normals[1], vector3F(1, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(1, 0, 1) },
+					{ topRight + offset, normals[1], vector3F(1, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+		//North
+		if (!hasCell(pos + vector3S(0, 0, 1)))
+		{
+			vector3F topLeft = vector3F(0.5f, 0.5f, 0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(-0.5f, 0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(-0.5f, -0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, -0.5f, 0.5f) * insideCubeSize;
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && !hasCell(pos + vector3S(1, 0, 0)))
+			{
+				topLeft.y += wallThickness;
+				topRight.y += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(0, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(0, 0, 1) },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(0, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(0, 0, 1) },
+					{ topLeft + offset, normals[1], vector3F(0, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(0, 0, 1) },
+					{ topLeft + offset, normals[1], vector3F(0, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(0, 0, 1) },
+					{ topRight + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(0, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], vector3F(0, 0, 1) },
+					{ bottomLeft + offset, normals[1], vector3F(0, 0, 1) },
+					{ bottomRight + offset, normals[1], vector3F(0, 0, 1) },
+					{ topRight + offset, normals[1], vector3F(0, 0, 1) },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+
+		//South
+		if (!hasCell(pos + vector3S(0, 0, -1)))
+		{
+			vector3F topLeft = vector3F(0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(-0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(-0.5f, -0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, -0.5f, -0.5f) * insideCubeSize;
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && !hasCell(pos + vector3S(1, 0, 0)))
+			{
+				topLeft.y += wallThickness;
+				topRight.y += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(0, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1, 1, 0) },
+					{ topLeft + offset, normals[1], vector3F(1, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(1, 1, 0) },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], vector3F(1, 1, 0) }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(1, 1, 0) },
+					{ topRight + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(1, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(1, 1, 0) },
+					{ topLeft + offset, normals[1], vector3F(1, 1, 0) }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], vector3F(1, 1, 0) },
+					{ topRight + offset, normals[1], vector3F(1, 1, 0) },
+					{ bottomRight + offset, normals[1], vector3F(1, 1, 0) },
+					{ bottomLeft + offset, normals[1], vector3F(1, 1, 0) }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+		//West
+		if (!hasCell(pos + vector3S(1, 0, 0)))
+		{
+			vector3F topLeft = vector3F(0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(0.5f, 0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(0.5f, -0.5f, 0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, -0.5f, -0.5f) * insideCubeSize;
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && !hasCell(pos + vector3S(1, 0, 0)))
+			{
+				topLeft.y += wallThickness;
+				topRight.y += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && !hasCell(pos + vector3S(0, 1, 0)))
+			{
+				topLeft.z += wallThickness;
+				bottomLeft.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 1, 0)))
 			{
 				topLeft.x += wallThickness;
 				bottomLeft.x += wallThickness;
@@ -423,10 +598,10 @@ void ShipEditor::updateInsideMesh()
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
 
 				ColoredVertex vertices1[] = {
-					{ topLeft + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+					{ topLeft + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(1.0f) - outsideColor },
 					{ topLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
 					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
-					{ topRight + offset + vector3F(0, 0, wallThickness), normals[1], vector3F(1.0f) - outsideColor },
+					{ topRight + offset + vector3F(0, wallThickness, 0), normals[1], vector3F(1.0f) - outsideColor },
 				};
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
 			}
@@ -437,6 +612,65 @@ void ShipEditor::updateInsideMesh()
 					{ bottomLeft + offset, normals[1], vector3F(1.0f) - outsideColor },
 					{ bottomRight + offset, normals[1], vector3F(1.0f) - outsideColor },
 					{ topRight + offset, normals[1], vector3F(1.0f) - outsideColor },
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+			}
+		}
+
+
+		//East
+		if (!hasCell(pos + vector3S(0, 0, -1)) && false)
+		{
+			vector3F topLeft = vector3F(0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F topRight = vector3F(-0.5f, 0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomRight = vector3F(-0.5f, -0.5f, -0.5f) * insideCubeSize;
+			vector3F bottomLeft = vector3F(0.5f, -0.5f, -0.5f) * insideCubeSize;
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && !hasCell(pos + vector3S(1, 0, 0)))
+			{
+				topLeft.y += wallThickness;
+				topRight.y += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(0, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 1, 0)) && hasCell(pos + vector3S(1, 0, 0)) && hasCell(pos + vector3S(1, 1, 0)))
+			{
+				topLeft.x += wallThickness;
+				bottomLeft.x += wallThickness;
+				topLeft.z += wallThickness;
+				topRight.z += wallThickness;
+			}
+
+			if (hasCell(pos + vector3S(0, 0, 1)) && hasCell(pos + vector3S(1, 0, 0)) && !hasCell(pos + vector3S(1, 0, 1)))
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset + vector3F(wallThickness, 0, 0), normals[1], outsideColor },
+					{ topLeft + offset, normals[1], outsideColor },
+					{ bottomRight + offset, normals[1], outsideColor },
+					{ bottomLeft + offset + vector3F(wallThickness, 0, 0), normals[1], outsideColor }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
+
+				ColoredVertex vertices1[] = {
+					{ topLeft + offset + vector3F(0, wallThickness, 0), normals[1], outsideColor },
+					{ topRight + offset + vector3F(0, wallThickness, 0), normals[1], outsideColor },
+					{ bottomRight + offset, normals[1], outsideColor },
+					{ topLeft + offset, normals[1], outsideColor }
+				};
+				PushQuad(verticesVector, indicesVector, indicesOffset, vertices1);
+			}
+			else
+			{
+				ColoredVertex vertices[] = {
+					{ topLeft + offset, normals[1], outsideColor },
+					{ topRight + offset, normals[1], outsideColor },
+					{ bottomRight + offset, normals[1], outsideColor },
+					{ bottomLeft + offset, normals[1], outsideColor }
 				};
 				PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
 			}

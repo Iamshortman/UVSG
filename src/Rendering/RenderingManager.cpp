@@ -80,9 +80,6 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 	/*****************************************************************/
 	//Far object Rendering End
-	//Set camera param for near rendering
-	camera.setProjection(45.0f, 0.1f, 1000.0f, width, height);
-	projectionMatrix = camera.getProjectionMatrix();
 
 	ComponentHandle<NearZoneRenderable> componentNearZoneRenderableSearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentNearZoneRenderableSearch, componentTransformSearch))
