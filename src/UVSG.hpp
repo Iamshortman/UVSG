@@ -27,6 +27,7 @@ public:
 	SDL_GameController *controller = NULL;
 
 	EntityX entitySystem;
+	Entity m_camera;
 
 	ShipEditor editor;
 

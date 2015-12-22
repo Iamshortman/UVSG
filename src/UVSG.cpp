@@ -7,6 +7,7 @@
 #include "Physics/RigidBody.hpp"
 
 #include "Rendering/ObjLoader.hpp"
+#include "Components/PlayerControl.hpp"
 
 UVSG* UVSG::instance;
 
@@ -18,11 +19,19 @@ UVSG::UVSG()
 	this->renderingManager->window->setVsync(1);
 	this->physicsWorld = new PhysicsWorld();
 
+	entitySystem.systems.add<PlayerControlSystem>();
+	entitySystem.systems.configure();
+
 	Transform camTransform;
 	camTransform.setPos(vector3D(-10.0f, 15.0f, -10.0f));
 	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
 	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
 	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
+
+	m_camera = entitySystem.entities.create();
+	m_camera.assign<Transform>();
+	m_camera.assign<PlayerControlComponent>(3.0, 3.0);
+	m_camera.component<Transform>()->setTransform(camTransform); 
 
 	Entity star = entitySystem.entities.create();
 	star.assign<NearZoneRenderable>();
@@ -49,7 +58,10 @@ UVSG::UVSG()
 
 void UVSG::update(double timeStep)
 {
+	entitySystem.systems.update_all(timeStep);
 	editor.Update();
+
+	this->renderingManager->camera.setCameraTransform(m_camera.component<Transform>()->getPos(), m_camera.component<Transform>()->getOrientation());
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -62,6 +74,15 @@ void UVSG::update(double timeStep)
 
 		if (event.type == SDL_CONTROLLERDEVICEADDED)
 		{
+			int i = event.cdevice.which;
+
+			joystick = SDL_JoystickOpen(i);
+			if (SDL_IsGameController(i))
+			{
+				controller = SDL_GameControllerOpen(i);
+				printf("%s \n", SDL_JoystickName(joystick));
+			}
+
 			continue;
 		}
 

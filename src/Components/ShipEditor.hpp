@@ -80,7 +80,7 @@ public:
 	ColoredMesh* m_InsideMesh;
 	vector3F outsideColor = vector3F(155, 155, 255) / 255.0f;
 	float cubeSize = 2.2f;
-	float insideCubeSize = 1.0f;
+	float insideCubeSize = 2.0f;
 	ShaderProgram* shader;
 
 	vector3S m_cursorPos;

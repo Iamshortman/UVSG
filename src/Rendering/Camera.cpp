@@ -32,6 +32,11 @@ void Camera::setCameraTransform(vector3D& position, quaternionD& orientation)
 	m_Up = glm::normalize( orientation * vector3D(0.0F, 1.0F, 0.0F) );
 }
 
+void Camera::setCameraTransform(Transform& transform)
+{
+	this->setCameraTransform(transform.getPos(), transform.getOrientation());
+}
+
 vector3D Camera::getForward()
 {
     return m_Forward;

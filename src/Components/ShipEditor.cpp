@@ -316,6 +316,34 @@ void ShipEditor::updateInsideMesh()
 	float inside = insideCubeSize / 2.0f;
 
 	//-------------------------------------------------------------------------
+	insideCubeFace celeiling;
+	celeiling.m_normal = vector3F(0, -1, 0);
+	celeiling.m_faces[0][0] = Quad(vector3F(-outside, inside, outside), vector3F(-outside, inside, inside), vector3F(-inside, inside, inside), vector3F(-inside, inside, outside));
+	celeiling.m_faces[1][0] = Quad(vector3F(-inside, inside, outside), vector3F(-inside, inside, inside), vector3F(inside, inside, inside), vector3F(inside, inside, outside));
+	celeiling.m_faces[2][0] = Quad(vector3F(inside, inside, outside), vector3F(inside, inside, inside), vector3F(outside, inside, inside), vector3F(outside, inside, outside));
+
+	celeiling.m_faces[0][1] = Quad(vector3F(-outside, inside, inside), vector3F(-outside, inside, -inside), vector3F(-inside, inside, -inside), vector3F(-inside, inside, inside));
+	celeiling.m_faces[1][1] = Quad(vector3F(-inside, inside, inside), vector3F(-inside, inside, -inside), vector3F(inside, inside, -inside), vector3F(inside, inside, inside));
+	celeiling.m_faces[2][1] = Quad(vector3F(inside, inside, inside), vector3F(inside, inside, -inside), vector3F(outside, inside, -inside), vector3F(outside, inside, inside));
+
+	celeiling.m_faces[0][2] = Quad(vector3F(-outside, inside, -inside), vector3F(-outside, inside, -outside), vector3F(-inside, inside, -outside), vector3F(-inside, inside, -inside));
+	celeiling.m_faces[1][2] = Quad(vector3F(-inside, inside, -inside), vector3F(-inside, inside, -outside), vector3F(inside, inside, -outside), vector3F(inside, inside, -inside));
+	celeiling.m_faces[2][2] = Quad(vector3F(inside, inside, -inside), vector3F(inside, inside, -outside), vector3F(outside, inside, -outside), vector3F(outside, inside, -inside));
+
+	celeiling.m_Checks[0][0] = vector3S(-1, 0, 1); //Right Forward
+	celeiling.m_Checks[1][0] = vector3S(0, 0, 1); //Forward
+	celeiling.m_Checks[2][0] = vector3S(1, 0, 1); //Left Forward
+
+	celeiling.m_Checks[0][1] = vector3S(-1, 0, 0); //Right
+	celeiling.m_Checks[1][1] = vector3S(0, 1, 0); //Up
+	celeiling.m_Checks[2][1] = vector3S(1, 0, 0); //Left
+
+	celeiling.m_Checks[0][2] = vector3S(-1, 0, -1); //Right Back
+	celeiling.m_Checks[1][2] = vector3S(0, 0, -1); //Back
+	celeiling.m_Checks[2][2] = vector3S(1, 0, -1); //Left Back
+	//-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
 	insideCubeFace floor;
 	floor.m_normal = vector3F(0, 1, 0);
 	floor.m_faces[0][0] = Quad(vector3F(outside, -inside, outside), vector3F(outside, -inside, inside), vector3F(inside, -inside, inside), vector3F(inside, -inside, outside));
@@ -399,7 +427,7 @@ void ShipEditor::updateInsideMesh()
 	westWall.m_Checks[2][2] = vector3S(0, -1, 1); //Down Forward
 	//-------------------------------------------------------------------------
 
-	std::vector<insideCubeFace> faces = {floor, northWall, westWall};
+	std::vector<insideCubeFace> faces = { celeiling, floor, northWall, westWall };
 
 	std::vector<ColoredVertex> verticesVector = std::vector<ColoredVertex>();
 	std::vector<unsigned int> indicesVector;
@@ -435,6 +463,37 @@ void ShipEditor::updateInsideMesh()
 				{
 					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][1], face.m_normal, vector3F(1, 0, 1), offset);
 				}
+				
+				//Top Left Corner
+				if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 0, 1), offset);
+				}
+
+				//Top Right Corner
+				if (hasCell(pos + face.m_Checks[2][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[2][1]))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][0], face.m_normal, vector3F(1, 0, 1), offset);
+				}
+
+				//Bottom Left Corner
+				if (hasCell(pos + face.m_Checks[0][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[0][1]))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][2], face.m_normal, vector3F(1, 0, 1), offset);
+				}
+
+				//Bottom Right Corner
+				if (hasCell(pos + face.m_Checks[2][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[2][1]))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][2], face.m_normal, vector3F(1, 0, 1), offset);
+				}
+
+				/*//Top Left Corner
+				if (hasCell(pos + face.m_Checks[0][0]) && ((hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1])) || (hasCell(pos + face.m_Checks[0][1]) && hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]))))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 0, 1), offset);
+				}*/
+
 			}
 			else
 			{
@@ -457,30 +516,31 @@ void ShipEditor::updateInsideMesh()
 				{
 					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][1], face.m_normal, vector3F(0, 0, 1), offset);
 				}
-			}
 
-			//Top Left Corner
-			if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]))
-			{
-				PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 0, 1), offset);
-			}
 
-			//Top Right Corner
-			if (hasCell(pos + face.m_Checks[2][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[2][1]))
-			{
-				PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][0], face.m_normal, vector3F(1, 0, 1), offset);
-			}
+				//Top Left Corner
+				if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]) && (!hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1])))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 0, 1), offset);
+				}
 
-			//Bottom Left Corner
-			if (hasCell(pos + face.m_Checks[0][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[0][1]))
-			{
-				PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][2], face.m_normal, vector3F(1, 0, 1), offset);
-			}
+				//Top Right Corner
+				if (hasCell(pos + face.m_Checks[2][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[2][1]) && (!hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1])))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][0], face.m_normal, vector3F(1, 0, 1), offset);
+				}
 
-			//Top Right Corner
-			if (hasCell(pos + face.m_Checks[2][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[2][1]))
-			{
-				PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][2], face.m_normal, vector3F(1, 0, 1), offset);
+				//Bottom Left Corner
+				if (hasCell(pos + face.m_Checks[0][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[0][1]) && (!hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1])))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][2], face.m_normal, vector3F(1, 0, 1), offset);
+				}
+
+				//Bottom Right Corner
+				if (hasCell(pos + face.m_Checks[2][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[2][1]) && (!hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1])))
+				{
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][2], face.m_normal, vector3F(1, 0, 1), offset);
+				}
 			}
 
 		}
