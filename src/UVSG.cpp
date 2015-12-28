@@ -58,6 +58,9 @@ UVSG::UVSG()
 
 void UVSG::update(double timeStep)
 {
+	int axis = SDL_JoystickGetAxis(joystick, 2);
+	printf("Axis: %i \n", axis);
+
 	entitySystem.systems.update_all(timeStep);
 	editor.Update();
 

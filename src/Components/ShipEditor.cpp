@@ -488,11 +488,11 @@ void ShipEditor::updateInsideMesh()
 					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][2], face.m_normal, vector3F(1, 0, 1), offset);
 				}
 
-				/*//Top Left Corner
-				if (hasCell(pos + face.m_Checks[0][0]) && ((hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1])) || (hasCell(pos + face.m_Checks[0][1]) && hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]))))
+				//Top Left Corner
+				if (hasCell(pos + face.m_Checks[0][1]) && hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[0][0] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 0, 1), offset);
-				}*/
+					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[0][0], face.m_normal, vector3F(1, 1, 1), offset);
+				}
 
 			}
 			else
