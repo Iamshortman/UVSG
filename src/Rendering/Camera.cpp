@@ -25,16 +25,11 @@ void Camera::rotateCamera(const vector3D& direction, double angle)
 
 }
 
-void Camera::setCameraTransform(vector3D& position, quaternionD& orientation)
+void Camera::setCameraTransform(vector3D position, quaternionD orientation)
 {
 	m_Pos = position;
 	m_Forward = glm::normalize( orientation * vector3D(0.0F, 0.0F, 1.0F) );
 	m_Up = glm::normalize( orientation * vector3D(0.0F, 1.0F, 0.0F) );
-}
-
-void Camera::setCameraTransform(Transform& transform)
-{
-	this->setCameraTransform(transform.getPos(), transform.getOrientation());
 }
 
 vector3D Camera::getForward()
@@ -59,12 +54,12 @@ vector3D Camera::getPos()
 
 quaternionF Camera::getOrientation()
 {
-	return fromAxes(m_Forward, m_Up);
+	return fromAxes((vector3F)m_Forward,(vector3F) m_Up);
 }
 
 matrix4 Camera::getViewMatrix()
 {
-    return glm::lookAt(m_Pos, m_Pos + m_Forward, m_Up);
+    return glm::lookAt((vector3F) m_Pos,(vector3F) (m_Pos + m_Forward),(vector3F) m_Up);
 }
 
 matrix4 Camera::getOriginViewMatrix()

@@ -2,7 +2,7 @@
 #define MESH_HPP
 
 #include "openGL.hpp"
-#include "glmInclude.hpp"
+#include <glmInclude.hpp>
 #include <vector>
 
 class Mesh

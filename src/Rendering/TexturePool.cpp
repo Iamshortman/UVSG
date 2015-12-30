@@ -52,7 +52,7 @@ bool TexturePool::bindTexture(string fileLoc)
 		return true;
 	}
 
-	printf("Error: texture %s is not loaded \n", fileLoc);
+	printf("Error: texture %s is not loaded \n", fileLoc.c_str());
 	return false;
 }
 

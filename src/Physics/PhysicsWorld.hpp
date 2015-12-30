@@ -3,8 +3,8 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
-#include "BulletDynamics\Character\btKinematicCharacterController.h"
-#include "BulletCollision\CollisionDispatch\btGhostObject.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
 #include "Components.hpp"
 #include "glmInclude.hpp"
@@ -39,7 +39,7 @@ private:
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
-	
+
 };
 
 #endif //PHYSICSWORLD_HPP

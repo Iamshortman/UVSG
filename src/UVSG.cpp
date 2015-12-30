@@ -31,14 +31,14 @@ UVSG::UVSG()
 	m_camera = entitySystem.entities.create();
 	m_camera.assign<Transform>();
 	m_camera.assign<PlayerControlComponent>(3.0, 3.0);
-	m_camera.component<Transform>()->setTransform(camTransform); 
+	m_camera.component<Transform>()->setTransform(camTransform);
 
 	Entity star = entitySystem.entities.create();
 	star.assign<NearZoneRenderable>();
 	star.assign<Transform>();
 	star.component<Transform>()->setPos(vector3D(100.0, 0.0, 100.0));
 	star.component<Transform>()->setScale(vector3D(10.0));
-	
+
 	Model* model = new Model();
 	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
 	model->shader = new ShaderProgram("res/TexturedVertex.vs", "res/TexturedFragment.fs", attributes1);
@@ -96,7 +96,7 @@ void UVSG::update(double timeStep)
 
 		renderingManager->window->HandleEvent(event);
 
-	} 
+	}
 
 	//#1 step Physics
 	//physicsWorld->update(timeStep);
@@ -105,7 +105,7 @@ void UVSG::update(double timeStep)
 	//Update Key Bindings
 
 	//#3 game logic updates
-	
+
 
 	//#4 audio update
 

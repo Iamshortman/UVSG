@@ -6,8 +6,8 @@
 #include "glmInclude.hpp"
 #include "Rendering/ColoredMesh.hpp"
 #include "Renderable.hpp"
-#include "Rendering\Camera.hpp"
-#include "Rendering\TexturePool.hpp"
+#include "Rendering/Camera.hpp"
+#include "Rendering/TexturePool.hpp"
 
 struct Quad
 {

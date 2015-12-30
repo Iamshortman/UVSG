@@ -4,7 +4,7 @@
 #include "Rendering/RenderingManager.hpp"
 #include "Physics/PhysicsWorld.hpp"
 #include "EntityxInclude.hpp"
-#include "Components\ShipEditor.hpp"
+#include "Components/ShipEditor.hpp"
 
 class UVSG
 {

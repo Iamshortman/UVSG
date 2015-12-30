@@ -1,7 +1,7 @@
 #ifndef PLAYERCONTROL_HPP
 #define PLAYERCONTROL_HPP
 
-#include "entityxInclude.hpp"
+#include "EntityxInclude.hpp"
 
 #include "Util.hpp"
 
@@ -36,7 +36,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 			//Get the component
 			ComponentHandle<PlayerControlComponent> playerControlComponent = entity.component<PlayerControlComponent>();
 			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
-		
+
 			int deadzone = 8000;
 
 			int pitchAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY); //SDL_JoystickGetAxis(joystick, 5);

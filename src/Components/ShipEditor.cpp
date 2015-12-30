@@ -91,7 +91,7 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 	m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
 	m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
 	matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
-	
+
 	matrix4 MVP = camera.getProjectionMatrix() * camera.getOriginViewMatrix() * modModelMatrix;
 	matrix3 normalMatrix = transform.getNormalMatrix();
 
@@ -116,7 +116,7 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 	tempModel->shader->setUniform("normalMatrix", normalMatrix);
 	texturePool.bindTexture("res/arrow-up.png");
 	Transform localTransform;
-	localTransform.setPos(m_cursorPos);
+	localTransform.setPos((vector3D) m_cursorPos);
 	localTransform.setPos(localTransform.getPos() * (double)cubeSize);
 	localTransform.setScale(vector3D(cubeSize));
 	tempModel->shader->setUniform("localOffset", localTransform.getModleMatrix());
@@ -282,11 +282,11 @@ void ShipEditor::updateOutsideMesh()
 		//Right
 		if (!hasCell(pos + cellOffset[5]))
 		{
-			ColoredVertex vertices[] = { 
+			ColoredVertex vertices[] = {
 			{ vertsCube[3] + offset, normals[5], outsideColor },
 			{ vertsCube[2] + offset, normals[5], outsideColor },
 			{ vertsCube[0] + offset, normals[5], outsideColor },
-			{ vertsCube[1] + offset, normals[5], outsideColor } 
+			{ vertsCube[1] + offset, normals[5], outsideColor }
 			};
 
 			PushQuad(verticesVector, indicesVector, indicesOffset, vertices);
@@ -463,7 +463,7 @@ void ShipEditor::updateInsideMesh()
 				{
 					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_faces[2][1], face.m_normal, vector3F(1, 0, 1), offset);
 				}
-				
+
 				//Top Left Corner
 				if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]))
 				{

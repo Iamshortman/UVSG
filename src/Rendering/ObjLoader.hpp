@@ -4,6 +4,7 @@
 #define OBJLOADER_HPP
 
 #include <string>
+#include <cstring>
 #include <vector>
 #include "glmInclude.hpp"
 #include "TexturedMesh.hpp"

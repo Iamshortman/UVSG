@@ -15,8 +15,8 @@ public:
     void moveCameraPos(const vector3D& dist);
     void rotateCamera(const vector3D& direction, double angle);
     void setCameraPos(vector3D& pos);
-	void setCameraTransform(vector3D& position, quaternionD& orientation);
-	void setCameraTransform(Transform& transform);
+	void setCameraTransform(vector3D position, quaternionD orientation);
+	//void setCameraTransform(Transform& transform);
 
     vector3D getForward();
     vector3D getRight();
