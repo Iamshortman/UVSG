@@ -25,15 +25,15 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	int width, height;
 	window->getWindowSize(width, height);
 
-	matrix4 viewMatrix = camera.getViewMatrix();
-
-	camera.setProjection(45.0f, 0.001f, 1000.0f, width, height);
-	matrix4 projectionMatrix = camera.getProjectionMatrix();
+	//matrix4 viewMatrix = camera.getViewMatrix();
 
 	window->clearBuffer();
 
 	//Far object Rendering Start
 	/***************************************************************/
+
+	camera.setProjection(45.0f, 0.001f, 100000.0f, width, height);
+	matrix4 projectionMatrix = camera.getProjectionMatrix();
 
 	ComponentHandle<Transform> componentTransformSearch;
 	ComponentHandle<FarZoneRenderable> componentFarZoneRenderableSearch;
@@ -81,6 +81,13 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	/*****************************************************************/
 	//Far object Rendering End
 
+
+	/*****************************************************************/
+	//Near object Rendering Start
+
+	camera.setProjection(45.0f, 0.001f, 1000.0f, width, height);
+	projectionMatrix = camera.getProjectionMatrix();
+
 	ComponentHandle<NearZoneRenderable> componentNearZoneRenderableSearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentNearZoneRenderableSearch, componentTransformSearch))
 	{
@@ -120,6 +127,9 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	}
 
 	UVSG::getInstance()->editor.TempRender(camera, texturePool);
+
+	/*****************************************************************/
+	//Near object Rendering End
 
 	window->updateBuffer();
 }

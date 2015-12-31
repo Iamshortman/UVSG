@@ -24,7 +24,7 @@ UVSG::UVSG()
 
 	Transform camTransform;
 	camTransform.setPos(vector3D(-10.0f, 15.0f, -10.0f));
-	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
+	//camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
 	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
 	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
 
@@ -34,10 +34,10 @@ UVSG::UVSG()
 	m_camera.component<Transform>()->setTransform(camTransform);
 
 	Entity star = entitySystem.entities.create();
-	star.assign<NearZoneRenderable>();
+	star.assign<FarZoneRenderable>();
 	star.assign<Transform>();
-	star.component<Transform>()->setPos(vector3D(100.0, 0.0, 100.0));
-	star.component<Transform>()->setScale(vector3D(10.0));
+	star.component<Transform>()->setPos(vector3D(200000000.0, 0.0, 200000000.0));
+	star.component<Transform>()->setScale(vector3D(60000000.0));
 
 	Model* model = new Model();
 	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
@@ -45,7 +45,7 @@ UVSG::UVSG()
 	model->texture = "res/StarRed.png";
 	model->mesh = loadMeshFromFile("res/Sphere.obj");
 
-	star.component<NearZoneRenderable>()->models.push_back(model);
+	star.component<FarZoneRenderable>()->models.push_back(model);
 
 	Model* model1 = new Model();
 	model1->shader = model->shader;
@@ -58,9 +58,6 @@ UVSG::UVSG()
 
 void UVSG::update(double timeStep)
 {
-	int axis = SDL_JoystickGetAxis(joystick, 2);
-	printf("Axis: %i \n", axis);
-
 	entitySystem.systems.update_all(timeStep);
 	editor.Update();
 
