@@ -24,7 +24,6 @@ typedef glm::quat quaternionF;
 typedef glm::f64vec3 vector3D;
 typedef glm::f64quat quaternionD;
 
-//Need to rename to vector3B;
-typedef glm::i8vec3 vector3S;
+typedef glm::i16vec3 vector3S;
 
 #endif

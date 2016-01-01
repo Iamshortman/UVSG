@@ -19,6 +19,7 @@ UVSG::UVSG()
 	this->renderingManager->window->setVsync(1);
 	this->physicsWorld = new PhysicsWorld();
 
+
 	entitySystem.systems.add<PlayerControlSystem>();
 	entitySystem.systems.configure();
 
@@ -36,8 +37,8 @@ UVSG::UVSG()
 	Entity star = entitySystem.entities.create();
 	star.assign<FarZoneRenderable>();
 	star.assign<Transform>();
-	star.component<Transform>()->setPos(vector3D(200000000.0, 0.0, 200000000.0));
-	star.component<Transform>()->setScale(vector3D(60000000.0));
+	star.component<Transform>()->setPos(vector3D(200000.0, 0.0, 200000.0));
+	star.component<Transform>()->setScale(vector3D(60000.0));
 
 	Model* model = new Model();
 	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
@@ -54,6 +55,22 @@ UVSG::UVSG()
 
 	editor.tempModel = model1;
 	editor.shader = new ShaderProgram("res/ColoredVertex.vs", "res/ColoredFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
+
+    std::vector<ColoredVertex> vert;
+    vert.push_back({vector3F(1, 1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
+    vert.push_back({vector3F(-1, 1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
+    vert.push_back({vector3F(-1, -1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
+    vert.push_back({vector3F(1, -1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
+
+    std::vector<unsigned int> indices;//(0, 3, 2, 2, 1 0);
+    indices.push_back(0); indices.push_back(3); indices.push_back(2);
+    indices.push_back(2); indices.push_back(1); indices.push_back(0);
+
+    Model* model2 = new Model();
+    model2->mesh = new ColoredMesh(vert, indices);
+    model2->localOffset.setScale(vector3D(3.0));
+    model2->shader = new ShaderProgram("res/ColoredBillboardVertex.vs", "res/ColoredBillboardFragment.fs", { { 0, "in_Position" }, { 2, "in_Color" } });
+    star.component<FarZoneRenderable>()->models.push_back(model2);
 }
 
 void UVSG::update(double timeStep)

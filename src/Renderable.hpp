@@ -14,16 +14,20 @@ struct Model
 	string texture;
 };
 
-class FarZoneRenderable
+class Renderable
 {
 public:
-	vector<Model*> models;
+    vector<Model*> models;
 };
 
-class NearZoneRenderable
+class FarZoneRenderable : public Renderable
 {
-public:
-	vector<Model*> models;
+
+};
+
+class NearZoneRenderable : public Renderable
+{
+
 };
 
 #endif //RENDERABLE_HPP

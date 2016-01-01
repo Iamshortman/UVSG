@@ -9,4 +9,5 @@ out vec4 fragmentColor;
 void main(void) 
 {
 	fragmentColor = vec4(abs(out_Normal), 1.0f);
+	//fragmentColor = vec4(out_Color, 1.0f);
 }
