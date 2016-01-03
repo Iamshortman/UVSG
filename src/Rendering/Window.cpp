@@ -191,7 +191,7 @@ void Window::setAntiAliasing(int sampleSize)
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
 	else
-	{	
+	{
 		glEnable(GL_MULTISAMPLE);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, sampleSize);

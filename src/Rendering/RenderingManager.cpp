@@ -73,6 +73,40 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->deactivateProgram();
 		}
+
+        matrix4 modelViewMatrix = camera.getOriginViewMatrix() * modModelMatrix;
+
+        //Clear rotations
+        // Column 0:
+        modelViewMatrix[0][0] = 1;
+        modelViewMatrix[0][1] = 0;
+        modelViewMatrix[0][2] = 0;
+
+        // Column 1:
+        modelViewMatrix[1][0] = 0;
+        modelViewMatrix[1][1] = 1;
+        modelViewMatrix[1][2] = 0;
+
+        // Column 2:
+        modelViewMatrix[2][0] = 0;
+        modelViewMatrix[2][1] = 0;
+        modelViewMatrix[2][2] = 1;
+
+        matrix4 billboardMatrix = projectionMatrix * modelViewMatrix;
+
+        for (int i = 0; i < componentRenderable->billboards.size(); i++)
+		{
+			Billboard* billboard = componentRenderable->billboards[i];
+			billboard->shader->setActiveProgram();
+
+            billboard->shader->setUniform("tempColor", billboard->color);
+            billboard->shader->setUniform("MVP", billboardMatrix);
+            billboard->shader->setUniform("scale", billboard->scale * floatScale);
+
+            billboard->mesh->draw();
+
+			billboard->shader->deactivateProgram();
+        }
 	}
 
 	//Clear depth buffer so any other object in front of far objects.

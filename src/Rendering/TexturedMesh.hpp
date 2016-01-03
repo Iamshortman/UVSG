@@ -17,7 +17,7 @@ class TexturedMesh : public Mesh
 {
 public:
 	TexturedMesh(std::vector<TexturedVertex>& vertices, std::vector<unsigned int>& indices);
-	~TexturedMesh();
+	virtual ~TexturedMesh();
 
 	virtual void draw();
 

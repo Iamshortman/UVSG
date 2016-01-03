@@ -16,7 +16,7 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
-	this->renderingManager->window->setVsync(1);
+	this->renderingManager->window->setVsync(0);
 	this->physicsWorld = new PhysicsWorld();
 
 
@@ -25,13 +25,13 @@ UVSG::UVSG()
 
 	Transform camTransform;
 	camTransform.setPos(vector3D(-10.0f, 15.0f, -10.0f));
-	//camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
+	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
 	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
 	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
 
 	m_camera = entitySystem.entities.create();
 	m_camera.assign<Transform>();
-	m_camera.assign<PlayerControlComponent>(3.0, 3.0);
+	m_camera.assign<PlayerControlComponent>(5.0, 3.0);
 	m_camera.component<Transform>()->setTransform(camTransform);
 
 	Entity star = entitySystem.entities.create();
@@ -56,21 +56,26 @@ UVSG::UVSG()
 	editor.tempModel = model1;
 	editor.shader = new ShaderProgram("res/ColoredVertex.vs", "res/ColoredFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
 
-    std::vector<ColoredVertex> vert;
-    vert.push_back({vector3F(1, 1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
-    vert.push_back({vector3F(-1, 1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
-    vert.push_back({vector3F(-1, -1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
-    vert.push_back({vector3F(1, -1, 0), vector3F(0, 0, 1), vector3F(1, 0, 0)});
 
-    std::vector<unsigned int> indices;//(0, 3, 2, 2, 1 0);
-    indices.push_back(0); indices.push_back(3); indices.push_back(2);
-    indices.push_back(2); indices.push_back(1); indices.push_back(0);
+    std::vector<ColoredVertex> vertices;
+    vertices.push_back({vector3F(1, 1, 0), vector3F(0.0f), vector3F(0.0f)});
+	vertices.push_back({vector3F(-1, 1, 0), vector3F(0.0f), vector3F(0.0f)});
+	vertices.push_back({vector3F(-1, -1, 0), vector3F(0.0f), vector3F(0.0f)});
+	vertices.push_back({vector3F(1, -1, 0), vector3F(0.0f), vector3F(0.0f)});
 
-    Model* model2 = new Model();
-    model2->mesh = new ColoredMesh(vert, indices);
-    model2->localOffset.setScale(vector3D(3.0));
-    model2->shader = new ShaderProgram("res/ColoredBillboardVertex.vs", "res/ColoredBillboardFragment.fs", { { 0, "in_Position" }, { 2, "in_Color" } });
-    star.component<FarZoneRenderable>()->models.push_back(model2);
+    std::vector<unsigned int> indices;
+	//Triangle 1
+	indices.push_back(1); indices.push_back(2); indices.push_back(0);
+
+	//Triangle 2
+	indices.push_back(2); indices.push_back(3); indices.push_back(0);
+
+    Billboard* board = new Billboard();
+    board->mesh = new ColoredMesh(vertices, indices);
+    board->scale = vector3F(1.5f);
+    board->color = vector3F(220, 20, 60) / 255.0f;
+    board->shader = new ShaderProgram("res/ColoredBillboardVertex.vs", "res/ColoredBillboardFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
+    star.component<FarZoneRenderable>()->billboards.push_back(board);
 }
 
 void UVSG::update(double timeStep)

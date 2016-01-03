@@ -17,7 +17,7 @@ class ColoredMesh : public Mesh
 {
 public:
 	ColoredMesh(std::vector<ColoredVertex>& vertices, std::vector<unsigned int>& indices);
-	~ColoredMesh();
+	virtual ~ColoredMesh();
 
 	virtual void draw();
 

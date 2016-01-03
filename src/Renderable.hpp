@@ -14,10 +14,23 @@ struct Model
 	string texture;
 };
 
+struct Billboard
+{
+    //vector3D pos;
+    vector3F scale;
+    ShaderProgram* shader;
+    string texture;
+
+    //Temp
+    vector3F color;
+    Mesh* mesh;
+};
+
 class Renderable
 {
 public:
     vector<Model*> models;
+    vector<Billboard*> billboards;
 };
 
 class FarZoneRenderable : public Renderable

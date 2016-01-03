@@ -32,13 +32,13 @@ struct insideCubeFace
 	[01][11][21]
 	[02][12][22]
 	*/
-	Quad m_faces[3][3];
+	Quad m_Faces[3][3];
 
 	//m_Checks is a cell offest to check if the quad in the corresponding m_faces location should be drawn.
 	//The Mesh gen function will deal with this logic.
 	vector3S m_Checks[3][3];
 
-	vector3F m_normal;
+	vector3F m_Normal;
 };
 
 struct ShipCell

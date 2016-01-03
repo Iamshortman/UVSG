@@ -17,7 +17,7 @@ class NonIndexedColoredMesh : public Mesh
 {
 public:
 	NonIndexedColoredMesh(std::vector<NonIndexedColoredVertex>& vertices);
-	~NonIndexedColoredMesh();
+	virtual ~NonIndexedColoredMesh();
 
 	virtual void draw();
 
