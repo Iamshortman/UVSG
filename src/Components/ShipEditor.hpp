@@ -41,7 +41,7 @@ struct insideCubeFace
 	vector3F m_Normal;
 };
 
-struct ShipCell
+class ShipCell
 {
 
 };
@@ -69,15 +69,18 @@ public:
 
 	void Update();
 	void TempRender(Camera& camera, TexturePool& texturePool);
-	void addCell(vector3S pos);
+	void addCell(vector3S pos, int id = 1);
 	void removeCell(vector3S pos);
 	bool hasCell(vector3S pos);
+	bool hasFullCell(vector3S pos);
 	void updateOutsideMesh();
 	void updateInsideMesh();
 
 	Ship_Map m_shipCells;
 	ColoredMesh* m_OutsideMesh = 0;
 	ColoredMesh* m_InsideMesh = 0;
+	Model* thruster = 0;
+
 	vector3F outsideColor = vector3F(155, 155, 255) / 255.0f;
 	float cubeSize = 2.2f;
 	float insideCubeSize = 2.0f;

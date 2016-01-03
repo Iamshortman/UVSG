@@ -1,4 +1,4 @@
-#include "ObjLoader.hpp"
+#include "ObjLoader.hpp"Thruster.obj
 
 bool loadOBJ(const char * path, std::vector<vector3F> & out_vertices, std::vector<vector2F> & out_uvs, std::vector<vector3F> & out_normals)
 {
@@ -48,7 +48,7 @@ bool loadOBJ(const char * path, std::vector<vector3F> & out_vertices, std::vecto
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 			if (matches != 9)
 			{
-				printf("");
+				printf("Could not Create Faces!!!! \n");
 				return false;
 			}
 			vertexIndices.push_back(vertexIndex[0]);

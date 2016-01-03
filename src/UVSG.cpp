@@ -16,15 +16,14 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
-	this->renderingManager->window->setVsync(0);
+	this->renderingManager->window->setVsync(2);
 	this->physicsWorld = new PhysicsWorld();
-
 
 	entitySystem.systems.add<PlayerControlSystem>();
 	entitySystem.systems.configure();
 
 	Transform camTransform;
-	camTransform.setPos(vector3D(-10.0f, 15.0f, -10.0f));
+	camTransform.setPos(vector3D(-10.0f, 10.0f, -10.0f));
 	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
 	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
 	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
@@ -56,6 +55,10 @@ UVSG::UVSG()
 	editor.tempModel = model1;
 	editor.shader = new ShaderProgram("res/ColoredVertex.vs", "res/ColoredFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
 
+    Model* thruster = new Model();
+    thruster->mesh = loadMeshFromFile("res/Thruster.obj");
+    thruster->shader = model->shader;
+    editor.thruster = thruster;
 
     std::vector<ColoredVertex> vertices;
     vertices.push_back({vector3F(1, 1, 0), vector3F(0.0f), vector3F(0.0f)});
