@@ -32,6 +32,9 @@ UVSG::UVSG()
 	m_camera.assign<Transform>();
 	m_camera.assign<PlayerControlComponent>(5.0, 3.0);
 	m_camera.component<Transform>()->setTransform(camTransform);
+	m_camera.assign<NearZoneRenderable>();
+
+
 
 	Entity star = entitySystem.entities.create();
 	star.assign<FarZoneRenderable>();
@@ -46,6 +49,21 @@ UVSG::UVSG()
 	model->mesh = loadMeshFromFile("res/Sphere.obj");
 
 	star.component<FarZoneRenderable>()->models.push_back(model);
+
+	//Entity starship = entitySystem.entities.create();
+	//starship.assign<Transform>();
+	//starship.assign<NearZoneRenderable>();
+	//starship.assign<PlayerControlComponent>(-5.0, 3.0);
+
+	Model* cockpit = new Model();
+	cockpit->shader = model->shader;
+	cockpit->texture = model->texture;
+	cockpit->mesh = loadMeshFromFile("res/CockPit.obj");
+	Transform cockpitOffset;
+	cockpitOffset.setPos(vector3D(0.0, -1.2, 0.5));
+	cockpit->localOffset = cockpitOffset;
+	m_camera.component<NearZoneRenderable>()->models.push_back(cockpit);
+
 
 	Model* model1 = new Model();
 	model1->shader = model->shader;

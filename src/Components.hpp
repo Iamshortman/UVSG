@@ -39,18 +39,15 @@ public:
 
 	matrix4 getModleMatrix() const
 	{
-		matrix4 m_positionMatrix = matrix4();
+		matrix4 positionMatrix = matrix4();
 		matrix4 rotationMatrix = matrix4();
-		matrix4 m_scaleMatrix = matrix4();
+		matrix4 scaleMatrix = matrix4();
 
-		vector3F position = (vector3F)m_position;
-		vector3F scale = (vector3F)m_scale;
-
-		m_positionMatrix = glm::translate(matrix4(1.0F), position);
+		positionMatrix = glm::translate(matrix4(1.0F), (vector3F)m_position);
 		rotationMatrix = glm::toMat4((quaternionF) m_orientation);
-		m_scaleMatrix = glm::scale(matrix4(1.0F), scale);
+		scaleMatrix = glm::scale(matrix4(1.0F), (vector3F)m_scale);
 
-		return m_positionMatrix * rotationMatrix * m_scaleMatrix;
+		return positionMatrix * rotationMatrix * scaleMatrix;
 	};
 
 	matrix3 getNormalMatrix() const

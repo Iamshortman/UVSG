@@ -104,6 +104,7 @@ void ShipEditor::Update()
 void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 {
 	Transform transform;
+	transform.setScale(vector3D(1, 1, 1));
 
 	vector3D camPos = camera.getPos();
 	vector3D offsetPos = transform.getPos() - camPos;

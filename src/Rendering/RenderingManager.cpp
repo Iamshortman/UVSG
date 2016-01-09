@@ -50,12 +50,16 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 		vector3F floatPos = (vector3F)offsetPos;
 		vector3F floatScale = (vector3F)scale;
+		quaternionF floatOrientation = (quaternionF)componentTransform->getOrientation();
 
-		matrix4 m_positionMatrix = matrix4();
-		matrix4 m_scaleMatrix = matrix4();
-		m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
-		m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
-		matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
+		matrix4 positionMatrix = matrix4();
+		matrix4 scaleMatrix = matrix4();
+		matrix4 rotationMatrix = matrix4();
+
+		rotationMatrix = glm::toMat4(floatOrientation);
+		positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+		scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+		matrix4 modModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
 
 		for (int i = 0; i < componentRenderable->models.size(); i++)
 		{
@@ -68,7 +72,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
-			model->shader->setUniform("localOffset", matrix4(1.0f));
+			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
 			model->mesh->draw();
 
 			model->shader->deactivateProgram();
@@ -134,12 +138,16 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 		vector3F floatPos = (vector3F)offsetPos;
 		vector3F floatScale = (vector3F)scale;
+		quaternionF floatOrientation = (quaternionF)componentTransform->getOrientation();
 
-		matrix4 m_positionMatrix = matrix4();
-		matrix4 m_scaleMatrix = matrix4();
-		m_positionMatrix = glm::translate(matrix4(1.0F), floatPos);
-		m_scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
-		matrix4 modModelMatrix = m_positionMatrix * m_scaleMatrix;
+		matrix4 positionMatrix = matrix4();
+		matrix4 scaleMatrix = matrix4();
+		matrix4 rotationMatrix = matrix4();
+
+		rotationMatrix = glm::toMat4(floatOrientation);
+		positionMatrix = glm::translate(matrix4(1.0F), floatPos);
+		scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
+		matrix4 modModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
 
 		for (int i = 0; i < componentRenderable->models.size(); i++)
 		{
@@ -152,7 +160,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
-			model->shader->setUniform("localOffset", matrix4(1.0f));
+			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
 
 			model->mesh->draw();
 
