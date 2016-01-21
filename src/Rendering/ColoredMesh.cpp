@@ -18,7 +18,7 @@ ColoredMesh::ColoredMesh(std::vector<ColoredVertex>& vertices, std::vector<unsig
 }
 
 
-void ColoredMesh::draw()
+void ColoredMesh::draw(ShaderProgram* program)
 {
 	if (size == 0)
 	{

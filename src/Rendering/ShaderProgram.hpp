@@ -28,6 +28,7 @@ public:
 	void setActiveProgram();
 	void deactivateProgram();
 
+	void setUniform(string name, const float& value);
 	void setUniform(string name, const matrix4& matrix);
 	void setUniform(string name, const matrix3& matrix);
 	void setUniform(string name, const vector3F& vec);

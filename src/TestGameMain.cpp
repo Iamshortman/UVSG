@@ -25,7 +25,7 @@ int main()
 	UVSG* game = new UVSG();
 
     int num_joy = SDL_NumJoysticks();
-    printf("\n%i joystick(s) were found.\n\n", num_joy);
+    printf("\n%i joystick(s) found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
 		game->joystick = SDL_JoystickOpen(i);

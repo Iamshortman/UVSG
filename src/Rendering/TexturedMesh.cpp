@@ -18,7 +18,7 @@ TexturedMesh::TexturedMesh(std::vector<TexturedVertex>& vertices, std::vector<un
 }
 
 
-void TexturedMesh::draw()
+void TexturedMesh::draw(ShaderProgram* program)
 {
 	if (size == 0)
 	{

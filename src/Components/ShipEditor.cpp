@@ -128,12 +128,12 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 	shader->setUniform("localOffset", matrix4(1.0f));
 	if (m_OutsideMesh != nullptr)
 	{
-		this->m_OutsideMesh->draw();
+		this->m_OutsideMesh->draw(shader);
 	}
 
 	if (m_InsideMesh != nullptr)
 	{
-		this->m_InsideMesh->draw();
+		this->m_InsideMesh->draw(shader);
 	}
 
 	shader->deactivateProgram();
@@ -147,7 +147,7 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
 	localTransform.setPos(localTransform.getPos() * (double)cubeSize);
 	localTransform.setScale(vector3D(cubeSize));
 	tempModel->shader->setUniform("localOffset", localTransform.getModleMatrix());
-	tempModel->mesh->draw();
+	tempModel->mesh->draw(tempModel->shader);
 
 	tempModel->shader->deactivateProgram();
 
@@ -169,7 +169,7 @@ void ShipEditor::TempRender(Camera& camera, TexturePool& texturePool)
                 exit(1);
             }
 
-            thruster->mesh->draw();
+			thruster->mesh->draw(thruster->shader);
         }
     }
 

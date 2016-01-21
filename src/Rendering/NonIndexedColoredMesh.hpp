@@ -19,7 +19,7 @@ public:
 	NonIndexedColoredMesh(std::vector<NonIndexedColoredVertex>& vertices);
 	virtual ~NonIndexedColoredMesh();
 
-	virtual void draw();
+	virtual void draw(ShaderProgram* program);
 
 private:
 	GLuint vbo;

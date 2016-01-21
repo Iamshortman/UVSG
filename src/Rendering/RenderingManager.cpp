@@ -18,6 +18,7 @@ RenderingManager::RenderingManager()
 	texturePool.loadTexture("res/stone.png");
 	texturePool.loadTexture("res/arrow-up.png");
 	texturePool.loadTexture("res/StarRed.png");
+	texturePool.loadTexture("res/ShipParts/Laser_Cannon.png");
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
@@ -32,7 +33,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 	//Far object Rendering Start
 	/***************************************************************/
 
-	camera.setProjection(45.0f, 0.001f, 100000.0f, width, height);
+	camera.setProjection(45.0f, 0.1f, 10000.0f, width, height);
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
 
 	ComponentHandle<Transform> componentTransformSearch;
@@ -73,7 +74,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
-			model->mesh->draw();
+			model->mesh->draw(model->shader);
 
 			model->shader->deactivateProgram();
 		}
@@ -107,7 +108,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
             billboard->shader->setUniform("MVP", billboardMatrix);
             billboard->shader->setUniform("scale", billboard->scale * floatScale);
 
-            billboard->mesh->draw();
+			billboard->mesh->draw(billboard->shader);
 
 			billboard->shader->deactivateProgram();
         }
@@ -162,14 +163,11 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
 
-			model->mesh->draw();
+			model->mesh->draw(model->shader);
 
 			model->shader->deactivateProgram();
 		}
 	}
-
-	UVSG::getInstance()->editor.TempRender(camera, texturePool);
-
 	/*****************************************************************/
 	//Near object Rendering End
 

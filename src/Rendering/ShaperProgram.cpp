@@ -63,6 +63,11 @@ ShaderProgram::~ShaderProgram()
 	glDeleteProgram(programID);
 }
 
+void ShaderProgram::setUniform(string name, const float& value)
+{
+	glUniform1f(glGetUniformLocation(programID, name.c_str()), value);
+}
+
 void ShaderProgram::setUniform(string name, const matrix4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);

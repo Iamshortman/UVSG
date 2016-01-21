@@ -8,6 +8,9 @@
 class Transform
 {
 public:
+	Transform(){};
+	Transform(vector3D position){ m_position = position; };
+
 	vector3D m_position;
 	quaternionD m_orientation;
 	vector3D m_scale = vector3D(1.0f); //Start m_scale with a default of 1.0f

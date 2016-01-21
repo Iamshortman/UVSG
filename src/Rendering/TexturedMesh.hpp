@@ -19,7 +19,7 @@ public:
 	TexturedMesh(std::vector<TexturedVertex>& vertices, std::vector<unsigned int>& indices);
 	virtual ~TexturedMesh();
 
-	virtual void draw();
+	virtual void draw(ShaderProgram* program);
 
 private:
 	GLuint vbo;

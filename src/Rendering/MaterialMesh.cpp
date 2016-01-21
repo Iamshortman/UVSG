@@ -1,7 +1,8 @@
-#include "NonIndexedColoredMesh.hpp"
+#include "MaterialMesh.hpp"
 
-NonIndexedColoredMesh::NonIndexedColoredMesh(std::vector<NonIndexedColoredVertex>& vertices)
+MaterialMesh::MaterialMesh(std::vector<MaterialVertex>& vertices, std::vector<Material> materials)
 {
+	this->materials = materials;
 	size = (int)vertices.size();
 
 	//GenBuffers
@@ -9,15 +10,22 @@ NonIndexedColoredMesh::NonIndexedColoredMesh(std::vector<NonIndexedColoredVertex
 
 	//Adds the data to the buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(NonIndexedColoredVertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MaterialVertex), &vertices[0], GL_STATIC_DRAW);
 }
 
 
-void NonIndexedColoredMesh::draw(ShaderProgram* program)
-{
+void MaterialMesh::draw(ShaderProgram* program)
+{	
 	if (size == 0)
 	{
 		return;
+	}
+
+	for (int i = 0; i < materials.size(); i++)
+	{
+		std::string value = std::to_string(i);
+		program->setUniform("materials[" + value + "].diffuse_Color", materials[i].diffuse_Color);
+		program->setUniform("materials[" + value + "].alpha_Value", materials[i].alpha_Value);
 	}
 
 	//Enable Attributes
@@ -34,7 +42,7 @@ void NonIndexedColoredMesh::draw(ShaderProgram* program)
 		3,					//Position is a vec3
 		GL_FLOAT,           //type
 		GL_FALSE,           //normalized?
-		sizeof(NonIndexedColoredVertex),     // stride
+		sizeof(MaterialVertex),     // stride
 		(void*)0            // array buffer offset
 		);
 
@@ -43,19 +51,19 @@ void NonIndexedColoredMesh::draw(ShaderProgram* program)
 		1,                  //Normal attribute location
 		3,					//Normal is a vec3
 		GL_FLOAT,           //type
-		GL_FALSE ,          //normalized?
-		sizeof(NonIndexedColoredVertex),     // stride
-		(void*)offsetof(NonIndexedColoredVertex, normal) // array buffer offset
+		GL_FALSE,          //normalized?
+		sizeof(MaterialVertex),     // stride
+		(void*)offsetof(MaterialVertex, normal) // array buffer offset
 		);
 
-	//UV
+	//Material
 	glVertexAttribPointer(
 		2,                  //UV attribute location
-		3,					//color is a vec3
-		GL_FLOAT,           //type
+		1,					//Material is one int
+		GL_UNSIGNED_SHORT,	//type
 		GL_FALSE,           //normalized?
-		sizeof(NonIndexedColoredVertex),     // stride
-		(void*)offsetof(NonIndexedColoredVertex, color) // array buffer offset
+		sizeof(MaterialVertex),     // stride
+		(void*)offsetof(MaterialVertex, material) // array buffer offset
 		);
 
 
@@ -68,7 +76,7 @@ void NonIndexedColoredMesh::draw(ShaderProgram* program)
 	glDisableVertexAttribArray(2);
 }
 
-NonIndexedColoredMesh::~NonIndexedColoredMesh()
+MaterialMesh::~MaterialMesh()
 {
 	glDeleteBuffers(1, &vbo);
 }
