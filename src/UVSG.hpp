@@ -4,7 +4,6 @@
 #include "Rendering/RenderingManager.hpp"
 #include "Physics/PhysicsWorld.hpp"
 #include "EntityxInclude.hpp"
-#include "Components/ShipEditor.hpp"
 
 class UVSG
 {
@@ -28,8 +27,6 @@ public:
 
 	EntityX entitySystem;
 	Entity m_camera;
-
-	ShipEditor editor;
 
 protected:
 

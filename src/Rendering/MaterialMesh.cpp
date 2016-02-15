@@ -15,7 +15,7 @@ MaterialMesh::MaterialMesh(std::vector<MaterialVertex>& vertices, std::vector<Ma
 
 
 void MaterialMesh::draw(ShaderProgram* program)
-{	
+{
 	if (size == 0)
 	{
 		return;
@@ -26,6 +26,7 @@ void MaterialMesh::draw(ShaderProgram* program)
 		std::string value = std::to_string(i);
 		program->setUniform("materials[" + value + "].diffuse_Color", materials[i].diffuse_Color);
 		program->setUniform("materials[" + value + "].alpha_Value", materials[i].alpha_Value);
+		program->setUniform("materials[" + value + "].illum", materials[i].illum_Value);
 	}
 
 	//Enable Attributes
@@ -59,8 +60,8 @@ void MaterialMesh::draw(ShaderProgram* program)
 	//Material
 	glVertexAttribPointer(
 		2,                  //UV attribute location
-		1,					//Material is one int
-		GL_UNSIGNED_SHORT,	//type
+		1,					//Material is one float
+		GL_FLOAT,	//type
 		GL_FALSE,           //normalized?
 		sizeof(MaterialVertex),     // stride
 		(void*)offsetof(MaterialVertex, material) // array buffer offset

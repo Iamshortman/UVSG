@@ -38,7 +38,10 @@ ShaderProgram::ShaderProgram(string VertexShader, string FragmentShader, vector<
 	{
 		std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
 		glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-		printf("%s\n", &ProgramErrorMessage[0]);
+		if (&ProgramErrorMessage[0] != "")
+		{
+			printf("%s\n", &ProgramErrorMessage[0]);
+		}
 	}
 	glDeleteShader(vertexID);
 	glDeleteShader(fragmentID);
@@ -63,6 +66,16 @@ ShaderProgram::~ShaderProgram()
 	glDeleteProgram(programID);
 }
 
+void ShaderProgram::setUniform(string name, const int& value)
+{
+	glUniform1i(glGetUniformLocation(programID, name.c_str()), value);
+}
+
+void ShaderProgram::setUniform(string name, const unsigned int& value)
+{
+	glUniform1ui(glGetUniformLocation(programID, name.c_str()), value);
+}
+
 void ShaderProgram::setUniform(string name, const float& value)
 {
 	glUniform1f(glGetUniformLocation(programID, name.c_str()), value);
@@ -72,18 +85,22 @@ void ShaderProgram::setUniform(string name, const matrix4& matrix)
 {
 	glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
 }
+
 void ShaderProgram::setUniform(string name, const matrix3& matrix)
 {
 	glUniformMatrix3fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
 }
+
 void ShaderProgram::setUniform(string name, const vector3F& vec)
 {
 	glUniform3f(glGetUniformLocation(programID, name.c_str()), vec.x, vec.y, vec.z);
 }
+
 void ShaderProgram::setUniform(string name, const vector2F& vec)
 {
 	glUniform2f(glGetUniformLocation(programID, name.c_str()), vec.x, vec.y);
 }
+
 void ShaderProgram::setUniform(string name, const quaternionF& quat)
 {
 	//glUniform4f(glGetUniformLocation(programID, name.c_str()), quat.x, quat.y, quat.z);
@@ -93,33 +110,16 @@ GLuint ShaderProgram::buildShader(string location, GLuint type)
 {
 	GLuint ShaderID = glCreateShader(type);
 
-	const char * file_path = location.c_str();
-
 	// Read the  Shader code from the file
 	std::string ShaderCode;
-	std::ifstream ShaderStream(file_path, std::ios::in);
 
-	if (ShaderStream.is_open())
-	{
-		std::string Line = "";
-		while (getline(ShaderStream, Line))
-		{
-			ShaderCode += "\n" + Line;
-		}
-		ShaderStream.close();
-	}
-	else
-	{
-		printf("Error %s File not found\n", file_path);
-		cout << "Shadler Failed to be Loaded\n" << endl;
-		return 0;
-	}
+	ShaderCode += loadShaderFile(location);
 
 	GLint Result = GL_FALSE;
 	int InfoLogLength;
 
 	// Compile  Shader
-	printf("Compiling shader : %s\n", file_path);
+	printf("Compiling shader : %s\n", location.c_str());
 	char const * SourcePointer = ShaderCode.c_str();
 	glShaderSource(ShaderID, 1, &SourcePointer, NULL);
 	glCompileShader(ShaderID);
@@ -135,4 +135,45 @@ GLuint ShaderProgram::buildShader(string location, GLuint type)
 	}
 
 	return ShaderID;
+}
+
+string ShaderProgram::loadShaderFile(string location)
+{
+	const char * file_path = location.c_str();
+
+	// Read the  Shader code from the file
+	std::string ShaderCode;
+	std::ifstream ShaderStream(file_path, std::ios::in);
+
+	if (ShaderStream.is_open())
+	{
+		std::string Line = "";
+		while (getline(ShaderStream, Line))
+		{
+			const string INCLUDE_DIRECTIVE = "#include \"";
+			//If the line doesnt have an include statement
+			//Add it to the Shader Code
+			if (Line.find(INCLUDE_DIRECTIVE) == std::string::npos)
+			{
+				ShaderCode += "\n" + Line;
+			}
+			//If it has a include statement
+			else
+			{
+				int includeLength = INCLUDE_DIRECTIVE.length();
+				//SubString from the first " to the end "\n
+				string filePath = Line.substr(includeLength, Line.length() - includeLength - 1);
+				ShaderCode += loadShaderFile(filePath);
+			}
+		}
+		ShaderStream.close();
+	}
+	else
+	{
+		printf("Error %s File not found\n", file_path);
+		ShaderCode = "";
+	}
+
+
+	return ShaderCode;
 }

@@ -5,13 +5,22 @@ RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScal
 {
 	world = physicsWorld;
 
-	btVector3 Inertia = btVector3(0, 0, 0);
+	btVector3 inertia = btVector3(0, 0, 0);
 	if (mass > 0.0f)
 	{
-		shape->calculateLocalInertia(mass, Inertia);
+		shape->calculateLocalInertia(mass, inertia);
 	}
 
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, Inertia);
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
+	rigidBody = new btRigidBody(boxRigidBodyCI);
+	world->addRigidBody(rigidBody);
+}
+
+RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia)
+{
+	world = physicsWorld;
+
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
 	world->addRigidBody(rigidBody);
 }
@@ -47,6 +56,11 @@ void RigidBody::setWorldTranform(Transform transform)
 {
 	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()) );
 	rigidBody->setWorldTransform(rigidBodyTransform);
+}
+
+PhysicsWorld* RigidBody::getPhysicsWorld() const
+{
+	return world;
 }
 
 RigidBody::~RigidBody()

@@ -8,6 +8,9 @@
 
 #include "Rendering/ObjLoader.hpp"
 #include "Components/PlayerControl.hpp"
+#include "Components/CharacterController.hpp"
+
+#include "Rendering/ColoredMesh.hpp"
 
 UVSG* UVSG::instance;
 
@@ -20,6 +23,7 @@ UVSG::UVSG()
 	this->physicsWorld = new PhysicsWorld();
 
 	entitySystem.systems.add<PlayerControlSystem>();
+	entitySystem.systems.add<CharacterControllerSystem>();
 	entitySystem.systems.configure();
 
 	Transform camTransform;
@@ -41,61 +45,32 @@ UVSG::UVSG()
 	star.component<Transform>()->setScale(vector3D(60000.0));
 
 	Model* model = new Model();
-	vector<AttributeLocation> attributes1 = { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } };
-	model->shader = new ShaderProgram("res/TexturedVertex.vs", "res/TexturedFragment.fs", attributes1);
-	model->texture = "res/StarRed.png";
-	model->mesh = loadMeshFromFile("res/Sphere.obj");
-
+	model->shader = new ShaderProgram("res/MaterialVertex.vs", "res/MaterialFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+	model->mesh = loadMaterialMeshFromFile("res/Models/", "Sphere.obj");
 	star.component<FarZoneRenderable>()->models.push_back(model);
 
-	/*Model* cockpit = new Model();
-	cockpit->shader = model->shader;
-	cockpit->texture = model->texture;
-	cockpit->mesh = loadMeshFromFile("res/CockPit.obj");
-	Transform cockpitOffset;
-	cockpitOffset.setPos(vector3D(0.0, -1.0, 0.5));
-	cockpit->localOffset = cockpitOffset;
-	m_camera.component<NearZoneRenderable>()->models.push_back(cockpit);*/
-
-
-	/*Model* model1 = new Model();
-	model1->shader = model->shader;
-	model1->texture = model->texture;
-	model1->mesh = loadMeshFromFile("res/Cube.obj");
-
-	editor.tempModel = model1;
-	editor.shader = new ShaderProgram("res/ColoredVertex.vs", "res/ColoredFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
-
-    Model* thruster = new Model();
-    thruster->mesh = loadMeshFromFile("res/Thruster.obj");
-    thruster->shader = model->shader;
-    editor.thruster = thruster;*/
-
-	//*************************************************************************
-	Entity starship = entitySystem.entities.create();
-	starship.assign<Transform>();
-	starship.assign<NearZoneRenderable>();
+	Entity player = entitySystem.entities.create();
+	player.assign<Transform>();
+	player.assign<Velocity>();
+	player.assign<CharacterController>(1.4, 5.0, 5.0);
+	player.assign<NearZoneRenderable>();
+	player.assign<RigidBody>(physicsWorld, new btBoxShape(btVector3(.5 ,.5, .5)), 1.0, btVector3(0, 0, 0));
 	Model* model1 = new Model();
-	model1->shader = new ShaderProgram("res/MaterialVertex.vs", "res/MaterialFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-	model1->mesh = loadMaterialMeshFromFile("res/ShipParts/", "Nose_Mount.obj");
+	model1->shader = model->shader;
+	model1->mesh = loadMaterialMeshFromFile("res/Models/", "cube.obj");
+	player.component<NearZoneRenderable>()->models.push_back(model1);
+	player.component<Transform>()->setPos(vector3D(0.0, 10.0, 0.0));
 
+	Entity ground = entitySystem.entities.create();
+	ground.assign<Transform>();
+	ground.assign<NearZoneRenderable>();
+	ground.assign<RigidBody>(physicsWorld, new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0, btVector3(0, 0, 0));
 	Model* model2 = new Model();
-	model2->shader = model1->shader;
-	model2->mesh = loadMaterialMeshFromFile("res/ShipParts/", "Laser_Cannon.obj");
-	model2->localOffset = Transform(vector3D(0, -0.5, 0));
-
-	Model* model3 = new Model();
-	model3->shader = model1->shader;
-	model3->mesh = loadMaterialMeshFromFile("res/ShipParts/", "Basic_Engine.obj");
-	model3->localOffset = Transform(vector3D(0, 0, -1));
-
-
-	starship.component<NearZoneRenderable>()->models.push_back(model1);
-	starship.component<NearZoneRenderable>()->models.push_back(model2);
-	starship.component<NearZoneRenderable>()->models.push_back(model3);
+	model2->shader = model->shader;
+	model2->mesh = loadMaterialMeshFromFile("res/Models/", "Floor.obj");
+	ground.component<NearZoneRenderable>()->models.push_back(model2);
 
 	//*************************************************************************
-
     std::vector<ColoredVertex> vertices;
     vertices.push_back({vector3F(1, 1, 0), vector3F(0.0f), vector3F(0.0f)});
 	vertices.push_back({vector3F(-1, 1, 0), vector3F(0.0f), vector3F(0.0f)});
@@ -120,7 +95,6 @@ UVSG::UVSG()
 void UVSG::update(double timeStep)
 {
 	entitySystem.systems.update_all(timeStep);
-	//editor.Update();
 
 	this->renderingManager->camera.setCameraTransform(m_camera.component<Transform>()->getPos(), m_camera.component<Transform>()->getOrientation());
 
@@ -157,7 +131,7 @@ void UVSG::update(double timeStep)
 	}
 
 	//#1 step Physics
-	//physicsWorld->update(timeStep);
+	physicsWorld->update(entitySystem, timeStep);
 
 	//#2 update Input
 	//Update Key Bindings
@@ -188,6 +162,11 @@ const bool UVSG::getShouldClose()
 
 UVSG::~UVSG()
 {
+	for (Entity entity : entitySystem.entities.entities_for_debugging())
+	{
+		entity.destroy();
+	}
+
 	delete renderingManager;
 	delete physicsWorld;
 }

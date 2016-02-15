@@ -33,6 +33,7 @@ void main(void)
 	if(materials[i].illum == 0)
 	{
 		out_Ambient = vec3(1.0f, 1.0f, 1.0f);
+		//out_Ambient = ambientLight;
 	}
 	else
 	{

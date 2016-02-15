@@ -12,14 +12,12 @@ in vec3 in_Normal;
 in float in_Material; 
 
 out vec3 out_Normal;
+out float out_illum;
 out vec4 out_Color;
-out vec3 out_Ambient;
 
 uniform mat4 MVP;
 uniform mat3 normalMatrix; 
 uniform mat4 localOffset = mat4(1.0);
-uniform vec3 ambientLight;
- 
 uniform Material materials[16]; 
 
 void main(void) 
@@ -32,10 +30,10 @@ void main(void)
 	out_Color = vec4(materials[i].diffuse_Color, materials[i].alpha_Value);
 	if(materials[i].illum == 0)
 	{
-		out_Ambient = vec3(1.0f, 1.0f, 1.0f);
+		out_illum = 1.0f;
 	}
 	else
 	{
-		out_Ambient = ambientLight;
+		out_illum = 0.0f;
 	}
 }

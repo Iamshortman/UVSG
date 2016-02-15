@@ -11,7 +11,7 @@ struct Material
 	std::string name;
 	vector3F diffuse_Color;
 	//vector3F specular_Color;
-	unsigned int illum_Value;
+	int illum_Value;
 	//float shininess_Value;
 	float alpha_Value;
 };
@@ -20,7 +20,7 @@ struct MaterialVertex
 {
 	vector3F pos;
 	vector3F normal;
-	unsigned short material;
+	float material;
 };
 
 class MaterialMesh : public Mesh

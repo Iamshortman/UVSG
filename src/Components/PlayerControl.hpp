@@ -21,7 +21,6 @@ struct PlayerControlComponent
 
 class PlayerControlSystem : public System < PlayerControlSystem >
 {
-
 	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
 		double timestep = ((double)dt);

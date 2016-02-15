@@ -12,6 +12,7 @@ class RigidBody
 public:
 	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass);
 	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia);
+
 	virtual ~RigidBody();
 
 	void setCollisionShape(bool deleteOldShape, btCollisionShape* newShape);
@@ -24,6 +25,7 @@ public:
 
 	void setObjectKinematic(bool kinematic){ isKinematic = kinematic; };
 	bool isObjectKinematic(){ return isKinematic; };
+	PhysicsWorld* getPhysicsWorld() const;
 
 private:
 	PhysicsWorld* world;

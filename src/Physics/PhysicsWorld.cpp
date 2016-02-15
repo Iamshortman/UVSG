@@ -1,5 +1,6 @@
 #include "PhysicsWorld.hpp"
 #include "RigidBody.hpp"
+
 #include <iostream>
 
 bool collisonCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
@@ -10,8 +11,6 @@ bool collisonCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colOb
 
 PhysicsWorld::PhysicsWorld()
 {
-
-
 	// Build the broadphase
 	broadphase = new btDbvtBroadphase();
 
@@ -24,9 +23,9 @@ PhysicsWorld::PhysicsWorld()
 
 	// The world.
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0.0f, -9.0f, 0.0f));
+	dynamicsWorld->setGravity(btVector3(0.0, -9.0, 0.0));
 
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0L, 0.0L, 0.0L));
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0, 0.0, 0.0));
 	btRigidBody* rigidBody = new btRigidBody(boxRigidBodyCI);
 	addRigidBody(rigidBody);
 
@@ -34,9 +33,9 @@ PhysicsWorld::PhysicsWorld()
 
 }
 
-void PhysicsWorld::update(float timeStep)
+void PhysicsWorld::update(EntityX &entitySystem, double timeStep)
 {  
-	/*ComponentHandle<RigidBody> componentRigidBodySearch;
+	ComponentHandle<RigidBody> componentRigidBodySearch;
 	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
@@ -63,12 +62,12 @@ void PhysicsWorld::update(float timeStep)
 				componentRigidBody->rigidBody->activate(false);
 			}
 		}
-	}*/
+	}
 
 	//Run Physics Simulation
-	dynamicsWorld->stepSimulation(timeStep, 7);
+	dynamicsWorld->stepSimulation(timeStep, 7, 1.0 / 120.0);
 
-	/*for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
 	{
 		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 
@@ -94,7 +93,7 @@ void PhysicsWorld::update(float timeStep)
 			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
 			componentVelocity->angularVelocity = vector3D(angular.getX(), angular.getY(), angular.getZ());
 		}
-	}*/
+	}
 
 }
 

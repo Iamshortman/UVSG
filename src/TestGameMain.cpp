@@ -47,7 +47,6 @@ int main()
 
 	while(!UVSG::getInstance()->getShouldClose())
 	{
-
         //FPS counter stuff
         currentTime = SDL_GetTicks();
         frames++;

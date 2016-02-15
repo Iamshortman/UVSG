@@ -181,6 +181,11 @@ bool loadMaterialOBJ(std::string fileName, std::vector<vector3F> & out_vertices,
 			fscanf(file, "%s \n", name);
 			std::string mtlName = name;
 			loadMaterial(filePath + mtlName, materials);
+
+			for (Material mat : materials)
+			{
+				printf("%s: %i\n", mat.name.c_str(), mat.illum_Value);
+			}
 		}
 		else if (strcmp(lineHeader, "usemtl") == 0)
 		{

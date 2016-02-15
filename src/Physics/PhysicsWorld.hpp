@@ -3,9 +3,10 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-
+#include "EntityxInclude.hpp"
 #include "Components.hpp"
 #include "glmInclude.hpp"
 #include "Util.hpp"
@@ -25,7 +26,7 @@ class PhysicsWorld
 public:
 	PhysicsWorld();
 	virtual ~PhysicsWorld();
-	void update(float deltaTime);
+	void update(EntityX &entitySystem, double deltaTime);
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 

@@ -15,18 +15,18 @@ RenderingManager::RenderingManager()
 
 	camera = Camera();
 
-	texturePool.loadTexture("res/stone.png");
-	texturePool.loadTexture("res/arrow-up.png");
-	texturePool.loadTexture("res/StarRed.png");
-	texturePool.loadTexture("res/ShipParts/Laser_Cannon.png");
+	ambientLight = vector3F(1.0f);
+	light = new DirectionalLight(vector3F(0.0f, -1.0f, 0.0f), vector3F(1, 0, 1), 0.0f);
+	DirectionalShader = new ShaderProgram("res/foward-directional.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+
+	pointLight = new PointLight(vector3D(0, 10, 0), 100.0f, vector3F(0, 1, 0), 0.4f);
+	pointShader = new ShaderProgram("res/foward-point.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 }
 
 void RenderingManager::update(EntityX &entitySystem, double timeStep)
 {
 	int width, height;
 	window->getWindowSize(width, height);
-
-	//matrix4 viewMatrix = camera.getViewMatrix();
 
 	window->clearBuffer();
 
@@ -74,6 +74,8 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
+			model->shader->setUniform("ambientLight", ambientLight);
+
 			model->mesh->draw(model->shader);
 
 			model->shader->deactivateProgram();
@@ -162,10 +164,55 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
+			model->shader->setUniform("ambientLight", ambientLight);
 
 			model->mesh->draw(model->shader);
 
 			model->shader->deactivateProgram();
+
+			//Lighting Pass Start
+			/*glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+			glDepthMask(false);
+			glDepthFunc(GL_EQUAL);
+
+			DirectionalShader->setActiveProgram();
+			DirectionalShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			DirectionalShader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
+			DirectionalShader->setUniform("localOffset", model->localOffset.getModleMatrix());
+
+			DirectionalShader->setUniform("directionalLight.color", light->getColor());
+			DirectionalShader->setUniform("directionalLight.direction", light->getDirection());
+			DirectionalShader->setUniform("directionalLight.intensity", light->getIntensity());
+
+			model->mesh->draw(DirectionalShader);
+
+			DirectionalShader->deactivateProgram();
+
+			pointShader->setActiveProgram();
+			vector3F lightPosCamSpace = (vector3F)(pointLight->m_position - camPos);
+			//lightPosCamSpace = matrix3(camera.getOriginViewMatrix()) * lightPosCamSpace;
+
+			pointShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			pointShader->setUniform("modelViewMatrix", camera.getOriginViewMatrix() * modModelMatrix);
+			pointShader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
+			pointShader->setUniform("localOffset", model->localOffset.getModleMatrix());
+
+			pointShader->setUniform("pointLight.base.color", pointLight->getColor());
+			pointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
+			pointShader->setUniform("pointLight.atten.constant", 1.0f);
+			pointShader->setUniform("pointLight.atten.linear", 1.0f);
+			pointShader->setUniform("pointLight.atten.exponent", 1.0f);
+			pointShader->setUniform("pointLight.position", lightPosCamSpace);
+			pointShader->setUniform("pointLight.range",pointLight->m_range);
+
+			//model->mesh->draw(pointShader);
+
+			pointShader->deactivateProgram();
+
+			glDepthFunc(GL_LESS);
+			glDepthMask(true);
+			glDisable(GL_BLEND);*/
 		}
 	}
 	/*****************************************************************/
