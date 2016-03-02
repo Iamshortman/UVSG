@@ -21,6 +21,7 @@ int main()
 
 	//Disable Events for controllers cause they suck.
 	SDL_GameControllerEventState(SDL_IGNORE);
+	SDL_GameControllerAddMappingsFromFile("res/gamecontrollerdb.txt");
 
 	UVSG* game = new UVSG();
 

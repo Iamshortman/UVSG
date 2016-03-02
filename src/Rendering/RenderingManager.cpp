@@ -16,10 +16,10 @@ RenderingManager::RenderingManager()
 	camera = Camera();
 
 	ambientLight = vector3F(1.0f);
-	light = new DirectionalLight(vector3F(0.0f, -1.0f, 0.0f), vector3F(1, 0, 1), 0.0f);
+	light = new DirectionalLight(glm::normalize(vector3F(1.0f, -1.0f, 0.0f)), vector3F(1, 1, 1), 1.0f);
 	DirectionalShader = new ShaderProgram("res/foward-directional.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 
-	pointLight = new PointLight(vector3D(0, 10, 0), 100.0f, vector3F(0, 1, 0), 0.4f);
+	pointLight = new PointLight(vector3D(0, 5, 0), 10.0f, vector3F(1, 0.1f, 0.1f), 0.4f);
 	pointShader = new ShaderProgram("res/foward-point.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 }
 
@@ -60,7 +60,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 		rotationMatrix = glm::toMat4(floatOrientation);
 		positionMatrix = glm::translate(matrix4(1.0F), floatPos);
 		scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
-		matrix4 modModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
+		matrix4 ModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
 
 		for (int i = 0; i < componentRenderable->models.size(); i++)
 		{
@@ -71,7 +71,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 				texturePool.bindTexture(model->texture);
 			}
 
-			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * ModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
 			model->shader->setUniform("ambientLight", ambientLight);
@@ -81,7 +81,7 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->deactivateProgram();
 		}
 
-        matrix4 modelViewMatrix = camera.getOriginViewMatrix() * modModelMatrix;
+        matrix4 modelViewMatrix = camera.getOriginViewMatrix() * ModelMatrix;
 
         //Clear rotations
         // Column 0:
@@ -150,18 +150,14 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 		rotationMatrix = glm::toMat4(floatOrientation);
 		positionMatrix = glm::translate(matrix4(1.0F), floatPos);
 		scaleMatrix = glm::scale(matrix4(1.0F), floatScale);
-		matrix4 modModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
+		matrix4 ModelMatrix = positionMatrix * rotationMatrix * scaleMatrix;
 
 		for (int i = 0; i < componentRenderable->models.size(); i++)
 		{
 			Model* model = componentRenderable->models[i];
 			model->shader->setActiveProgram();
-			if (model->texture != "")
-			{
-				texturePool.bindTexture(model->texture);
-			}
 
-			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			model->shader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * ModelMatrix);
 			model->shader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			model->shader->setUniform("localOffset", model->localOffset.getModleMatrix());
 			model->shader->setUniform("ambientLight", ambientLight);
@@ -171,13 +167,13 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 			model->shader->deactivateProgram();
 
 			//Lighting Pass Start
-			/*glEnable(GL_BLEND);
+			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
 			glDepthMask(false);
 			glDepthFunc(GL_EQUAL);
 
-			DirectionalShader->setActiveProgram();
-			DirectionalShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
+			/*DirectionalShader->setActiveProgram();
+			DirectionalShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * ModelMatrix);
 			DirectionalShader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			DirectionalShader->setUniform("localOffset", model->localOffset.getModleMatrix());
 
@@ -187,36 +183,62 @@ void RenderingManager::update(EntityX &entitySystem, double timeStep)
 
 			model->mesh->draw(DirectionalShader);
 
-			DirectionalShader->deactivateProgram();
+			DirectionalShader->deactivateProgram();*/
 
-			pointShader->setActiveProgram();
-			vector3F lightPosCamSpace = (vector3F)(pointLight->m_position - camPos);
-			//lightPosCamSpace = matrix3(camera.getOriginViewMatrix()) * lightPosCamSpace;
+			/*pointShader->setActiveProgram();
+			vector3F lightPos = (vector3F)(pointLight->m_position - camPos);
 
-			pointShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * modModelMatrix);
-			pointShader->setUniform("modelViewMatrix", camera.getOriginViewMatrix() * modModelMatrix);
+			pointShader->setUniform("MVP", projectionMatrix * camera.getOriginViewMatrix() * ModelMatrix);
+			pointShader->setUniform("modelMatrix", ModelMatrix);
 			pointShader->setUniform("normalMatrix", componentTransform->getNormalMatrix());
 			pointShader->setUniform("localOffset", model->localOffset.getModleMatrix());
 
 			pointShader->setUniform("pointLight.base.color", pointLight->getColor());
 			pointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
-			pointShader->setUniform("pointLight.atten.constant", 1.0f);
-			pointShader->setUniform("pointLight.atten.linear", 1.0f);
-			pointShader->setUniform("pointLight.atten.exponent", 1.0f);
-			pointShader->setUniform("pointLight.position", lightPosCamSpace);
-			pointShader->setUniform("pointLight.range",pointLight->m_range);
+			pointShader->setUniform("pointLight.atten.constant", 0.0f);
+			pointShader->setUniform("pointLight.atten.linear", 0.0f);
+			pointShader->setUniform("pointLight.atten.exponent", 0.1f);
+			pointShader->setUniform("pointLight.position", lightPos);
+			pointShader->setUniform("pointLight.range", pointLight->m_range);
 
 			//model->mesh->draw(pointShader);
 
-			pointShader->deactivateProgram();
+			pointShader->deactivateProgram();*/
 
 			glDepthFunc(GL_LESS);
 			glDepthMask(true);
-			glDisable(GL_BLEND);*/
+			glDisable(GL_BLEND);
 		}
 	}
 	/*****************************************************************/
 	//Near object Rendering End
+
+	//Clear depth buffer so any other object in front of far objects.
+	glClear(GL_DEPTH_BUFFER_BIT);
+	camera.setProjection(45.0f, 0.0001f, 10.0f, width, height);
+	projectionMatrix = camera.getProjectionMatrix();
+
+	//FirstPerson
+
+	if (true)
+	{
+		Transform transform;
+		transform.setScale(vector3D(.1));
+		transform.setPos(vector3D(0.6, -.4, -1));
+		transform.setOrientation(glm::angleAxis(toRad(180.0), vector3D(0, 1, 0)));
+
+		Model* model = firstPersonModel;
+		model->shader->setActiveProgram();
+
+		model->shader->setUniform("MVP", projectionMatrix * transform.getModleMatrix());
+		model->shader->setUniform("normalMatrix", transform.getNormalMatrix());
+		model->shader->setUniform("ambientLight", ambientLight);
+
+		model->mesh->draw(model->shader);
+
+		model->shader->deactivateProgram();
+	}
+
 
 	window->updateBuffer();
 }

@@ -9,6 +9,7 @@
 #include "Rendering/ObjLoader.hpp"
 #include "Components/PlayerControl.hpp"
 #include "Components/CharacterController.hpp"
+#include "Components/TimeToLive.hpp"
 
 #include "Rendering/ColoredMesh.hpp"
 
@@ -24,10 +25,11 @@ UVSG::UVSG()
 
 	entitySystem.systems.add<PlayerControlSystem>();
 	entitySystem.systems.add<CharacterControllerSystem>();
+	entitySystem.systems.add<TimeToLiveSystem>();
 	entitySystem.systems.configure();
 
 	Transform camTransform;
-	camTransform.setPos(vector3D(-10.0f, 10.0f, -10.0f));
+	camTransform.setPos(vector3D(-5.0f, 5.0f, -5.0f));
 	camTransform.m_orientation = glm::angleAxis(toRad(30.0), vector3D(1, 0, 0)) * camTransform.m_orientation;
 	camTransform.m_orientation = glm::angleAxis(toRad(45.0), vector3D(0, 1, 0)) * camTransform.m_orientation;
 	this->renderingManager->camera.setCameraTransform(camTransform.getPos(), camTransform.getOrientation());
@@ -45,30 +47,34 @@ UVSG::UVSG()
 	star.component<Transform>()->setScale(vector3D(60000.0));
 
 	Model* model = new Model();
-	model->shader = new ShaderProgram("res/MaterialVertex.vs", "res/MaterialFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+	model->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 	model->mesh = loadMaterialMeshFromFile("res/Models/", "Sphere.obj");
 	star.component<FarZoneRenderable>()->models.push_back(model);
 
-	Entity player = entitySystem.entities.create();
+	player = entitySystem.entities.create();
 	player.assign<Transform>();
 	player.assign<Velocity>();
-	player.assign<CharacterController>(1.4, 5.0, 5.0);
+	player.assign<CharacterController>(4.0, 8.0, 4.0, 0.5);
 	player.assign<NearZoneRenderable>();
-	player.assign<RigidBody>(physicsWorld, new btBoxShape(btVector3(.5 ,.5, .5)), 1.0, btVector3(0, 0, 0));
+	player.assign<RigidBody>(physicsWorld, new btCapsuleShape(0.4, 1.1), 1.0, btVector3(0, 0, 0));
 	Model* model1 = new Model();
 	model1->shader = model->shader;
-	model1->mesh = loadMaterialMeshFromFile("res/Models/", "cube.obj");
-	player.component<NearZoneRenderable>()->models.push_back(model1);
-	player.component<Transform>()->setPos(vector3D(0.0, 10.0, 0.0));
+	//model1->mesh = loadMaterialMeshFromFile("res/Models/", "LaserGun.obj");
+	//player.component<NearZoneRenderable>()->models.push_back(model1);
+	player.component<Transform>()->setPos(vector3D(-10.0, 10.0, 5.0));
 
 	Entity ground = entitySystem.entities.create();
 	ground.assign<Transform>();
 	ground.assign<NearZoneRenderable>();
-	ground.assign<RigidBody>(physicsWorld, new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0, btVector3(0, 0, 0));
 	Model* model2 = new Model();
 	model2->shader = model->shader;
-	model2->mesh = loadMaterialMeshFromFile("res/Models/", "Floor.obj");
+	model2->mesh = loadMaterialMeshFromFile("res/Models/", "Level.obj");
 	ground.component<NearZoneRenderable>()->models.push_back(model2);
+
+	btTriangleMesh* triMesh = new btTriangleMesh();
+	loadTriMesh("res/Models/", "Level.obj", triMesh);
+
+	ground.assign<RigidBody>(physicsWorld, new btBvhTriangleMeshShape(triMesh, true), 0.0);
 
 	//*************************************************************************
     std::vector<ColoredVertex> vertices;
@@ -90,13 +96,57 @@ UVSG::UVSG()
     board->color = vector3F(220, 20, 60) / 255.0f;
     board->shader = new ShaderProgram("res/ColoredBillboardVertex.vs", "res/ColoredBillboardFragment.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Color" } });
     star.component<FarZoneRenderable>()->billboards.push_back(board);
+
+	Model* gunModel = new Model();
+	gunModel->mesh = loadMaterialMeshFromFile("res/Models/", "0x10c_Rife.obj");
+	gunModel->shader = model->shader;
+	renderingManager->firstPersonModel = gunModel;
+
+	boltModel = new Model();
+	boltModel->mesh = loadMaterialMeshFromFile("res/Models/", "PlasmaBolt.obj");
+	boltModel->shader = model->shader;
 }
 
 void UVSG::update(double timeStep)
 {
 	entitySystem.systems.update_all(timeStep);
 
-	this->renderingManager->camera.setCameraTransform(m_camera.component<Transform>()->getPos(), m_camera.component<Transform>()->getOrientation());
+	ComponentHandle<Transform> transform = player.component<Transform>();
+	ComponentHandle<CharacterController> character = player.component<CharacterController>();
+
+	this->renderingManager->camera.setCameraTransform(transform->getPos() + vector3D(0, 0.6, 0), glm::normalize(glm::angleAxis(character->tempCameraPitch, transform->getRight()) * transform->getOrientation()));
+
+	static int lastButton = 0;
+	int button = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+	if (button && !lastButton)
+	{
+		quaternionD rot = glm::normalize(glm::angleAxis(character->tempCameraPitch, transform->getRight()) * transform->getOrientation());
+		vector3D pos = transform->getPos() + vector3D(0, 0.6, 0);
+		vector3D offset = rot * vector3D(-0.6, -.4, 0);
+
+		tempCreatePlasmaBolt(pos + offset, rot);
+	}
+	lastButton = button;
+
+	ComponentHandle<Bolt> boltSearch;
+	for (Entity entity : entitySystem.entities.entities_with_components(boltSearch))
+	{
+		ComponentHandle<Transform> componentTransform = entity.component<Transform>();
+		ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
+
+		componentTransform->m_position += componentVelocity->linearVelocity * timeStep;
+
+		double rayDistance = 0.5f;
+		vector3D startPos = componentTransform->getPos();
+		vector3D endPos = componentTransform->getPos() + (componentTransform->getForward() * rayDistance);
+		SingleRayTestResult result = UVSG::getInstance()->physicsWorld->singleRayTest(startPos, endPos);
+
+		if (result.hasHit)
+		{
+			entity.destroy();
+		}
+	}
+
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -174,4 +224,17 @@ UVSG::~UVSG()
 UVSG* UVSG::getInstance()
 {
 	return instance;
+}
+
+void UVSG::tempCreatePlasmaBolt(vector3D pos, quaternionD direction)
+{
+	Entity bolt = entitySystem.entities.create();
+	bolt.assign<Transform>(pos, direction);
+	bolt.assign<Velocity>();
+	bolt.component<Velocity>()->linearVelocity = direction * vector3D(0, 0, 1);
+	bolt.component<Velocity>()->linearVelocity *= 30;
+	bolt.assign<NearZoneRenderable>();
+	bolt.component<NearZoneRenderable>()->models.push_back(boltModel);
+	bolt.assign<Bolt>();
+	bolt.assign<TimeToLiveComponent>(20.0);
 }

@@ -10,6 +10,7 @@ class Transform
 public:
 	Transform(){};
 	Transform(vector3D position){ m_position = position; };
+	Transform(vector3D position, quaternionD orientation){ m_position = position; m_orientation = orientation; };
 
 	vector3D m_position;
 	quaternionD m_orientation;

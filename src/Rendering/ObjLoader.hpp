@@ -3,6 +3,7 @@
 #ifndef OBJLOADER_HPP
 #define OBJLOADER_HPP
 
+#include <btBulletCollisionCommon.h>
 #include <string>
 #include <cstring>
 #include <vector>
@@ -16,5 +17,6 @@ TexturedMesh* loadMeshFromFile(std::string filePath);
 MaterialMesh* loadMaterialMeshFromFile(std::string filePath, std::string fileName);
 bool loadMaterial(std::string filePath, std::vector<Material> &materials);
 bool loadMaterialOBJ(std::string fileName, std::vector<vector3F> & out_vertices, std::vector<vector3F> & out_normals, std::vector<unsigned short> & out_material, std::vector<Material> & materials, std::string filePath);
+void loadTriMesh(std::string filePath, std::string fileName, btTriangleMesh* triMesh);
 
 #endif //OBJLOADER_HPP

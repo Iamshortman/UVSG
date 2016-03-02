@@ -21,7 +21,7 @@ struct PointLight
     float range;
 };
 
-in vec3 out_CameraSpacePos;
+in vec3 out_WorldPos;
 in vec3 out_Normal;
 in float out_illum;
 in vec4 out_Color;
@@ -42,7 +42,7 @@ vec4 calcLight(BaseLight base, vec3 direction, vec3 normal)
     {
         diffuseColor = vec4(base.color, 1.0) * base.intensity * diffuseFactor;
         
-        vec3 directionToEye = normalize(out_CameraSpacePos);
+        vec3 directionToEye = normalize(out_WorldPos);
         vec3 reflectDirection = normalize(reflect(direction, normal));
     }
     
@@ -51,7 +51,7 @@ vec4 calcLight(BaseLight base, vec3 direction, vec3 normal)
 
 vec4 calcPointLight(PointLight pointLight, vec3 normal)
 {
-    vec3 lightDirection = out_CameraSpacePos - pointLight.positionCamSpace;
+    vec3 lightDirection = out_WorldPos - pointLight.positionCamSpace;
     float distanceToPoint = length(lightDirection);
     
     if(distanceToPoint > pointLight.range)
@@ -66,21 +66,10 @@ vec4 calcPointLight(PointLight pointLight, vec3 normal)
                          pointLight.atten.exponent * distanceToPoint * distanceToPoint +
                          0.0001;
                          
-    return color ;// attenuation;
+    return color / attenuation;
 }
 
 void main(void) 
 {
-	if(out_illum == 0.0f)
-	{
-		vec3 lightDirection = out_CameraSpacePos - pointLight.positionCamSpace;
-		float distanceToPoint = length(lightDirection);
-		float diffuseFactor = dot(out_Normal, -lightDirection);
-	
-		fragmentColor = out_Color * (vec4(pointLight.base.color, 1.0) * pointLight.base.intensity * diffuseFactor);
-	}
-	else
-	{
-		fragmentColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	}
+	fragmentColor = out_Color * (calcPointLight(pointLight, out_Normal) );
 }

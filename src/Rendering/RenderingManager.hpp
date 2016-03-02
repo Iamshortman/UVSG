@@ -9,6 +9,7 @@
 #include "ShaderProgram.hpp"
 #include "TexturePool.hpp"
 #include "EntityxInclude.hpp"
+#include "Renderable.hpp"
 
 class BaseLight
 {
@@ -77,6 +78,8 @@ public:
 	TexturePool texturePool;
 
 	const double farViewScaleValue = 10000.0;
+
+	Model* firstPersonModel = NULL;
 
 protected:
 

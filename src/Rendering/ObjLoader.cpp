@@ -181,11 +181,6 @@ bool loadMaterialOBJ(std::string fileName, std::vector<vector3F> & out_vertices,
 			fscanf(file, "%s \n", name);
 			std::string mtlName = name;
 			loadMaterial(filePath + mtlName, materials);
-
-			for (Material mat : materials)
-			{
-				printf("%s: %i\n", mat.name.c_str(), mat.illum_Value);
-			}
 		}
 		else if (strcmp(lineHeader, "usemtl") == 0)
 		{
@@ -323,4 +318,28 @@ bool loadMaterial(std::string filePath, std::vector<Material> &materials)
 	}
 
 	return true;
+}
+
+
+#include "Util.hpp"
+void loadTriMesh(std::string filePath, std::string fileName, btTriangleMesh* triMesh)
+{
+	std::vector<vector3F> vertices;
+	std::vector<vector3F> normals;
+	std::vector<unsigned short> materialIndex;
+	std::vector<Material> materials;
+	if (loadMaterialOBJ(fileName, vertices, normals, materialIndex, materials, filePath))
+	{
+		std::vector<MaterialVertex> vertexVector;
+		for (unsigned int i = 0; i < vertices.size(); i += 3)
+		{
+			triMesh->addTriangle(toBtVec3(vertices[i]), toBtVec3(vertices[i + 1]), toBtVec3(vertices[i + 2]), true);
+		}
+	}
+	else
+	{
+		exit(1);
+	}
+
+	return;
 }

@@ -5,6 +5,11 @@
 #include "Physics/PhysicsWorld.hpp"
 #include "EntityxInclude.hpp"
 
+struct Bolt
+{
+
+};
+
 class UVSG
 {
 
@@ -26,7 +31,11 @@ public:
 	SDL_GameController *controller = NULL;
 
 	EntityX entitySystem;
+	Entity player;
 	Entity m_camera;
+	
+	void tempCreatePlasmaBolt(vector3D pos, quaternionD direction);
+	Model* boltModel;
 
 protected:
 

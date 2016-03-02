@@ -14,6 +14,7 @@ RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScal
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
 	world->addRigidBody(rigidBody);
+	rigidBody->activate();
 }
 
 RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia)
@@ -23,6 +24,7 @@ RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScal
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
 	world->addRigidBody(rigidBody);
+	rigidBody->activate();
 }
 
 //Not sure this actually works.....

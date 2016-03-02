@@ -11,7 +11,7 @@
 #include "glmInclude.hpp"
 #include "Util.hpp"
 
-struct SingleRayTestResults
+struct SingleRayTestResult
 {
 	bool hasHit = false;
 	const btRigidBody* hitBody;
@@ -30,7 +30,8 @@ public:
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 
-	SingleRayTestResults singleRayTest(vector3D startPos, vector3D endPos);
+	SingleRayTestResult singleRayTest(vector3D startPos, vector3D endPos);
+	SingleRayTestResult singleRayTestNotMe(vector3D startPos, vector3D endPos, btCollisionObject* me);
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
 protected:

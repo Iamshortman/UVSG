@@ -94,7 +94,7 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 				double rayDistance = 1000.0f;
 				vector3D startPos = componentTransform->getPos();
 				vector3D endPos = componentTransform->getPos() + (componentTransform->getForward() * rayDistance);
-				SingleRayTestResults result = UVSG::getInstance()->physicsWorld->singleRayTest(startPos, endPos);
+				SingleRayTestResult result = UVSG::getInstance()->physicsWorld->singleRayTest(startPos, endPos);
 
 				if (result.hasHit)
 				{
