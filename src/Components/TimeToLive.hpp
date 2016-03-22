@@ -1,41 +1,27 @@
-#include <entityx/entityx.h>
-#include <entityx\System.h>
-
 #ifndef TIMETOLIVE_HPP
 #define TIMETOLIVE_HPP
 
-struct TimeToLiveComponent
+#include "Components/Component.hpp"
+#include "World/Entity.hpp"
+
+struct TimeToLive: public Component
 {
-	TimeToLiveComponent(entityx::TimeDelta lifeTime)
+	//The Time left in seconds
+	double timeToLive;
+
+	TimeToLive(double lifeTime)
 	{
 		timeToLive = lifeTime;
 	};
-	//The Time left in seconds
-	entityx::TimeDelta timeToLive;
-};
 
-class TimeToLiveSystem : public entityx::System < TimeToLiveSystem >
-{
-	void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override
+	virtual void update(double deltaTime) 
 	{
-		//For all entities with the time to live component.
-		entityx::ComponentHandle<TimeToLiveComponent> timeToLiveComponentSearch;
-		for (entityx::Entity entity : es.entities_with_components(timeToLiveComponentSearch))
+		timeToLive -= deltaTime;
+		if (timeToLive <= 0.0)
 		{
-			//Get the component
-			entityx::ComponentHandle<TimeToLiveComponent> timeToLiveComponent = entity.component<TimeToLiveComponent>();
-
-			//Subtract the time from the previous tick
-			timeToLiveComponent->timeToLive -= dt;
-
-			//If the Entity is out of time, delete it
-			if (timeToLiveComponent->timeToLive <= 0.0)
-			{
-				entity.destroy();
-			}
+			getParent()->kill();
 		}
 	};
 };
-
 
 #endif //TIMETOLIVE_HPP

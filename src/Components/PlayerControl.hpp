@@ -19,7 +19,7 @@ struct PlayerControlComponent
 	double angularSpeed;
 };
 
-class PlayerControlSystem : public System < PlayerControlSystem >
+/*class PlayerControlSystem : public System < PlayerControlSystem >
 {
 	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
@@ -105,6 +105,6 @@ class PlayerControlSystem : public System < PlayerControlSystem >
 
 		}
 	};
-};
+};*/
 
 #endif //PLAYERCONTROL_HPP

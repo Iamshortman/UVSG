@@ -1,30 +1,40 @@
 #include "RigidBody.hpp"
 #include "PhysicsWorld.hpp"
+#include "World/Entity.hpp"
 
-RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass)
+RigidBody::RigidBody(btCollisionShape* shape, btScalar mass)
 {
-	world = physicsWorld;
-
 	btVector3 inertia = btVector3(0, 0, 0);
 	if (mass > 0.0f)
 	{
 		shape->calculateLocalInertia(mass, inertia);
 	}
 
-	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
+	btDefaultMotionState* motionState = new btDefaultMotionState();
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, motionState, shape, inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
-	world->addRigidBody(rigidBody);
-	rigidBody->activate();
 }
 
-RigidBody::RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia)
+RigidBody::RigidBody(btCollisionShape* shape, btScalar mass, const btVector3& inertia)
 {
-	world = physicsWorld;
-
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, new btDefaultMotionState(), shape, inertia);
 	rigidBody = new btRigidBody(boxRigidBodyCI);
+}
+
+void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity)
+{
+	//Remove from old physics world
+	if (world != nullptr)
+	{
+		world->removeRigidBody(rigidBody);
+	}
+
+	//Assign new Physics
+	world = physicsWorld;
+	rigidBody->setUserPointer(entity);
+
 	world->addRigidBody(rigidBody);
-	rigidBody->activate();
+	setWorldTranform(entity->m_transform);
 }
 
 //Not sure this actually works.....
@@ -60,14 +70,24 @@ void RigidBody::setWorldTranform(Transform transform)
 	rigidBody->setWorldTransform(rigidBodyTransform);
 }
 
+void RigidBody::setWorldTranformUpdate(Transform transform)
+{
+	btTransform rigidBodyTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()));
+	rigidBody->getMotionState()->setWorldTransform(rigidBodyTransform);
+}
+
+
 PhysicsWorld* RigidBody::getPhysicsWorld() const
 {
 	return world;
 }
 
 RigidBody::~RigidBody()
-{
-	world->removeRigidBody(rigidBody);
+{	
+	if (world != nullptr)
+	{
+		world->removeRigidBody(rigidBody);
+	}
 	delete rigidBody->getMotionState();
 	delete rigidBody->getCollisionShape();
 	delete rigidBody;

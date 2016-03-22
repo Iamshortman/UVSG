@@ -1,14 +1,9 @@
-#include "Rendering/Camera.hpp"
-#include "Rendering/Window.hpp"
-#include "Rendering/ShaderProgram.hpp"
-#include "Rendering/openGL.hpp"
-#include "glmInclude.hpp"
-#include "Rendering/Mesh.hpp"
-
-#include "UVSG.hpp"
 
 #include <SDL2/SDL.h>
 #undef main //Not sure if this is needed
+
+#include "World/EntityManager.hpp"
+#include "UVSG.hpp"
 
 #include <stdlib.h>
 #include <math.h>
@@ -17,6 +12,9 @@ using namespace std;
 
 int main()
 {
+	//Creates the entity Manager.
+	EntityManager::createInstance();
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	//Disable Events for controllers cause they suck.
@@ -29,12 +27,12 @@ int main()
     printf("\n%i joystick(s) found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
-		game->joystick = SDL_JoystickOpen(i);
+		/*game->joystick = SDL_JoystickOpen(i);
 		if (SDL_IsGameController(i))
 		{
 			game->controller = SDL_GameControllerOpen(i);
 			printf("%s \n", SDL_JoystickName(game->joystick));
-		}
+		}*/
     }
 
     double deltaTime = 0;

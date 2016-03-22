@@ -160,7 +160,7 @@ string ShaderProgram::loadShaderFile(string location)
 			//If it has a include statement
 			else
 			{
-				int includeLength = INCLUDE_DIRECTIVE.length();
+				size_t includeLength = INCLUDE_DIRECTIVE.length();
 				//SubString from the first " to the end "\n
 				string filePath = Line.substr(includeLength, Line.length() - includeLength - 1);
 				ShaderCode += loadShaderFile(filePath);

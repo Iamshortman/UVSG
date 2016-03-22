@@ -31,7 +31,7 @@ public:
 	};
 };
 
-class CharacterControllerSystem : public System < CharacterControllerSystem >
+/*class CharacterControllerSystem : public System < CharacterControllerSystem >
 {
 	void update(EntityManager &es, EventManager &events, TimeDelta dt) override
 	{
@@ -176,6 +176,6 @@ class CharacterControllerSystem : public System < CharacterControllerSystem >
 
 		}
 	}
-};
+};*/
 
 #endif //CHARACTERCONTROLLER_HPP

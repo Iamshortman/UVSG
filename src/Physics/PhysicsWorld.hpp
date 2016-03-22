@@ -6,19 +6,19 @@
 
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "EntityxInclude.hpp"
 #include "Components.hpp"
 #include "glmInclude.hpp"
 #include "Util.hpp"
+#include "World/Entity.hpp"
 
 struct SingleRayTestResult
 {
+	Entity* hitEntity = nullptr;
 	bool hasHit = false;
 	const btRigidBody* hitBody;
 	vector3D hitPosition;
 	vector3D hitNormal;
 };
-
 
 class PhysicsWorld
 {
@@ -26,7 +26,7 @@ class PhysicsWorld
 public:
 	PhysicsWorld();
 	virtual ~PhysicsWorld();
-	void update(EntityX &entitySystem, double deltaTime);
+	void update(double deltaTime, vector<Entity*> &entities);
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 
@@ -41,7 +41,6 @@ private:
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
-
 };
 
 #endif //PHYSICSWORLD_HPP

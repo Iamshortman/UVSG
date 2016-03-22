@@ -2,13 +2,9 @@
 #define UVSG_HPP
 
 #include "Rendering/RenderingManager.hpp"
-#include "Physics/PhysicsWorld.hpp"
+#include "World/World.hpp"
 #include "EntityxInclude.hpp"
-
-struct Bolt
-{
-
-};
+#include "Rendering/Renderer.hpp"
 
 class UVSG
 {
@@ -24,18 +20,9 @@ public:
 	static UVSG* getInstance();
 
 	RenderingManager* renderingManager;
-	PhysicsWorld* physicsWorld;
+	World* baseWorld;
 
-	SDL_Haptic *haptic = NULL;
-	SDL_Joystick *joystick = NULL;
-	SDL_GameController *controller = NULL;
-
-	EntityX entitySystem;
-	Entity player;
-	Entity m_camera;
-	
-	void tempCreatePlasmaBolt(vector3D pos, quaternionD direction);
-	Model* boltModel;
+	Renderer* m_renderer;
 
 protected:
 

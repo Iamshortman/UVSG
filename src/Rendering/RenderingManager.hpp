@@ -63,7 +63,7 @@ public:
 
 };
 
-
+#include "World/World.hpp"
 
 class RenderingManager
 {
@@ -71,15 +71,16 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
-	void update(EntityX &entitySystem, double deltaTime);
+	void update(double deltaTime, World* world);
 
 	Camera camera;
-	Window* window = NULL;
+	Window* window = nullptr;
 	TexturePool texturePool;
 
 	const double farViewScaleValue = 10000.0;
 
-	Model* firstPersonModel = NULL;
+	Model* firstPersonModel = nullptr;
+	Model* skybox = nullptr;
 
 protected:
 

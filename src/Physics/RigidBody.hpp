@@ -6,20 +6,23 @@
 #include "Components.hpp"
 
 class PhysicsWorld;
+class Entity;
 
 class RigidBody
 {
 public:
-	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass);
-	RigidBody(PhysicsWorld* physicsWorld, btCollisionShape* shape, btScalar mass, const btVector3& inertia);
+	RigidBody(btCollisionShape* shape, btScalar mass);
+	RigidBody(btCollisionShape* shape, btScalar mass, const btVector3& inertia);
 
 	virtual ~RigidBody();
+
+	void addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity);
 
 	void setCollisionShape(bool deleteOldShape, btCollisionShape* newShape);
 
 	Transform getWorldTransform();
 	void setWorldTranform(Transform transform);
-
+	void setWorldTranformUpdate(Transform transform);
 
 	btRigidBody* rigidBody;
 
@@ -28,7 +31,7 @@ public:
 	PhysicsWorld* getPhysicsWorld() const;
 
 private:
-	PhysicsWorld* world;
+	PhysicsWorld* world = nullptr;
 	bool isKinematic = false;
 };
 

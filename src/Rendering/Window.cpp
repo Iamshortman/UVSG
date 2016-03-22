@@ -13,6 +13,9 @@ Window::Window(int width, int height, string windowTitle)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+
 	// Create an application window with the following settings:
     window = SDL_CreateWindow(
         windowTitle.c_str(),
@@ -60,7 +63,6 @@ void Window::initGL()
 	//Setup texture stuff
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NEAREST);
     glEnable(GL_TEXTURE_2D);
-
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);

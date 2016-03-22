@@ -1,5 +1,6 @@
 #include "PhysicsWorld.hpp"
 #include "RigidBody.hpp"
+#include "World/World.hpp"
 
 #include <iostream>
 
@@ -25,74 +26,52 @@ PhysicsWorld::PhysicsWorld()
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0.0, 0.0, 0.0));
 
-	//btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(0.0, new btDefaultMotionState(), new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0.0, 0.0, 0.0));
-	//btRigidBody* rigidBody = new btRigidBody(boxRigidBodyCI);
-	//addRigidBody(rigidBody);
-
 	gContactAddedCallback = collisonCallback;
-
 }
 
-void PhysicsWorld::update(EntityX &entitySystem, double timeStep)
-{  
-	ComponentHandle<RigidBody> componentRigidBodySearch;
-	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+void PhysicsWorld::update(double timeStep, vector<Entity*> &entities)
+{
+	for (Entity* entity : entities)
 	{
-		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
-
-		if (entity.has_component<Transform>())
+		if (entity != nullptr)
 		{
-			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
-			componentRigidBody->setWorldTranform( *componentTransform.get() );
-		}
+			if (entity->m_RigidBody != nullptr)
+			{
+				entity->m_RigidBody->setWorldTranformUpdate(entity->m_transform);
 
-		if (entity.has_component<Velocity>())
-		{
-			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-			vector3D linear = componentVelocity->linearVelocity;
-			componentRigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
-			vector3D angular = componentVelocity->angularVelocity;
-			componentRigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
-			if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
-			{
-				componentRigidBody->rigidBody->activate(true);
-			}
-			else
-			{
-				componentRigidBody->rigidBody->activate(false);
+				vector3D linear = entity->m_Velocity.linearVelocity;
+				entity->m_RigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
+				vector3D angular = entity->m_Velocity.angularVelocity;
+				entity->m_RigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
+				if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
+				{
+					entity->m_RigidBody->rigidBody->activate(true);
+				}
+				else
+				{
+					entity->m_RigidBody->rigidBody->activate(false);
+				}
 			}
 		}
 	}
 
 	//Run Physics Simulation
-	dynamicsWorld->stepSimulation(timeStep, 7, 1.0 / 120.0);
-	//dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	dynamicsWorld->stepSimulation(timeStep, 6);
 
-	for (Entity entity : entitySystem.entities.entities_with_components(componentRigidBodySearch))
+	for (Entity* entity : entities)
 	{
-		ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
-
-		//If the Object is Kinematic then dont update the position and rotation.
-		if (componentRigidBody->isObjectKinematic())
+		if (entity != nullptr)
 		{
-			continue;
-		}
+			if (entity->m_RigidBody != nullptr)
+			{
+				entity->m_transform.setPositionAndRotationFromTransform(entity->m_RigidBody->getWorldTransform());
 
-		if (entity.has_component<Transform>())
-		{
-			ComponentHandle<Transform> componentTransform = entity.component<Transform>();
-			componentTransform->setPositionAndRotationFromTransform(componentRigidBody->getWorldTransform());
-		}
+				btVector3 linear = entity->m_RigidBody->rigidBody->getLinearVelocity();
+				entity->m_Velocity.linearVelocity = vector3D(linear.getX(), linear.getY(), linear.getZ());
 
-		if (entity.has_component<Velocity>())
-		{
-			ComponentHandle<Velocity> componentVelocity = entity.component<Velocity>();
-
-			btVector3 linear = componentRigidBody->rigidBody->getLinearVelocity();
-			componentVelocity->linearVelocity = vector3D(linear.getX(), linear.getY(), linear.getZ());
-
-			btVector3 angular = componentRigidBody->rigidBody->getAngularVelocity();
-			componentVelocity->angularVelocity = vector3D(angular.getX(), angular.getY(), angular.getZ());
+				btVector3 angular = entity->m_RigidBody->rigidBody->getAngularVelocity();
+				entity->m_Velocity.angularVelocity = vector3D(angular.getX(), angular.getY(), angular.getZ());
+			}
 		}
 	}
 
@@ -127,6 +106,7 @@ SingleRayTestResult PhysicsWorld::singleRayTest(vector3D startPos, vector3D endP
 		result.hitBody = hitBody;
 		result.hitPosition = toGlmVec3(RayCallback.m_hitPointWorld);
 		result.hitNormal = toGlmVec3(RayCallback.m_hitNormalWorld);
+		result.hitEntity = (Entity*)hitBody->getUserPointer();
 	}
 
 	return result;
@@ -176,6 +156,7 @@ SingleRayTestResult PhysicsWorld::singleRayTestNotMe(vector3D startPos, vector3D
 			result.hitBody = hitBody;
 			result.hitPosition = toGlmVec3(RayCallback.m_hitPointWorld[closestHitIndex]);
 			result.hitNormal = toGlmVec3(RayCallback.m_hitNormalWorld[closestHitIndex]);
+			result.hitEntity = (Entity*)hitBody->getUserPointer();
 		}
 
 	}

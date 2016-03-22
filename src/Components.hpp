@@ -54,6 +54,19 @@ public:
 		return positionMatrix * rotationMatrix * scaleMatrix;
 	};
 
+	matrix4 getModleMatrix(vector3D cameraPos) const
+	{
+		matrix4 positionMatrix = matrix4();
+		matrix4 rotationMatrix = matrix4();
+		matrix4 scaleMatrix = matrix4();
+
+		positionMatrix = glm::translate(matrix4(1.0F), (vector3F)(m_position - cameraPos));
+		rotationMatrix = glm::toMat4((quaternionF)m_orientation);
+		scaleMatrix = glm::scale(matrix4(1.0F), (vector3F)m_scale);
+
+		return positionMatrix * rotationMatrix * scaleMatrix;
+	};
+
 	matrix3 getNormalMatrix() const
 	{
 		return glm::toMat3((quaternionF) m_orientation);
@@ -67,4 +80,4 @@ public:
 	vector3D angularVelocity;
 };
 
-#endif // COMPONETS_HPP
+#endif //COMPONETS_HPP

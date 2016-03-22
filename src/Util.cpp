@@ -2,22 +2,22 @@
 
 void printQuat(const quaternionF quat)
 {
-	std::cout << "{ " << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";
+	std::cout << "{" << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";
 }
 
 void printVec(const vector3F vec)
 {
-	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
 
 void printVec(const vector3S vec)
 {
-	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
 
 void printVec(const vector3D vec)
 {
-	std::cout << "{ " << vec.x << ", " << vec.y << ", " << vec.z << "}";
+	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
 
 void printEndLine()
