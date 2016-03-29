@@ -17,15 +17,14 @@ out vec3 out_Ambient;
 
 uniform mat4 MVP;
 uniform mat3 normalMatrix; 
-uniform mat4 localOffset = mat4(1.0);
+
 uniform vec3 ambientLight;
  
 uniform Material materials[16]; 
 
 void main(void) 
 {	
-	vec4 offsetPosition = localOffset * vec4(in_Position, 1.0f);
-	gl_Position = MVP * offsetPosition;
+	gl_Position = MVP * vec4(in_Position, 1.0f);
 	out_Normal = normalMatrix * in_Normal;
 	
 	int i = int(in_Material);

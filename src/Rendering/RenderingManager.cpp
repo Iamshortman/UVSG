@@ -53,7 +53,7 @@ void RenderingManager::update(double timeStep, World* world)
 
 	world->render(&camera);
 
-	window->updateBuffer();
+	//window->updateBuffer();
 }
 
 RenderingManager::~RenderingManager()

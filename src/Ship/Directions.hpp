@@ -1,0 +1,14 @@
+#ifndef DIRECTIONS_HPP
+#define DIRECTIONS_HPP
+
+enum DIRECTIONS
+{
+	UP, //Y+
+	DOWN, //Y-
+	FORWARD, //Z+
+	BACKWARD, //Z-
+	LEFT, //X+
+	RIGHT //X-
+};
+
+#endif //DIRECTIONS_HPP

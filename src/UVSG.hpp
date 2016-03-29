@@ -2,9 +2,7 @@
 #define UVSG_HPP
 
 #include "Rendering/RenderingManager.hpp"
-#include "World/World.hpp"
 #include "EntityxInclude.hpp"
-#include "Rendering/Renderer.hpp"
 
 class UVSG
 {
@@ -20,9 +18,14 @@ public:
 	static UVSG* getInstance();
 
 	RenderingManager* renderingManager;
-	World* baseWorld;
 
-	Renderer* m_renderer;
+
+	//Ship Editor Temp Stuff
+	SDL_GameController* controller;
+	vector3D camOrigin = vector3D(0.0);
+	double cameraDistance = 10.0;
+	quaternionD cameraRot;
+	Model* CusorModel;
 
 protected:
 

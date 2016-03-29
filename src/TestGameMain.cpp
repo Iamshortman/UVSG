@@ -27,12 +27,10 @@ int main()
     printf("\n%i joystick(s) found.\n\n", num_joy);
     for(int i = 0; i < num_joy; i++)
     {
-		/*game->joystick = SDL_JoystickOpen(i);
 		if (SDL_IsGameController(i))
 		{
 			game->controller = SDL_GameControllerOpen(i);
-			printf("%s \n", SDL_JoystickName(game->joystick));
-		}*/
+		}
     }
 
     double deltaTime = 0;

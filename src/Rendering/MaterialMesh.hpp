@@ -4,17 +4,8 @@
 #include "openGL.hpp"
 #include "glmInclude.hpp"
 #include "Mesh.hpp"
+#include "Material.hpp"
 #include <vector>
-
-struct Material
-{
-	std::string name;
-	vector3F diffuse_Color;
-	//vector3F specular_Color;
-	int illum_Value;
-	//float shininess_Value;
-	float alpha_Value;
-};
 
 struct MaterialVertex
 {
