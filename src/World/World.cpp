@@ -3,9 +3,12 @@
 #include "Rendering/Camera.hpp"
 #include "UVSG.hpp"
 
+#include "Rendering/EntityRenderer.hpp"
+
 World::World()
 {
 	m_physicsWorld = new PhysicsWorld();
+	m_renderer = new EntityRenderer();
 }
 
 void World::updateWorld(double deltaTime)
@@ -44,7 +47,7 @@ void World::render(Camera* camera)
 	{
 		if (entity != nullptr)
 		{
-			UVSG::getInstance()->m_renderer->renderAmbient(this, entity, camera);
+			((EntityRenderer*)m_renderer)->renderAmbient(this, entity, camera);
 		}
 	}
 }

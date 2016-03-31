@@ -75,3 +75,13 @@ double toRad(double degree)
 {
 	return degree * 0.0174532925;
 }
+
+float toDeg(float rad)
+{
+	return rad * 57.295779513f;
+}
+
+double toDeg(double rad)
+{
+	return rad * 57.295779513;
+}

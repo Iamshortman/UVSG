@@ -6,6 +6,6 @@
 
 using namespace std;
 
-Mesh* genOutsideMesh(ShipComponent* ship);
+Mesh* genOutsideMesh(ShipComponent* ship, float cellSize);
 
 #endif //SHIPMESHBUILDER_HPP

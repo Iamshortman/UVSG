@@ -3,6 +3,7 @@
 
 #include "Rendering/RenderingManager.hpp"
 #include "EntityxInclude.hpp"
+#include "Scene/Scene.hpp"
 
 class UVSG
 {
@@ -18,14 +19,10 @@ public:
 	static UVSG* getInstance();
 
 	RenderingManager* renderingManager;
+	Scene* currentScene;
 
 
-	//Ship Editor Temp Stuff
-	SDL_GameController* controller;
-	vector3D camOrigin = vector3D(0.0);
-	double cameraDistance = 10.0;
-	quaternionD cameraRot;
-	Model* CusorModel;
+	/**/
 
 protected:
 

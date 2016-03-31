@@ -1,9 +1,9 @@
 #include "Ship/ShipMeshBuilder.hpp"
 #include "Ship/Directions.hpp"
 
-Mesh* genOutsideMesh(ShipComponent* ship)
+Mesh* genOutsideMesh(ShipComponent* ship, float cellSize)
 {
-	float cubeSize = 2.5f;
+	float cubeSize = cellSize;
 
 	vector3F vertsCube[] =
 	{
@@ -115,6 +115,12 @@ Mesh* genOutsideMesh(ShipComponent* ship)
 			vertices.push_back({ vertsCube[1] + offset, normals[RIGHT], 0 });
 			vertices.push_back({ vertsCube[3] + offset, normals[RIGHT], 0 });
 		}
+	}
+
+	//If there are no cells
+	if (vertices.size() == 0)
+	{
+		return nullptr;
 	}
 
 	Material mat = Material();

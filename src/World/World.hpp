@@ -28,6 +28,8 @@ public:
 	virtual Transform getWorldOffsetMatrix();
 
 	PhysicsWorld* m_physicsWorld;
+
+	void* m_renderer;
 };
 
 #endif //WORLD_HPP

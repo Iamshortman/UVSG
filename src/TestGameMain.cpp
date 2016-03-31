@@ -23,16 +23,6 @@ int main()
 
 	UVSG* game = new UVSG();
 
-    int num_joy = SDL_NumJoysticks();
-    printf("\n%i joystick(s) found.\n\n", num_joy);
-    for(int i = 0; i < num_joy; i++)
-    {
-		if (SDL_IsGameController(i))
-		{
-			game->controller = SDL_GameControllerOpen(i);
-		}
-    }
-
     double deltaTime = 0;
 
     Uint32 lastTime = 0;
