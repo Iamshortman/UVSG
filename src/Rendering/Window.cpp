@@ -25,12 +25,11 @@ Window::Window(int width, int height, string windowTitle)
         height,
         SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE
     );
+	SDL_MaximizeWindow(window);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	setVsync(1);
-
-    //SDL_MaximizeWindow(window);
 
     if( window == NULL )
     {
@@ -57,29 +56,29 @@ void Window::initGL()
 {
     // init OpenGL here
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
 
 	//Setup texture stuff
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NEAREST);
     glEnable(GL_TEXTURE_2D);
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
 }
 
 void Window::set3dRendering()
 {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
 }
 
 void Window::set2dRendering()
-
 {
 	//disable the Depth test.
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 }
 
 void Window::resizeWindow(int width, int height)

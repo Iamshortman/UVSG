@@ -21,6 +21,7 @@ public:
 	vector3D getForward() const { return m_orientation * vector3D(0.0f, 0.0f, 1.0f); };
 	vector3D getUp() const { return m_orientation * vector3D(0.0f, 1.0f, 0.0f); };
 	vector3D getRight() const { return m_orientation * vector3D(-1.0f, 0.0f, 0.0f); };
+	vector3D getLeft() const { return m_orientation * vector3D(1.0f, 0.0f, 0.0f); };
 	quaternionD getOrientation() const { return m_orientation; };
 	vector3D getScale() const { return m_scale; };
 

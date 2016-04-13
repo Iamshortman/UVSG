@@ -21,9 +21,6 @@ public:
 	RenderingManager* renderingManager;
 	Scene* currentScene;
 
-
-	/**/
-
 protected:
 
 private:

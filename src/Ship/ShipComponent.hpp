@@ -32,7 +32,10 @@ public:
 	void addCell(vector3S pos, ShipCell* cell);
 	void removeCell(vector3S pos);
 	ShipCell* getCell(vector3S pos);
+	vector3S getCellRootPos(ShipCell* cell);
 	bool hasCell(vector3S pos);
+
+	bool canPlaceCell(vector3S pos, ShipCell* cell);
 
 };
 

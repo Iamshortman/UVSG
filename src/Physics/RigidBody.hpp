@@ -24,6 +24,10 @@ public:
 	void setWorldTranform(Transform transform);
 	void setWorldTranformUpdate(Transform transform);
 
+	Transform getCOMTransform();
+	void setCOMTransform(Transform transform);
+
+
 	btRigidBody* rigidBody;
 
 	void setObjectKinematic(bool kinematic){ isKinematic = kinematic; };

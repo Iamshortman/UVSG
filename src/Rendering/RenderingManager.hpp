@@ -82,10 +82,11 @@ public:
 	Model* firstPersonModel = nullptr;
 	Model* skybox = nullptr;
 
+	vector3F ambientLight = vector3F(0.3f);
+
 protected:
 
 private:
-	vector3F ambientLight;
 	DirectionalLight* light;
 	ShaderProgram* DirectionalShader;
 	ShaderProgram* pointShader;

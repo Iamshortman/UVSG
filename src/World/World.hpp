@@ -25,6 +25,9 @@ public:
 	void removeEntityFromWorld(EntityId entityId);
 	void getEntitiesInWorld(vector<Entity*> &entities);
 
+	vector3D getGravity();
+	void setGravity(vector3D gravity);
+
 	virtual Transform getWorldOffsetMatrix();
 
 	PhysicsWorld* m_physicsWorld;

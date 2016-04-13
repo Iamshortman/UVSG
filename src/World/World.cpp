@@ -77,6 +77,16 @@ void World::getEntitiesInWorld(vector<Entity*> &entities)
 	}
 }
 
+vector3D World::getGravity()
+{
+	return toGlmVec3(m_physicsWorld->dynamicsWorld->getGravity());
+}
+
+void World::setGravity(vector3D gravity)
+{
+	m_physicsWorld->dynamicsWorld->setGravity(toBtVec3(gravity));
+}
+
 Transform World::getWorldOffsetMatrix()
 {
 	Transform transform = Transform();

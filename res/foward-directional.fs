@@ -6,19 +6,20 @@ struct DirectionalLight
 	float intensity;
 	vec3 direction;
 };
+uniform DirectionalLight directionalLight;
 
 in vec3 out_Normal;
-in float out_illum;
 in vec4 out_Color;
+in vec3 out_Ambient;
+in float out_IllumValue;
+in vec3 out_WorldPos;
 
 //Because gl_FragColor is no longer used.
 out vec4 fragmentColor;
 
-uniform DirectionalLight directionalLight;
-
 void main(void) 
 {
-	if(out_illum == 0.0f)
+	if(out_IllumValue != 0.0f)
 	{
 		float diffuseFactor = dot(out_Normal, -directionalLight.direction);
 		fragmentColor = out_Color * (vec4(directionalLight.color, 1.0) * directionalLight.intensity * diffuseFactor);
@@ -27,5 +28,6 @@ void main(void)
 	{
 		fragmentColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
-
 }
+
+

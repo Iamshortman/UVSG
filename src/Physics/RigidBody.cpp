@@ -77,6 +77,24 @@ void RigidBody::setWorldTranformUpdate(Transform transform)
 }
 
 
+Transform RigidBody::getCOMTransform()
+{
+	Transform transform;
+	btTransform bulletTransform = ((btDefaultMotionState*)rigidBody->getMotionState())->m_centerOfMassOffset;
+
+	transform.setPos(toGlmVec3(bulletTransform.getOrigin()));
+	transform.setOrientation(toGlmQuat(bulletTransform.getRotation()));
+
+	return transform;
+}
+
+void RigidBody::setCOMTransform(Transform transform)
+{
+	btTransform COMTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()));
+	btDefaultMotionState* state = (btDefaultMotionState*)rigidBody->getMotionState();
+	state->m_centerOfMassOffset = COMTransform;
+}
+
 PhysicsWorld* RigidBody::getPhysicsWorld() const
 {
 	return world;

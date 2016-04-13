@@ -9,7 +9,6 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
-	this->renderingManager->window->setVsync(1);
 
 	if (SDL_IsGameController(0))
 	{

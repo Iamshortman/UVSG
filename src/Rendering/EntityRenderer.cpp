@@ -1,6 +1,7 @@
 #include "Rendering/EntityRenderer.hpp"
 #include "ObjLoader.hpp"
 
+#include "UVSG.hpp"
 
 EntityRenderer::EntityRenderer()
 {
@@ -19,6 +20,8 @@ EntityRenderer::~EntityRenderer()
 
 void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 {
+	vector3F ambientLight = UVSG::getInstance()->renderingManager->ambientLight;
+
 	Model* model = baseCubeModel;
 
 	if (entity->tempModels.size() == 0)
@@ -35,7 +38,7 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
 		model->shader->setUniform("normalMatrix", normalMatrix);
-		model->shader->setUniform("ambientLight", vector3F(1.0));
+		model->shader->setUniform("ambientLight", ambientLight);
 
 		model->mesh->draw(baseCubeModel->shader);
 
@@ -61,7 +64,7 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
 		model->shader->setUniform("normalMatrix", normalMatrix);
-		model->shader->setUniform("ambientLight", vector3F(1.0));
+		model->shader->setUniform("ambientLight", ambientLight);
 
 		model->mesh->draw(model->shader);
 
