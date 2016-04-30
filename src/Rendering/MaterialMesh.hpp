@@ -22,10 +22,10 @@ public:
 
 	virtual void draw(ShaderProgram* program);
 
+	std::vector<Material> materials;
 private:
 	GLuint vbo;
 	int size;
-	std::vector<Material> materials;
 };
 
 #endif //MATERIALMESH_HPP

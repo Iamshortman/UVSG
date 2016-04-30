@@ -56,12 +56,12 @@ void Window::initGL()
 {
     // init OpenGL here
     glShadeModel(GL_SMOOTH);
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
 
 	//Setup texture stuff
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NEAREST);
-    glEnable(GL_TEXTURE_2D);
+
+    //glEnable(GL_TEXTURE_2D);
 }
 
 void Window::set3dRendering()

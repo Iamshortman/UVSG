@@ -2,7 +2,7 @@
 #define SHIPCOMPONENT_HPP
 
 #include "glmInclude.hpp"
-#include "Ship/ShipCell.hpp"
+#include "Ship/ShipCellData.hpp"
 #include "Components/Component.hpp"
 
 #include <unordered_map>
@@ -20,7 +20,7 @@ struct ShipMapKeyFuncs
 	}
 };
 
-typedef std::unordered_map<vector3S, ShipCell*, ShipMapKeyFuncs> Ship_Map;
+typedef std::unordered_map<vector3S, ShipCellData, ShipMapKeyFuncs> Ship_Map;
 
 class ShipComponent : public Component
 {
@@ -29,13 +29,13 @@ public:
 
 	Ship_Map m_shipCells;
 
-	void addCell(vector3S pos, ShipCell* cell);
+	void addCell(vector3S pos, ShipCellData cell);
 	void removeCell(vector3S pos);
-	ShipCell* getCell(vector3S pos);
-	vector3S getCellRootPos(ShipCell* cell);
-	bool hasCell(vector3S pos);
+	ShipCellData getCell(vector3S pos);
+	vector3S getCellRootPos(ShipCellData cell);
+	bool hasCellAtPos(vector3S pos);
 
-	bool canPlaceCell(vector3S pos, ShipCell* cell);
+	bool canPlaceCell(vector3S pos, ShipCellData& cell);
 
 };
 

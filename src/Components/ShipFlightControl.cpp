@@ -9,6 +9,7 @@
 ShipFlightControl::ShipFlightControl(SDL_GameController* controllerToUse)
 {
 	m_controller = controllerToUse;
+	turnSpeeds = vector3D(0.5, 0.5, 0.75);
 }
 
 ShipFlightControl::~ShipFlightControl()
@@ -20,10 +21,10 @@ void ShipFlightControl::update(double deltaTime)
 {
 
 	//Max Speed in meters per second
-	double maxSpeed[] = { 15.0, 15.0, 115.0, 15.0, 15.0, 15.0 };
+	double maxSpeed[] = { 15.0, 15.0, 125.0, 15.0, 15.0, 15.0 };
 
 	//Acceleration in meters per second per second
-	double accelerations[] = {5.0, 5.0, 15.0, 15.0, 5.0, 5.0};
+	double accelerations[] = { 15.0, 15.0, 25.0, 15.0, 15.0, 15.0 };
 
 	bool FlightAssistEnabled = true;
 
@@ -158,8 +159,47 @@ void ShipFlightControl::update(double deltaTime)
 				parent->m_Velocity.linearVelocity += -parent->m_transform.getLeft() * velocitytoAdd;
 			}
 		}
+
+		int deadzone = 8000;
+
+		int pitchAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
+		if (pitchAxis > deadzone || pitchAxis < -deadzone)
+		{
+			//Get between -1 and 1
+			double amount = ((double)pitchAxis) / 32767.0f;
+			double angle = amount * deltaTime * (turnSpeeds.x * 2.0 * M_PI);
+
+			//Negitive angle because the joystick layout is backwards
+			quaternionD pitchQuat = glm::normalize(glm::angleAxis(angle, parent->m_transform.getRight()));
+
+			parent->m_transform.m_orientation = pitchQuat * parent->m_transform.m_orientation;
+		}
+
+		int yawAxis = -SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
+		if (yawAxis > deadzone || yawAxis < -deadzone)
+		{
+			//Get between -1 and 1
+			double amount = ((double)yawAxis) / 32767.0f;
+			double angle = amount * deltaTime * (turnSpeeds.y * 2.0 * M_PI);
+
+			//Negitive angle because the joystick layout is backwards
+			quaternionD yawQuat = glm::normalize(glm::angleAxis(angle, parent->m_transform.getUp()));
+
+			parent->m_transform.m_orientation = yawQuat * parent->m_transform.m_orientation;
+		}
+
+		int rollAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
+		if (rollAxis > deadzone || rollAxis < -deadzone)
+		{
+			//Get between -1 and 1
+			double amount = ((double)rollAxis) / 32767.0f;
+			double angle = amount * deltaTime * (turnSpeeds.z * 2.0 * M_PI);
+
+			//Negitive angle because the joystick layout is backwards
+			quaternionD rollQuat = glm::normalize(glm::angleAxis(angle, parent->m_transform.getForward()));
+
+			parent->m_transform.m_orientation = rollQuat * parent->m_transform.m_orientation;
+		}
+
 	}
-
-	parent->m_Velocity.angularVelocity = vector3D(0.0);
-
 }

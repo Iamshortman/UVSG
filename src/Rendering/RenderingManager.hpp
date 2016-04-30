@@ -52,15 +52,17 @@ private:
 class PointLight : public BaseLight
 {
 public:
-	PointLight(vector3D position, float range, vector3F color, float intensity)
+	PointLight(vector3D position, float range, vector3F color, float intensity, vector3F attenuation)
 		:BaseLight(color, intensity)
 	{
 		m_position = position;
 		m_range = range;
+		m_attenuation = attenuation;
 	};
 	vector3D m_position;
 	float m_range;
-
+	
+	vector3F m_attenuation;
 };
 
 #include "World/World.hpp"

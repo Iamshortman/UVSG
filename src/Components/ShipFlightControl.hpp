@@ -20,6 +20,9 @@ private:
 	double m_throttle = 0.0; //Forward Back Throttle
 	double m_upDownThrottle = 0.0;
 	double m_leftRightThrottle = 0.0;
+
+	//In Rotations Per Second
+	vector3D turnSpeeds;
 };
 
 #endif //SHIPFLIGHTCONTROL_HPP

@@ -33,8 +33,9 @@ void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity)
 	world = physicsWorld;
 	rigidBody->setUserPointer(entity);
 
-	world->addRigidBody(rigidBody);
 	setWorldTranform(entity->m_transform);
+
+	world->addRigidBody(rigidBody);
 }
 
 //Not sure this actually works.....
@@ -55,8 +56,7 @@ void RigidBody::setCollisionShape(bool deleteOldShape, btCollisionShape* newShap
 Transform RigidBody::getWorldTransform()
 {
 	Transform transform;
-	btTransform bulletTransform;
-	rigidBody->getMotionState()->getWorldTransform(bulletTransform);
+	btTransform bulletTransform = rigidBody->getCenterOfMassTransform();
 
 	transform.setPos( toGlmVec3(bulletTransform.getOrigin()) );
 	transform.setOrientation(toGlmQuat(bulletTransform.getRotation()));
@@ -67,13 +67,7 @@ Transform RigidBody::getWorldTransform()
 void RigidBody::setWorldTranform(Transform transform)
 {
 	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()) );
-	rigidBody->setWorldTransform(rigidBodyTransform);
-}
-
-void RigidBody::setWorldTranformUpdate(Transform transform)
-{
-	btTransform rigidBodyTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()));
-	rigidBody->getMotionState()->setWorldTransform(rigidBodyTransform);
+	rigidBody->setCenterOfMassTransform(rigidBodyTransform);
 }
 
 

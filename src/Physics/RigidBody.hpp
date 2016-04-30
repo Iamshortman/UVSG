@@ -22,11 +22,9 @@ public:
 
 	Transform getWorldTransform();
 	void setWorldTranform(Transform transform);
-	void setWorldTranformUpdate(Transform transform);
 
 	Transform getCOMTransform();
 	void setCOMTransform(Transform transform);
-
 
 	btRigidBody* rigidBody;
 

@@ -24,12 +24,14 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 	Model* model = baseCubeModel;
 
+	Transform entityTransform = entity->m_transform;
+
 	if (entity->tempModels.size() == 0)
 	{
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
-		matrix4 modelMatrix = entity->m_transform.getModleMatrix(camera->getPos());
-		matrix3 normalMatrix = entity->m_transform.getNormalMatrix();
+		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPos());
+		matrix3 normalMatrix = entityTransform.getNormalMatrix();
 
 		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
 		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
@@ -54,8 +56,8 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-		matrix4 modelMatrix = entity->m_transform.getModleMatrix(camera->getPos());
-		matrix3 normalMatrix = entity->m_transform.getNormalMatrix();
+		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPos());
+		matrix3 normalMatrix = entityTransform.getNormalMatrix();
 
 		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
 		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();

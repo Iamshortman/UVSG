@@ -37,12 +37,14 @@ void PhysicsWorld::update(double timeStep, vector<Entity*> &entities)
 		{
 			if (entity->m_RigidBody != nullptr)
 			{
-				entity->m_RigidBody->setWorldTranformUpdate(entity->m_transform);
+				entity->m_RigidBody->setWorldTranform(entity->m_transform);
 
 				vector3D linear = entity->m_Velocity.linearVelocity;
 				entity->m_RigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
 				vector3D angular = entity->m_Velocity.angularVelocity;
 				entity->m_RigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
+				entity->m_RigidBody->rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+				
 				if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
 				{
 					entity->m_RigidBody->rigidBody->activate(true);
@@ -56,7 +58,7 @@ void PhysicsWorld::update(double timeStep, vector<Entity*> &entities)
 	}
 
 	//Run Physics Simulation
-	dynamicsWorld->stepSimulation(timeStep, 6);
+	dynamicsWorld->stepSimulation(timeStep, 4);
 
 	for (Entity* entity : entities)
 	{

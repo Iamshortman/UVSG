@@ -12,7 +12,7 @@ RenderingManager::RenderingManager()
 	int SCREEN_HEIGHT = 400;
 
 	window = new Window(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
-	window->setBufferClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+	window->setBufferClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
 	camera = Camera();
 	camera.moveCameraPos(vector3D(0, 1, -10));

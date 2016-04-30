@@ -21,37 +21,31 @@ public:
 		this->baseWorld = new World();
 		//this->baseWorld->setGravity(vector3D(0, -10, 0));
 
-		camEntity = EntityManager::instance()->createNewEntity();
+		Model* bigCubeModel = new Model();
+		bigCubeModel->localOffset = Transform();
+		bigCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		bigCubeModel->mesh = loadMaterialMeshFromFile("res/", "BigCube.obj");
 
-		vector3D cameraPos = UVSG::getInstance()->renderingManager->camera.getPos();
-		//quaternionD cameraRot = UVSG::getInstance()->renderingManager->camera.getOrientation();
+		Entity* bigCube = EntityManager::instance()->createNewEntity();
+		bigCube->addToWorld(baseWorld);
+		bigCube->m_transform.m_position = vector3D(0, 0, 100);
+		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 10000.0));
+		bigCube->tempModels.push_back(bigCubeModel);
 
-		camEntity->m_transform.m_position = cameraPos;
-		//camEntity->m_transform.m_orientation = cameraRot;
-		//camEntity->addComponent("PlayerControl", new PlayerControl(5.0, 3.0, SDL_GameControllerOpen(0)));
+		bigCube->m_RigidBody->rigidBody->setDamping(0.5, 0.5);
 
-		//camEntity->addToWorld(baseWorld);
+		Entity* plane = EntityManager::instance()->createNewEntity();
+		plane->addToWorld(baseWorld);
+		plane->m_transform.m_position = vector3D(0, -1, 0);
+		plane->addRigidBody(new RigidBody(new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0));
 
-		Model* smallCubeModel = new Model();
-		smallCubeModel->localOffset = Transform();
-		smallCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-		smallCubeModel->mesh = loadMaterialMeshFromFile("res/", "SmallCube.obj");
+		Model* floorModel = new Model();
+		floorModel->localOffset = Transform();
+		floorModel->localOffset.setScale(vector3D(20.0));
+		floorModel->shader = bigCubeModel->shader;
+		floorModel->mesh = loadMaterialMeshFromFile("res/Models/", "Floor.obj");
 
-		/*for (int x = -5; x < 5; x++)
-		{
-			for (int z = -5; z < 5; z++)
-			{
-				Entity* smallCube = EntityManager::instance()->createNewEntity();
-				smallCube->addToWorld(baseWorld);
-				smallCube->m_transform.m_position = vector3D(x, 20, z) * 0.5;
-				smallCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(0.05, 0.05, 0.05)), 10.0));
-				smallCube->tempModels.push_back(smallCubeModel);
-				smallCube->m_Velocity.linearVelocity = vector3D(0, -10, 0);
-
-				smallCube->addComponent("TimeToLive", new TimeToLive(20.0));
-			}
-		}*/
-
+		plane->tempModels.push_back(floorModel);
 	};
 
 	virtual ~Scene_Game()
@@ -62,8 +56,12 @@ public:
 	virtual void update(double deltaTime)
 	{
 		baseWorld->updateWorld(deltaTime);
-
-		//UVSG::getInstance()->renderingManager->camera.setCameraTransform(camEntity->m_transform.getPos(), camEntity->m_transform.getOrientation());
+		Entity* entity = EntityManager::instance()->getEntity(3);
+		if (entity != nullptr)
+		{
+			vector3D pos = entity->m_transform.getOrientation() * vector3D(0, 2, -6);
+			UVSG::getInstance()->renderingManager->camera.setCameraTransform(entity->m_transform.getPos() + pos, entity->m_transform.getOrientation());
+		}
 	};
 
 	virtual void render(RenderingManager* manager)

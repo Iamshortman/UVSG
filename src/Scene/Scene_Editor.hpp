@@ -5,20 +5,23 @@
 #include "World/EntityManager.hpp"
 #include "World/World.hpp"
 #include "Rendering/RenderingManager.hpp"
-#include "Ship/ShipComponent.hpp"
-#include "Ship/ShipMeshBuilder.hpp"
 #include "Rendering/ObjLoader.hpp"
-#include "Components/ShipFlightControl.hpp"
+#include "Gui/Gui.hpp"
 
-#include "Ship/HullCell.hpp"
-#include "Ship/CockpitCell.hpp"
-#include "Ship/EngineCell.hpp"
+#include "Ship/ShipComponent.hpp"
+#include "Ship/ShipCell.hpp"
 
 class Scene_Editor : public Scene
 {
 public:
+	Gui* m_Gui;
+
+	ShipCell* hullCell = nullptr;
+
 	Scene_Editor(SDL_GameController* controllerToUse)
 	{
+		m_Gui = new Gui();
+
 		controller = controllerToUse;
 
 		//Load Skybox
@@ -28,6 +31,11 @@ public:
 		skybox->shader = new ShaderProgram("res/Textured.vs", "res/Textured.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
 
 		MaterialShader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+
+		directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, -1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
+		DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		pointLight = new PointLight(vector3D(0.0, 10.0, 0.0), 20.0f, vector3F(1.0), 0.4f, vector3F(0.0f, 0.0f, 0.02f));
+		PointShader = new ShaderProgram("res/Material.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 
 		shipModelOutside = new Model();
 		shipModelOutside->localOffset = Transform();
@@ -44,28 +52,18 @@ public:
 		shipComponent = new ShipComponent();
 		this->shipChanged = true;
 
-		UIBox = new Model();
-		UIBox->texture = "res/Textures/metalPanel_blueCorner.png";
-		UIBox->shader = new ShaderProgram("res/UI_Textured.vs", "res/UI_Textured.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
-		UIBox->mesh = loadMeshFromFile("res/box.obj");
-
-		UVSG::getInstance()->renderingManager->texturePool.loadTexture(UIBox->texture);
-
-		directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, -1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
-		DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-
-		pointLight = new PointLight(vector3D(0.0, 0.0, 0.0), 20.0f, vector3F(1.0), 1.0f);
-		PointShader = new ShaderProgram("res/Material.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-
-
-
-		for (int y = -10; y < 10; y++)
+		if (true)
 		{
-			for (int z = -10; z < 10; z++)
+			vector<Node> nodes;
+			vector<vector3S> points = {vector3S(0)};
+			for (int i = 0; i < 6; i++)
 			{
-				shipComponent->addCell(vector3S(-8, y, z), new HullCell());
+				nodes.push_back(Node(vector3S(0), i));
 			}
+			hullCell = new ShipCell(nullptr, 200, nodes, points);
 		}
+		
+
 	};
 
 	virtual ~Scene_Editor()
@@ -73,7 +71,11 @@ public:
 		delete shipComponent;
 		delete shipModelInside;
 		delete shipModelOutside;
+
 		delete MaterialShader;
+		delete PointShader;
+		delete DirectionalShader;
+
 		delete skybox;
 		delete m_cursorModel;
 	};
@@ -238,85 +240,6 @@ public:
 			}
 		}
 
-		if (true)
-		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-			if (currentState && !lastState)
-			{
-				vector3S pos = (vector3S)m_cursorPos;
-				ShipCell* cell = new HullCell();
-				if (shipComponent->canPlaceCell(pos, cell))
-				{
-					shipComponent->addCell(pos, cell);
-					shipChanged = true;
-				}
-				else
-				{
-					delete cell;
-				}
-			}
-			lastState = currentState;
-		}
-
-		if (true)
-		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-			if (currentState && !lastState)
-			{
-				vector3S pos = (vector3S)m_cursorPos;
-				ShipCell* cell = new CockpitCell();
-				if (shipComponent->canPlaceCell(pos, cell))
-				{
-					shipComponent->addCell(pos, cell);
-					shipChanged = true;
-				}
-				else
-				{
-					delete cell;
-				}
-			}
-			lastState = currentState;
-		}
-
-		if (true)
-		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
-			if (currentState && !lastState)
-			{
-				vector3S pos = (vector3S)m_cursorPos;
-				ShipCell* cell = new EngineCell();
-				if (shipComponent->canPlaceCell(pos, cell))
-				{
-					shipComponent->addCell(pos, cell);
-					shipChanged = true;
-				}
-				else
-				{
-					delete cell;
-				}
-			}
-			lastState = currentState;
-		}
-
-		if (true)
-		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
-			if (currentState && !lastState)
-			{
-				vector3S pos = (vector3S)m_cursorPos;
-				if (shipComponent->hasCell(pos))
-				{
-					shipComponent->removeCell(pos);
-					shipChanged = true;
-				}
-			}
-			lastState = currentState;
-		}
-
 		//Camera Update
 		int deadzone = 4000;
 
@@ -371,86 +294,29 @@ public:
 
 		if (shipChanged == true)
 		{
-			if (shipModelOutside->mesh != nullptr)
-			{
-				delete shipModelOutside->mesh;
-			}
 
-			//if (shipMeshInside != nullptr)
-			//{
-			//	delete shipMeshInside;
-			//}
+		}
 
-			shipModelOutside->mesh = genOutsideMesh(shipComponent, 1.0f);
-
-			shipChanged = false;
+		if (shipComponent->hasCellAtPos(m_cursorPos))
+		{
+			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
+			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
+		}
+		else
+		{
+			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
+			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
 		}
 
 		//Load game world
 		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
 		{
+			return;
+
 			printf("Loading Game World!!!\n");
 			UVSG* instace = UVSG::getInstance();
 			Scene_Game* game = new Scene_Game();
 			instace->currentScene = game;
-			Entity* entity = EntityManager::instance()->createNewEntity();
-			entity->addComponent("FlightControl", new ShipFlightControl(controller));
-
-			entity->addToWorld(game->baseWorld);
-			entity->m_transform = Transform(vector3D(0.0, 0.0, 0.0));
-
-			if (shipModelOutside->mesh != nullptr)
-			{
-				entity->tempModels.push_back(shipModelOutside);
-			}
-
-			double totalMass = 0.0;
-			vector3D centerOfMass = vector3D(0.0);
-			int totalCellCount = 0;
-
-			btCompoundShape* shape = new btCompoundShape();
-
-			for (auto it = shipComponent->m_shipCells.begin(); it != shipComponent->m_shipCells.end(); ++it)
-			{
-				vector3S pos = it->first;
-				vector3D pos1 = (vector3D)pos;
-				ShipCell* cell = it->second;
-
-				totalCellCount++;
-				double mass = cell->getMass();
-				totalMass += mass;
-				centerOfMass += pos1 * mass;
-
-				Mesh* mesh = cell->getMesh();
-				if (mesh != nullptr)
-				{
-					Model* model = new Model;
-					model->shader = shipModelOutside->shader;
-					model->localOffset = Transform((vector3D)pos);
-					model->mesh = mesh;
-					entity->tempModels.push_back(model);
-				}
-
-				cell->addCollisionShape(pos1, shape);
-			}
-
-			centerOfMass /= totalMass;
-
-			for (int i = 0; i < entity->tempModels.size(); i++)
-			{
-				((Model*)entity->tempModels[i])->localOffset.m_position -= centerOfMass;
-			}
-
-			for (int i = 0; i < shape->getNumChildShapes(); i++)
-			{
-				btTransform transform = shape->getChildTransform(i);
-				transform.setOrigin(transform.getOrigin() - toBtVec3(centerOfMass));
-				shape->updateChildTransform(i, transform, false);
-			}
-
-			entity->m_transform.m_position += centerOfMass;
-			entity->addRigidBody(new RigidBody(shape, totalMass));
-			//entity->m_RigidBody->setCOMTransform(Transform(-centerOfMass));
 		}
 	};
 
@@ -485,7 +351,7 @@ public:
 			renderModelLight(manager, camera, shipModelOutside, Transform());
 		}
 
-		Model* model = new Model;
+		/*Model* model = new Model;
 		model->shader = shipModelOutside->shader;
 		for (auto it = shipComponent->m_shipCells.begin(); it != shipComponent->m_shipCells.end(); ++it)
 		{
@@ -495,45 +361,41 @@ public:
 
 			if (model->mesh != nullptr)
 			{
-				model->localOffset = Transform((vector3D)pos);
+				model->localOffset = Transform((vector3D)pos * (double)cubeSizeOutside);
 				renderModelLight(manager, camera, model, Transform());
 			}
 		
-		}
+		}*/
 
 		//Cursor Draw
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		renderModel(manager, camera, m_cursorModel, Transform(m_cursorPos));
+		renderModel(manager, camera, m_cursorModel, Transform(m_cursorPos * (double) cubeSizeOutside));
 		
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 
-		/*glUseProgram(0);
+
 		//UI Rendering
 		//Clear depth buffer so any other object in front of far objects.
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		manager->window->set2dRendering();
 
-		UIBox->shader->setActiveProgram();
-		if (UIBox->texture != "")
-		{
-			manager->texturePool.bindTexture(UIBox->texture);
-		}
+		manager->texturePool.loadTexture("res/Textures/metalPanel_blueCorner.png");
+		manager->texturePool.bindTexture("res/Textures/metalPanel_blueCorner.png");
+		m_Gui->renderGui(width,height);
 
-		//UIBox->mesh->draw(UIBox->shader);
-
-		UIBox->shader->deactivateProgram();
-
-		glDisable(GL_BLEND);*/
+		glDisable(GL_BLEND);
 
 		manager->window->updateBuffer();
 	};
+
+	float cubeSizeOutside = 3.0f;
+	float cubeSizeInside = 2.6f;
 
 	ShipComponent* shipComponent = nullptr;
 	ShaderProgram* MaterialShader = nullptr;
@@ -631,9 +493,8 @@ private:
 		DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
 		DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
 		DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
-		//model->mesh->draw(DirectionalShader);
+		model->mesh->draw(DirectionalShader);
 		DirectionalShader->deactivateProgram();
-
 
 		PointShader->setActiveProgram();
 		PointShader->setUniform("MVP", MVP);
@@ -643,15 +504,11 @@ private:
 		PointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
 		PointShader->setUniform("pointLight.range", pointLight->m_range);
 		PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPos()));
-
-		static float exponent = 0.02f;
-		PointShader->setUniform("pointLight.atten.constant", 0);
-		PointShader->setUniform("pointLight.atten.linear", 0);
-		PointShader->setUniform("pointLight.atten.exponent", exponent);
-
+		PointShader->setUniform("pointLight.atten.constant", pointLight->m_attenuation.x);
+		PointShader->setUniform("pointLight.atten.linear", pointLight->m_attenuation.y);
+		PointShader->setUniform("pointLight.atten.exponent", pointLight->m_attenuation.z);
 		model->mesh->draw(PointShader);
 		PointShader->deactivateProgram();
-
 
 		glDepthFunc(GL_LESS);
 		glDepthMask(true);

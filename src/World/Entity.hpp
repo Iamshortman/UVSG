@@ -2,6 +2,7 @@
 #define ENTITY_HPP
 
 #include <hash_map>
+
 #include "Components.hpp"
 #include "Physics/RigidBody.hpp"
 #include "Components/Component.hpp"
