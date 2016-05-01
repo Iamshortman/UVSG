@@ -8,12 +8,13 @@ Node::Node(vector3S position, int direction)
 
 bool Node::operator== (const Node& other)
 {
-	return (m_position == other.m_position) && (m_direction && other.m_direction);
+	return (m_position == other.m_position) && (m_direction == other.m_direction);
 }
 
-ShipCell::ShipCell(Mesh* mesh, double mass, std::vector<Node> nodes, std::vector<vector3S> points)
+ShipCell::ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, std::vector<vector3S> points)
 {
 	m_mesh = mesh;
+	m_cursorMesh = cursorMesh;
 	m_mass = mass;
 	m_nodes = nodes;
 	m_points = points;
@@ -22,6 +23,7 @@ ShipCell::ShipCell(Mesh* mesh, double mass, std::vector<Node> nodes, std::vector
 ShipCell::~ShipCell()
 {
 	delete m_mesh;
+	delete m_cursorMesh;
 }
 
 double ShipCell::getCellMass()
@@ -32,6 +34,11 @@ double ShipCell::getCellMass()
 Mesh* ShipCell::getMesh()
 {
 	return m_mesh;
+}
+
+Mesh*ShipCell::getCursorMesh()
+{
+	return m_cursorMesh;
 }
 
 bool ShipCell::isCellAtPoint(vector3S point)

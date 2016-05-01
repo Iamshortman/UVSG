@@ -88,7 +88,7 @@ bool ShipComponent::hasNode(vector3S pos, int direction)
 	return false;
 }
 
-bool ShipComponent::canPlaceCell(vector3S pos, ShipCellData& cell)
+bool ShipComponent::canPlaceCell(ShipCellData& cell)
 {
 	for (vector3S point : cell.getCellPoints())
 	{

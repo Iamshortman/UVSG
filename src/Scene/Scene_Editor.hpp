@@ -18,6 +18,9 @@ public:
 
 	ShipCell* hullCell = nullptr;
 	ShipCell* bridgeCell = nullptr;
+	ShipCell* cargoCell = nullptr;
+
+	ShipCell* cursorCell = nullptr;
 
 	Scene_Editor(SDL_GameController* controllerToUse)
 	{
@@ -61,7 +64,7 @@ public:
 			{
 				nodes.push_back(Node(vector3S(0), i));
 			}
-			hullCell = new ShipCell(nullptr, 200, nodes, points);
+			hullCell = new ShipCell(nullptr, loadMaterialMeshFromFile("res/ShipParts/", "Hull_Cursor.obj"), 200, nodes, points);
 		}
 		
 
@@ -88,12 +91,40 @@ public:
 				}
 			}
 
-			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), 3000, nodes, points);
+			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge_Cursor.obj"), 3000, nodes, points);
 		}
 
-		shipComponent->addCell(ShipCellData(bridgeCell, vector3S()));
+		if (true)
+		{
+			vector<Node> nodes;
+			nodes.push_back(Node(vector3S(0, 0, -2), BACKWARD));
+			nodes.push_back(Node(vector3S(0, 0, 3), FORWARD));
 
-		shipModelOutside->mesh = shipComponent->genOutsideMesh();
+			for (int i = -2; i < 4; i++)
+			{
+				nodes.push_back(Node(vector3S(0, 1, i), UP));
+				nodes.push_back(Node(vector3S(1, 0, i), LEFT));
+				nodes.push_back(Node(vector3S(-1, 0, i), RIGHT));
+			}
+
+
+			vector<vector3S> points;
+			for (int x = -1; x < 2; x++)
+			{
+				for (int y = -2; y < 2; y++)
+				{
+					for (int z = -2; z < 4; z++)
+					{
+						points.push_back(vector3S(x, y, z));
+					}
+				}
+			}
+
+			cargoCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Cargo_Hull.obj"), nullptr, 3000, nodes, points);
+		}
+
+
+		cursorCell = bridgeCell;
 	};
 
 	virtual ~Scene_Editor()
@@ -336,12 +367,47 @@ public:
 				}
 				else
 				{
-					shipComponent->addCell(ShipCellData(hullCell, pos));
-					shipChanged = true;
+					ShipCellData newCell = ShipCellData(cursorCell, (vector3S)m_cursorPos);
+					if (shipComponent->canPlaceCell(newCell))
+					{
+						shipComponent->addCell(newCell);
+						shipChanged = true;
+					}
 				}
 			}
 			lastState = currentState;
 		}
+
+		if (true)
+		{
+			static int lastState = 0;
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+			if (currentState && !lastState)
+			{
+				cursorCell = bridgeCell;
+			}
+		}
+
+		if (true)
+		{
+			static int lastState = 0;
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+			if (currentState && !lastState)
+			{
+				cursorCell = hullCell;
+			}
+		}
+
+		if (true)
+		{
+			static int lastState = 0;
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+			if (currentState && !lastState)
+			{
+				cursorCell = cargoCell;
+			}
+		}
+
 
 		if (shipChanged == true)
 		{
@@ -422,15 +488,26 @@ public:
 		}
 
 		//Cursor Draw
-		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		renderModel(manager, camera, m_cursorModel, Transform(m_cursorPos * (double) cubeSizeOutside));
-		
-		glDisable(GL_BLEND);
+		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
+		{
+			Model* model = new Model();
+			model->shader = MaterialShader;
+			model->mesh = cursorCell->getCursorMesh();
+
+			if (model->mesh != nullptr)
+				renderModelLight(manager, camera, model, Transform(m_cursorPos * (double)cubeSizeOutside), 0.5f);
+
+			delete model;
+		}
+
+		glDisable(GL_DEPTH_TEST);
+		renderModel(manager, camera, m_cursorModel, Transform(m_cursorPos * (double)cubeSizeOutside));
 		glEnable(GL_DEPTH_TEST);
 
+		glDisable(GL_BLEND);
 
 		//UI Rendering
 		//Clear depth buffer so any other object in front of far objects.
@@ -483,6 +560,7 @@ public:
 private:
 	void renderModel(RenderingManager* manager, Camera* camera, Model* model, Transform transform)
 	{
+
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
 
@@ -501,14 +579,14 @@ private:
 		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
 		model->shader->setUniform("normalMatrix", normalMatrix);
 		model->shader->setUniform("modelMatrix", modelMatrix);
-		model->shader->setUniform("ambientLight", manager->ambientLight);
+		model->shader->setUniform("ambientLight", vector3F(1.0f));
 
 		model->mesh->draw(model->shader);
 
 		model->shader->deactivateProgram();
 	}
 
-	void renderModelLight(RenderingManager* manager, Camera* camera, Model* model, Transform transform)
+	void renderModelLight(RenderingManager* manager, Camera* camera, Model* model, Transform transform, float alphaValue = 1.0f)
 	{
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
@@ -530,6 +608,8 @@ private:
 		model->shader->setUniform("normalMatrix", normalMatrix);
 		model->shader->setUniform("modelMatrix", modelMatrix);
 		model->shader->setUniform("ambientLight", manager->ambientLight);
+
+		model->shader->setUniform("alphaValue", alphaValue);
 
 		model->mesh->draw(model->shader);
 

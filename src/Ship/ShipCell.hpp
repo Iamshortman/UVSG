@@ -20,18 +20,21 @@ public:
 class ShipCell
 {
 public:
-	ShipCell(Mesh* mesh, double mass, std::vector<Node> nodes, std::vector<vector3S> points);
+	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, std::vector<vector3S> points);
 	~ShipCell();
 
 	double getCellMass();
 	Mesh* getMesh();
+	Mesh* getCursorMesh();
 	bool isCellAtPoint(vector3S point);
 	std::vector<Node> getNodePoints();
 	std::vector<vector3S> getCellPoints();
 
 private:
 	double m_mass;
-	Mesh* m_mesh;
+	Mesh* m_mesh = nullptr;
+	Mesh* m_cursorMesh = nullptr;
+
 	std::vector<Node> m_nodes;
 	std::vector<vector3S> m_points;
 };
