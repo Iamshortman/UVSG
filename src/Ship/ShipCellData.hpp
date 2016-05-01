@@ -22,6 +22,8 @@ public:
 	bool isCellAtPoint(vector3S point);
 	Mesh* getMesh();
 	vector<Node> getNodePoints();
+	vector<vector3S> getCellPoints();
+	bool isNull();
 
 private:
 	ShipCell* m_cellType = nullptr;

@@ -29,14 +29,16 @@ public:
 
 	Ship_Map m_shipCells;
 
-	void addCell(vector3S pos, ShipCellData cell);
+	void addCell(ShipCellData cell);
 	void removeCell(vector3S pos);
 	ShipCellData getCell(vector3S pos);
 	vector3S getCellRootPos(ShipCellData cell);
 	bool hasCellAtPos(vector3S pos);
+	bool hasNode(vector3S pos, int direction);
 
 	bool canPlaceCell(vector3S pos, ShipCellData& cell);
 
+	Mesh* genOutsideMesh();
 };
 
 #endif //SHIPCOMPONENT_HPP

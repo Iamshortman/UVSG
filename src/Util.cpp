@@ -1,5 +1,20 @@
 #include "Util.hpp"
 
+//This number flips the direction enum to the opposite one
+int flipDirection(int direction)
+{
+	if (direction % 2)
+	{
+		//If number is odd sub 1
+		return direction - 1;
+	}
+	else
+	{
+		//If number is even (or zero) add 1
+		return direction + 1;
+	}
+}
+
 void printQuat(const quaternionF quat)
 {
 	std::cout << "{" << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";

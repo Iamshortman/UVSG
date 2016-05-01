@@ -3,10 +3,12 @@
 
 #include "glmInclude.hpp"
 #include "Physics/PhysicsWorld.hpp"
+#include "Ship/Directions.hpp"
 
 using namespace std;
 
 //Just a basic util file for some common functions
+int flipDirection(int direction);
 
 void printQuat(const quaternionF quat);
 void printVec(const vector3F vec);

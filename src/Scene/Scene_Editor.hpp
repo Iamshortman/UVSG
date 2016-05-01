@@ -17,6 +17,7 @@ public:
 	Gui* m_Gui;
 
 	ShipCell* hullCell = nullptr;
+	ShipCell* bridgeCell = nullptr;
 
 	Scene_Editor(SDL_GameController* controllerToUse)
 	{
@@ -64,6 +65,35 @@ public:
 		}
 		
 
+		if (true)
+		{
+			vector<Node> nodes = 
+			{
+				Node(vector3S(0, 1, 0), UP),
+				Node(vector3S(0, -1, 0), DOWN),
+				Node(vector3S(0, 0, -2), BACKWARD),
+				Node(vector3S(1, 0, 0), LEFT),
+				Node(vector3S(-1, 0, 0), RIGHT),
+			};
+
+			vector<vector3S> points;
+			for (int x = -1; x < 2; x++)
+			{
+				for (int y = -1; y < 2; y++)
+				{
+					for (int z = -2; z < 2; z++)
+					{
+						points.push_back(vector3S(x, y, z));
+					}
+				}
+			}
+
+			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), 3000, nodes, points);
+		}
+
+		shipComponent->addCell(ShipCellData(bridgeCell, vector3S()));
+
+		shipModelOutside->mesh = shipComponent->genOutsideMesh();
 	};
 
 	virtual ~Scene_Editor()
@@ -292,9 +322,37 @@ public:
 			}
 		}
 
+		if (true)
+		{
+			static int lastState = 0;
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+			if (currentState && !lastState)
+			{
+				vector3S pos = (vector3S)m_cursorPos;
+				if (shipComponent->hasCellAtPos(pos))
+				{
+					shipComponent->removeCell(pos);
+					shipChanged = true;
+				}
+				else
+				{
+					shipComponent->addCell(ShipCellData(hullCell, pos));
+					shipChanged = true;
+				}
+			}
+			lastState = currentState;
+		}
+
 		if (shipChanged == true)
 		{
+			if (shipModelOutside->mesh != nullptr)
+			{
+				delete shipModelOutside->mesh;
+			}
 
+			shipModelOutside->mesh = shipComponent->genOutsideMesh();
+
+			shipChanged = false;
 		}
 
 		if (shipComponent->hasCellAtPos(m_cursorPos))
@@ -345,27 +403,23 @@ public:
 		//Clear depth buffer so any other object in front of far objects.
 		glClear(GL_DEPTH_BUFFER_BIT);
 
+		Model* model = new Model();
+		model->shader = MaterialShader;
+		for (auto it = shipComponent->m_shipCells.begin(); it != shipComponent->m_shipCells.end(); ++it)
+		{
+			model->mesh = it->second.getMesh();
+			if (model->mesh != nullptr)
+			{
+				model->localOffset = Transform((vector3F)it->second.m_position * cubeSizeOutside);
+				renderModelLight(manager, camera, model, Transform());
+			}
+		}
+		delete model;
 
 		if (shipModelOutside->mesh != nullptr)
 		{
 			renderModelLight(manager, camera, shipModelOutside, Transform());
 		}
-
-		/*Model* model = new Model;
-		model->shader = shipModelOutside->shader;
-		for (auto it = shipComponent->m_shipCells.begin(); it != shipComponent->m_shipCells.end(); ++it)
-		{
-			vector3S pos = it->first;
-			ShipCell* cell = it->second;
-			model->mesh = cell->getMesh();
-
-			if (model->mesh != nullptr)
-			{
-				model->localOffset = Transform((vector3D)pos * (double)cubeSizeOutside);
-				renderModelLight(manager, camera, model, Transform());
-			}
-		
-		}*/
 
 		//Cursor Draw
 		glDisable(GL_DEPTH_TEST);
@@ -416,10 +470,10 @@ public:
 
 	double cameraDistance = 20.0;
 	double maxDistance = 200.0;
-	double minDistance = 10.0;
+	double minDistance = 0.0;
 
 	double rotSpeed = 3.0;
-	double zoomSpeed = 15.0;
+	double zoomSpeed = 150.0;
 
 	quaternionD cameraRot;
 

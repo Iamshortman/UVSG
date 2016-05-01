@@ -11,6 +11,7 @@ class Node
 {
 public:
 	Node(vector3S position = vector3S(0), int direction = FORWARD);
+	bool operator== (const Node& other);
 
 	vector3S m_position;
 	int m_direction;
@@ -23,9 +24,10 @@ public:
 	~ShipCell();
 
 	double getCellMass();
-	bool isCellAtPoint(vector3S point);
 	Mesh* getMesh();
+	bool isCellAtPoint(vector3S point);
 	std::vector<Node> getNodePoints();
+	std::vector<vector3S> getCellPoints();
 
 private:
 	double m_mass;
