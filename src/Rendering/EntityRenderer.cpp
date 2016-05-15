@@ -5,49 +5,21 @@
 
 EntityRenderer::EntityRenderer()
 {
-	baseCubeModel = new Model();
-	baseCubeModel->localOffset = Transform();
-	baseCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-	baseCubeModel->mesh = loadMaterialMeshFromFile("res/Models/", "Cube.obj");
+
 }
 
 EntityRenderer::~EntityRenderer()
 {
-	delete baseCubeModel->mesh;
-	delete baseCubeModel->shader;
-	delete baseCubeModel;
+
 }
 
 void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 {
 	vector3F ambientLight = UVSG::getInstance()->renderingManager->ambientLight;
 
-	Model* model = baseCubeModel;
+	Model* model = nullptr;
 
 	Transform entityTransform = entity->m_transform;
-
-	if (entity->tempModels.size() == 0)
-	{
-		matrix4 projectionMatrix = camera->getProjectionMatrix();
-		matrix4 viewMatrix = camera->getOriginViewMatrix();
-		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPos());
-		matrix3 normalMatrix = entityTransform.getNormalMatrix();
-
-		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
-		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
-
-		model->shader->setActiveProgram();
-
-		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
-		model->shader->setUniform("normalMatrix", normalMatrix);
-		model->shader->setUniform("ambientLight", ambientLight);
-
-		model->mesh->draw(baseCubeModel->shader);
-
-		model->shader->deactivateProgram();
-
-		return;
-	}
 
 	for (int i = 0; i < entity->tempModels.size(); i++)
 	{
@@ -68,7 +40,10 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		model->shader->setUniform("normalMatrix", normalMatrix);
 		model->shader->setUniform("ambientLight", ambientLight);
 
-		model->mesh->draw(model->shader);
+		if (model->mesh != nullptr)
+		{
+			model->mesh->draw(model->shader);
+		}
 
 		model->shader->deactivateProgram();
 	}

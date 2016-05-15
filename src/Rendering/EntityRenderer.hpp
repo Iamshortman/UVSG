@@ -14,7 +14,6 @@ public:
 	virtual void renderLighting(World* world, Entity* entity, Camera* camera);
 
 private:
-	Model* baseCubeModel;
 };
 
 #endif //ENTITYRENDERER_HPP

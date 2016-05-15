@@ -14,8 +14,8 @@ Gui::~Gui()
 
 void Gui::renderGui(int windowWidth, int windowHeight)
 {
-	float width = 100;
-	float height = 100;
+	float width = 150;
+	float height = 509;
 
 	float midPointx = windowWidth / 2.0f;
 	float midPointy = windowHeight / 2.0f;

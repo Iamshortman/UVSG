@@ -11,6 +11,7 @@ public:
 	matrix4 getViewMatrix();
 	matrix4 getOriginViewMatrix();
 	matrix4 getProjectionMatrix();
+	matrix4 getModelMatrix();
 
     void moveCameraPos(const vector3D& dist);
     void rotateCamera(const vector3D& direction, double angle);

@@ -73,7 +73,18 @@ matrix4 Camera::getOriginViewMatrix()
 matrix4 Camera::getProjectionMatrix()
 {
 	float aspectRatio = ((float)width) / ((float)height);
-	return glm::perspective(frameOfView, aspectRatio, nearClipping, farClipping);
+	return glm::infinitePerspective(frameOfView, aspectRatio, nearClipping);
+}
+
+matrix4 Camera::getModelMatrix()
+{
+	matrix4 positionMatrix = matrix4();
+	matrix4 rotationMatrix = matrix4();
+
+	positionMatrix = glm::translate(matrix4(1.0F), (vector3F)m_Pos);
+	rotationMatrix = glm::toMat4(this->getOrientation());
+
+	return positionMatrix * rotationMatrix;
 }
 
 void Camera::setProjection(float frameOfView, float nearClipping, float farClipping, int screenWidth, int screenHeight)

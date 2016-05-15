@@ -14,9 +14,13 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include <glm/ext.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 typedef glm::mat4 matrix4;
 typedef glm::mat3 matrix3;
 
+typedef glm::vec4 vector4F;
 typedef glm::vec3 vector3F;
 typedef glm::vec2 vector2F;
 typedef glm::quat quaternionF;
@@ -25,5 +29,6 @@ typedef glm::f64vec3 vector3D;
 typedef glm::f64quat quaternionD;
 
 typedef glm::i16vec3 vector3S;
+typedef glm::i32vec3 vector3I;
 
 #endif //GLMINCLUDE_HPP

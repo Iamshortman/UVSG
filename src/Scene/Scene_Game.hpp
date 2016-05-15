@@ -21,7 +21,7 @@ public:
 		this->baseWorld = new World();
 		//this->baseWorld->setGravity(vector3D(0, -10, 0));
 
-		Model* bigCubeModel = new Model();
+ 		Model* bigCubeModel = new Model();
 		bigCubeModel->localOffset = Transform();
 		bigCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 		bigCubeModel->mesh = loadMaterialMeshFromFile("res/", "BigCube.obj");
@@ -34,7 +34,7 @@ public:
 
 		bigCube->m_RigidBody->rigidBody->setDamping(0.5, 0.5);
 
-		Entity* plane = EntityManager::instance()->createNewEntity();
+		/*Entity* plane = EntityManager::instance()->createNewEntity();
 		plane->addToWorld(baseWorld);
 		plane->m_transform.m_position = vector3D(0, -1, 0);
 		plane->addRigidBody(new RigidBody(new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0));
@@ -45,7 +45,7 @@ public:
 		floorModel->shader = bigCubeModel->shader;
 		floorModel->mesh = loadMaterialMeshFromFile("res/Models/", "Floor.obj");
 
-		plane->tempModels.push_back(floorModel);
+		plane->tempModels.push_back(floorModel);*/
 	};
 
 	virtual ~Scene_Game()

@@ -11,6 +11,27 @@
 #include "Ship/ShipComponent.hpp"
 #include "Ship/ShipCell.hpp"
 
+#include "Components/ShipFlightControl.hpp"
+
+bool getLinePlaneIntersection(vector3D ray, vector3D rayOrigin, vector3D planeNormal, vector3D planePos, vector3D &intersectionPos)
+{
+	if (glm::dot(planeNormal, ray) == 0)
+	{
+		return false; // No intersection, the line is parallel to the plane
+	}
+
+	// get d value
+	double d = glm::dot(planeNormal, planePos);
+
+	// Compute the X value for the directed line ray intersecting the plane
+	double x = (d - glm::dot(planeNormal, rayOrigin)) / glm::dot(planeNormal, ray);
+
+	// output contact point
+	intersectionPos = rayOrigin + glm::normalize(ray) * x; //Make sure your ray vector is normalized
+	return true;
+}
+
+
 class Scene_Editor : public Scene
 {
 public:
@@ -21,6 +42,11 @@ public:
 	ShipCell* cargoCell = nullptr;
 
 	ShipCell* cursorCell = nullptr;
+
+	//Temp int Mouse
+	int intMouse = 0;
+
+	int buildLevel = 0;
 
 	Scene_Editor(SDL_GameController* controllerToUse)
 	{
@@ -309,11 +335,10 @@ public:
 		if (pitchAxis > deadzone || pitchAxis < -deadzone)
 		{
 			//Get between -1 and 1
-			double amount = ((double)pitchAxis) / 32767.0f;
+			double amount = ((double)pitchAxis) / 32767.0;
 			double angle = amount * deltaTime * rotSpeed;
 
-			//Negitive angle because the joystick layout is backwards
-			quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, cameraRot * vector3D(-1.0f, 0.0f, 0.0f)));
+			quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, cameraRot * vector3D(-1.0, 0.0, 0.0)));
 
 			cameraRot = pitchQuat * cameraRot;
 		}
@@ -323,10 +348,10 @@ public:
 		if (yawAxis > deadzone || yawAxis < -deadzone)
 		{
 			//Get between -1 and 1
-			double amount = ((double)yawAxis) / 32767.0f;
+			double amount = ((double)yawAxis) / 32767.0;
 			double angle = amount * deltaTime * rotSpeed;
 
-			quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0f, 1.0f, 0.0f)));
+			quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0, 1.0, 0.0)));
 
 			cameraRot = yawQuat * cameraRot;
 		}
@@ -338,7 +363,7 @@ public:
 		{
 			int inputValue = -rightTrigger + leftTrigger;
 			//Get between -1 and 1
-			double amount = ((double)inputValue) / 32767.0f;
+			double amount = ((double)inputValue) / 32767.0;
 
 			cameraDistance += amount * deltaTime * zoomSpeed;
 
@@ -353,6 +378,127 @@ public:
 			}
 		}
 
+		//MOUSE CONTROLLS
+		static int last_MousePos[] = { 0, 0 };
+		int current_MousePos[] = { 0, 0 };
+		if (SDL_GetMouseState(&current_MousePos[0], &current_MousePos[1]) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		{
+			int delta_Mouse[] = { last_MousePos[0] - current_MousePos[0], last_MousePos[1] - current_MousePos[1] };
+
+			if (true)
+			{
+				//Get between -1 and 1
+				double amount = delta_Mouse[1];
+				double angle = amount * deltaTime * 0.1;
+
+				quaternionD pitchQuat = glm::normalize(glm::angleAxis(angle, cameraRot * vector3D(-1.0f, 0.0f, 0.0f)));
+
+				cameraRot = pitchQuat * cameraRot;
+			}
+
+			if (true)
+			{
+				//Get between -1 and 1
+				double amount = delta_Mouse[0];
+				double angle = amount * deltaTime  * 0.1;
+
+				quaternionD yawQuat = glm::normalize(glm::angleAxis(angle, vector3D(0.0f, 1.0f, 0.0f)));
+
+				cameraRot = yawQuat * cameraRot;
+			}
+
+			if (true)
+			{
+				double amount = -intMouse;
+
+				cameraDistance += amount * deltaTime * zoomSpeed * 2.0;
+
+				if (cameraDistance < minDistance)
+				{
+					cameraDistance = minDistance;
+				}
+
+				if (cameraDistance > maxDistance)
+				{
+					cameraDistance = maxDistance;
+				}
+			}
+		}
+		else
+		{
+			buildLevel += intMouse;
+		}
+		last_MousePos[0] = current_MousePos[0];
+		last_MousePos[1] = current_MousePos[1];
+
+		intMouse = 0;
+
+		camOrigin.y = buildLevel * (double)cubeSizeOutside;
+
+		Camera* camera = &UVSG::getInstance()->renderingManager->camera;
+		vector3D camPos = (cameraRot * vector3D(0, 0, -1.0f)) * cameraDistance;
+		camPos += camOrigin;
+		camera->setCameraTransform(camPos, cameraRot);
+
+		//RayTracing
+		int width, height;
+		UVSG::getInstance()->renderingManager->window->getWindowSize(width, height);
+
+		float xPos = (float)last_MousePos[0];
+		float yPos = (float)last_MousePos[1];
+
+		camera->setProjection(45.0f, 0.01f, 1000.0f, width, height);
+
+		matrix4 projectionMatrix = camera->getProjectionMatrix();
+		matrix4 viewMatrix = camera->getOriginViewMatrix();
+
+		vector3F screenPos = vector3F(xPos, height - yPos, 0.999999f);
+
+		vector4F viewport = vector4F(0.0f, 0.0f, width, height);
+		vector3D rayDirection = (vector3D)glm::unProject(screenPos, viewMatrix, projectionMatrix, viewport);
+		rayDirection = glm::normalize(rayDirection);
+		vector3D rayOrigin = camera->getPos();
+		rayOrigin.y -= buildLevel * (double)cubeSizeOutside;
+
+		vector3D worldPos = vector3D();
+		if (getLinePlaneIntersection(rayDirection, rayOrigin, vector3D(0, 1, 0), vector3D(0, 0, 0), worldPos))
+		{
+			if (glm::distance(worldPos, rayOrigin) < 500.0)
+			{
+				vector3I cursorPos = (vector3I)(worldPos / 3.0);
+				cursorPos += buildLevel;
+
+				m_cursorPos = cursorPos;
+			}
+		}
+
+		if (true)
+		{
+			static int lastState = 0;
+			int currentState = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT);
+			if (currentState && !lastState)
+			{
+				vector3S pos = (vector3S)m_cursorPos;
+				if (shipComponent->hasCellAtPos(pos))
+				{
+					shipComponent->removeCell(pos);
+					shipChanged = true;
+				}
+				else
+				{
+					ShipCellData newCell = ShipCellData(cursorCell, (vector3S)m_cursorPos);
+					if (shipComponent->canPlaceCell(newCell))
+					{
+						shipComponent->addCell(newCell);
+						shipChanged = true;
+					}
+				}
+			}
+			lastState = currentState;
+		}
+
+
+		//EDITOR CONTROLS
 		if (true)
 		{
 			static int lastState = 0;
@@ -421,7 +567,7 @@ public:
 			shipChanged = false;
 		}
 
-		if (shipComponent->hasCellAtPos(m_cursorPos))
+		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -432,16 +578,6 @@ public:
 			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
 		}
 
-		//Load game world
-		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
-		{
-			return;
-
-			printf("Loading Game World!!!\n");
-			UVSG* instace = UVSG::getInstance();
-			Scene_Game* game = new Scene_Game();
-			instace->currentScene = game;
-		}
 	};
 
 	virtual void render(RenderingManager* manager)
@@ -453,11 +589,6 @@ public:
 		int width, height;
 		manager->window->getWindowSize(width, height);
 		camera->setProjection(45.0f, 0.01f, 1000.0f, width, height);
-
-		vector3D camPos = (cameraRot * vector3D(0, 0, -1.0f)) * cameraDistance;
-		camPos += camOrigin;
-
-		manager->camera.setCameraTransform(camPos, cameraRot);
 
 		Transform transform = Transform();
 
@@ -491,7 +622,7 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
+		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)) || true)
 		{
 			Model* model = new Model();
 			model->shader = MaterialShader;
@@ -516,8 +647,8 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		manager->window->set2dRendering();
 
-		manager->texturePool.loadTexture("res/Textures/metalPanel_blueCorner.png");
-		manager->texturePool.bindTexture("res/Textures/metalPanel_blueCorner.png");
+		manager->texturePool.loadTexture("res/Textures/metalPanel_Cells.png");
+		manager->texturePool.bindTexture("res/Textures/metalPanel_Cells.png");
 		m_Gui->renderGui(width,height);
 
 		glDisable(GL_BLEND);

@@ -36,7 +36,7 @@ public:
 	bool hasCellAtPos(vector3S pos);
 	bool hasNode(vector3S pos, int direction);
 
-	bool canPlaceCell(ShipCellData& cell);
+	bool canPlaceCell(       ShipCellData& cell);
 
 	Mesh* genOutsideMesh();
 };
