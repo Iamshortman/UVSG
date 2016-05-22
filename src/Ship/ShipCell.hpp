@@ -1,6 +1,7 @@
 #ifndef SHIPCELL_HPP
 #define SHIPCELL_HPP
 
+#include "AABB.hpp"
 #include "Directions.hpp"
 #include "glmInclude.hpp"
 #include "Rendering/Mesh.hpp"
@@ -20,15 +21,14 @@ public:
 class ShipCell
 {
 public:
-	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, std::vector<vector3S> points);
+	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, AABB aabb);
 	~ShipCell();
 
 	double getCellMass();
 	Mesh* getMesh();
 	Mesh* getCursorMesh();
-	bool isCellAtPoint(vector3S point);
 	std::vector<Node> getNodePoints();
-	std::vector<vector3S> getCellPoints();
+	AABB getAABB();
 
 private:
 	double m_mass;
@@ -36,7 +36,7 @@ private:
 	Mesh* m_cursorMesh = nullptr;
 
 	std::vector<Node> m_nodes;
-	std::vector<vector3S> m_points;
+	AABB m_aabb;
 };
 
 #endif //SHIPCELL_HPP

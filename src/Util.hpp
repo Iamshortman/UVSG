@@ -10,6 +10,9 @@ using namespace std;
 //Just a basic util file for some common functions
 int flipDirection(int direction);
 
+vector3D getNormalFromDirectionVector3D(int direction);
+vector3S getNormalFromDirectionVector3S(int direction);
+
 void printQuat(const quaternionF quat);
 void printVec(const vector3F vec);
 void printVec(const vector3S vec);

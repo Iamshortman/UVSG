@@ -25,7 +25,7 @@ Window::Window(int width, int height, string windowTitle)
         height,
         SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE
     );
-	SDL_MaximizeWindow(window);
+	//SDL_MaximizeWindow(window);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 

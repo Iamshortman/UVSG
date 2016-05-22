@@ -2,6 +2,8 @@
 #include "Scene/Scene_Game.hpp"
 #include "Scene/Scene_Editor.hpp"
 
+#include "Ship/AABB.hpp"
+
 UVSG* UVSG::instance;
 
 UVSG::UVSG()
@@ -20,19 +22,6 @@ UVSG::UVSG()
 	{
 		exit(15);
 	}
-
-	/*float width = 600.0f;
-	float height = 400.0f;
-
-	matrix4 projectionMatrix = glm::perspective(45.0f, width / height, 0.1f, 1000.0f);
-	vector3F screenPos = vector3F(width / 2.0f, height / 2.0f, 1.0f);
-	std::cout << "{" << screenPos.x << ", " << screenPos.y << ", " << screenPos.z << "} \n";
-
-	vector4F viewport = vector4F(0.0f, 0.0f, width, height);
-	matrix4 viewMatrix = matrix4();
-	vector3F worldPos = glm::unProject(screenPos, viewMatrix, projectionMatrix, viewport);
-
-	std::cout << "{" << worldPos.x << ", " << worldPos.y << ", " << worldPos.z << "} \n";*/
 }
 
 void UVSG::update(double deltaTime)

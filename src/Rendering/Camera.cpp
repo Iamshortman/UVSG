@@ -73,7 +73,7 @@ matrix4 Camera::getOriginViewMatrix()
 matrix4 Camera::getProjectionMatrix()
 {
 	float aspectRatio = ((float)width) / ((float)height);
-	return glm::infinitePerspective(frameOfView, aspectRatio, nearClipping);
+	return glm::perspective(frameOfView, aspectRatio, nearClipping, farClipping);
 }
 
 matrix4 Camera::getModelMatrix()

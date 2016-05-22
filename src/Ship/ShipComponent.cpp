@@ -19,15 +19,6 @@ void ShipComponent::removeCell(vector3S pos)
 		m_shipCells.erase(pos);
 		return;
 	}
-
-	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
-	{
-		if (it->second.isCellAtPoint(pos))
-		{
-			m_shipCells.erase(it->first);
-			return;
-		}
-	}
 }
 
 ShipCellData ShipComponent::getCell(vector3S pos)
@@ -39,7 +30,8 @@ ShipCellData ShipComponent::getCell(vector3S pos)
 
 	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
 	{
-		if (it->second.isCellAtPoint(pos))
+		//If the cells Intercet
+		if (it->second.getAABB().pointIntersect(pos))
 		{
 			return it->second;
 		}
@@ -57,7 +49,8 @@ bool ShipComponent::hasCellAtPos(vector3S pos)
 
 	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
 	{
-		if (it->second.isCellAtPoint(pos))
+		//If the cells Intercet
+		if (it->second.getAABB().pointIntersect(pos))
 		{
 			return true;
 		}
@@ -90,9 +83,10 @@ bool ShipComponent::hasNode(vector3S pos, int direction)
 
 bool ShipComponent::canPlaceCell(ShipCellData& cell)
 {
-	for (vector3S point : cell.getCellPoints())
+	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
 	{
-		if (hasCellAtPos(point))
+		//If the cells Intercet
+		if (cell.getAABB().aabbIntersect(it->second.getAABB()))
 		{
 			return false;
 		}
@@ -101,9 +95,33 @@ bool ShipComponent::canPlaceCell(ShipCellData& cell)
 	return true;
 }
 
+bool ShipComponent::getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace)
+{
+	vector3D tempPos = vector3D();
+	DIRECTIONS tempDir = (DIRECTIONS)-1;
+	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
+	{
+		//If the cells Intercet
+		if (it->second.getAABB().rayIntersect(rayOrigin, rayEnd, tempPos, tempDir))
+		{
+			if (tempDir == -1)
+			{
+				return false;
+			}
+
+			out_Pos = tempPos;
+			out_HitFace = tempDir;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 Mesh* ShipComponent::genOutsideMesh()
 {
-	float cubeSize = 3.0f;
+	float cubeSize = (float)shipOutsideSize;
 	vector3F vertsCube[] =
 	{
 		vector3F(-0.5f, -0.5f, -0.5f) * cubeSize,

@@ -3,6 +3,7 @@
 
 #include "glmInclude.hpp"
 #include "Ship/ShipCellData.hpp"
+#include "Ship/Directions.hpp"
 #include "Components/Component.hpp"
 
 #include <unordered_map>
@@ -35,10 +36,14 @@ public:
 	vector3S getCellRootPos(ShipCellData cell);
 	bool hasCellAtPos(vector3S pos);
 	bool hasNode(vector3S pos, int direction);
+	bool canPlaceCell(ShipCellData& cell);
 
-	bool canPlaceCell(       ShipCellData& cell);
+	bool getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace);
+
 
 	Mesh* genOutsideMesh();
+
+	double shipOutsideSize = 3.0;
 };
 
 #endif //SHIPCOMPONENT_HPP

@@ -13,25 +13,6 @@
 
 #include "Components/ShipFlightControl.hpp"
 
-bool getLinePlaneIntersection(vector3D ray, vector3D rayOrigin, vector3D planeNormal, vector3D planePos, vector3D &intersectionPos)
-{
-	if (glm::dot(planeNormal, ray) == 0)
-	{
-		return false; // No intersection, the line is parallel to the plane
-	}
-
-	// get d value
-	double d = glm::dot(planeNormal, planePos);
-
-	// Compute the X value for the directed line ray intersecting the plane
-	double x = (d - glm::dot(planeNormal, rayOrigin)) / glm::dot(planeNormal, ray);
-
-	// output contact point
-	intersectionPos = rayOrigin + glm::normalize(ray) * x; //Make sure your ray vector is normalized
-	return true;
-}
-
-
 class Scene_Editor : public Scene
 {
 public:
@@ -40,6 +21,7 @@ public:
 	ShipCell* hullCell = nullptr;
 	ShipCell* bridgeCell = nullptr;
 	ShipCell* cargoCell = nullptr;
+	ShipCell* bridge1Cell = nullptr;
 
 	ShipCell* cursorCell = nullptr;
 
@@ -85,12 +67,11 @@ public:
 		if (true)
 		{
 			vector<Node> nodes;
-			vector<vector3S> points = {vector3S(0)};
 			for (int i = 0; i < 6; i++)
 			{
 				nodes.push_back(Node(vector3S(0), i));
 			}
-			hullCell = new ShipCell(nullptr, loadMaterialMeshFromFile("res/ShipParts/", "Hull_Cursor.obj"), 200, nodes, points);
+			hullCell = new ShipCell(nullptr, loadMaterialMeshFromFile("res/ShipParts/", "Hull_Cursor.obj"), 200, nodes, AABB());
 		}
 		
 
@@ -105,52 +86,28 @@ public:
 				Node(vector3S(-1, 0, 0), RIGHT),
 			};
 
-			vector<vector3S> points;
-			for (int x = -1; x < 2; x++)
-			{
-				for (int y = -1; y < 2; y++)
-				{
-					for (int z = -2; z < 2; z++)
-					{
-						points.push_back(vector3S(x, y, z));
-					}
-				}
-			}
-
-			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge_Cursor.obj"), 3000, nodes, points);
+			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge_Cursor.obj"), 3000, nodes, AABB(vector3D(-1.5, -1.5, -2.5), vector3D(1.5, 1.5, 1.5)));
 		}
 
 		if (true)
 		{
-			vector<Node> nodes;
-			nodes.push_back(Node(vector3S(0, 0, -2), BACKWARD));
-			nodes.push_back(Node(vector3S(0, 0, 3), FORWARD));
 
-			for (int i = -2; i < 4; i++)
-			{
-				nodes.push_back(Node(vector3S(0, 1, i), UP));
-				nodes.push_back(Node(vector3S(1, 0, i), LEFT));
-				nodes.push_back(Node(vector3S(-1, 0, i), RIGHT));
-			}
-
-
-			vector<vector3S> points;
-			for (int x = -1; x < 2; x++)
-			{
-				for (int y = -2; y < 2; y++)
-				{
-					for (int z = -2; z < 4; z++)
-					{
-						points.push_back(vector3S(x, y, z));
-					}
-				}
-			}
-
-			cargoCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Cargo_Hull.obj"), nullptr, 3000, nodes, points);
 		}
 
 
-		cursorCell = bridgeCell;
+		if (true)
+		{
+			vector<Node> nodes =
+			{
+				Node(vector3S(0, 0, 0), BACKWARD),
+				Node(vector3S(1, 0, 1), LEFT),
+				Node(vector3S(-1, 0, 1), RIGHT),
+			};
+
+			bridge1Cell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge1.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge1_Cursor.obj"), 3000, nodes, AABB(vector3D(-1.5, -0.95, -0.5), vector3D(1.5, 0.95, 2.5)));
+		}
+
+		cursorCell = bridge1Cell;
 	};
 
 	virtual ~Scene_Editor()
@@ -433,8 +390,6 @@ public:
 
 		intMouse = 0;
 
-		camOrigin.y = buildLevel * (double)cubeSizeOutside;
-
 		Camera* camera = &UVSG::getInstance()->renderingManager->camera;
 		vector3D camPos = (cameraRot * vector3D(0, 0, -1.0f)) * cameraDistance;
 		camPos += camOrigin;
@@ -447,7 +402,7 @@ public:
 		float xPos = (float)last_MousePos[0];
 		float yPos = (float)last_MousePos[1];
 
-		camera->setProjection(45.0f, 0.01f, 1000.0f, width, height);
+		camera->setProjection(45.0f, 0.01f, 100.0f, width, height);
 
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
@@ -458,19 +413,57 @@ public:
 		vector3D rayDirection = (vector3D)glm::unProject(screenPos, viewMatrix, projectionMatrix, viewport);
 		rayDirection = glm::normalize(rayDirection);
 		vector3D rayOrigin = camera->getPos();
-		rayOrigin.y -= buildLevel * (double)cubeSizeOutside;
 
 		vector3D worldPos = vector3D();
-		if (getLinePlaneIntersection(rayDirection, rayOrigin, vector3D(0, 1, 0), vector3D(0, 0, 0), worldPos))
-		{
-			if (glm::distance(worldPos, rayOrigin) < 500.0)
-			{
-				vector3I cursorPos = (vector3I)(worldPos / 3.0);
-				cursorPos += buildLevel;
+		DIRECTIONS hitFace;
+		if (shipComponent->getRayCollision(rayOrigin / (double)cubeSizeOutside, (rayOrigin + (rayDirection * 200.0)) / (double)cubeSizeOutside, worldPos, hitFace))
+		{ 
+			vector3S normal = getNormalFromDirectionVector3S(hitFace);
 
-				m_cursorPos = cursorPos;
+			m_cursorPos = worldPos;
+			m_cursorPos += normal;
+
+			double dist = 0;
+			AABB aabb = cursorCell->getAABB();
+			if (hitFace == UP)
+			{
+				dist = aabb.maxPos.y;
 			}
+			else if (hitFace == DOWN)
+			{
+				dist = aabb.minPos.y;
+			}
+			else if (hitFace == FORWARD)
+			{
+				dist = aabb.maxPos.z;
+			}
+			else if (hitFace == BACKWARD)
+			{
+				dist = aabb.minPos.z;
+			}
+			else if (hitFace == LEFT)
+			{
+				dist = aabb.maxPos.x;
+			}
+			else if (hitFace == BACKWARD)
+			{
+				dist = aabb.minPos.z;
+			}
+
+			m_cursorPos += normal * (int)dist;
+
+			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
+			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
 		}
+		else
+		{
+			worldPos = (rayOrigin + (rayDirection * cameraDistance)) / 3.0;
+			m_cursorPos = worldPos;
+
+			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
+			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
+		}
+
 
 		if (true)
 		{
@@ -567,7 +560,7 @@ public:
 			shipChanged = false;
 		}
 
-		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
+		/*if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -576,7 +569,7 @@ public:
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
-		}
+		}*/
 
 	};
 
@@ -622,20 +615,20 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)) || true)
+		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, m_cursorPos)))
 		{
 			Model* model = new Model();
 			model->shader = MaterialShader;
 			model->mesh = cursorCell->getCursorMesh();
 
 			if (model->mesh != nullptr)
-				renderModelLight(manager, camera, model, Transform(m_cursorPos * (double)cubeSizeOutside), 0.5f);
+				renderModelLight(manager, camera, model, Transform( (vector3D)m_cursorPos * (double)cubeSizeOutside), 0.5f);
 
 			delete model;
 		}
 
 		glDisable(GL_DEPTH_TEST);
-		renderModel(manager, camera, m_cursorModel, Transform(m_cursorPos * (double)cubeSizeOutside));
+		renderModel(manager, camera, m_cursorModel, Transform((vector3D)m_cursorPos * (double)cubeSizeOutside));
 		glEnable(GL_DEPTH_TEST);
 
 		glDisable(GL_BLEND);
@@ -647,9 +640,9 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		manager->window->set2dRendering();
 
-		manager->texturePool.loadTexture("res/Textures/metalPanel_Cells.png");
-		manager->texturePool.bindTexture("res/Textures/metalPanel_Cells.png");
-		m_Gui->renderGui(width,height);
+		//manager->texturePool.loadTexture("res/Textures/metalPanel_Cells.png");
+		//manager->texturePool.bindTexture("res/Textures/metalPanel_Cells.png");
+		//m_Gui->renderGui(width,height);
 
 		glDisable(GL_BLEND);
 
@@ -686,7 +679,7 @@ public:
 	quaternionD cameraRot;
 
 	Model* m_cursorModel = nullptr;
-	vector3D m_cursorPos = vector3D(0.0); 
+	vector3S m_cursorPos = vector3D(0.0); 
 
 private:
 	void renderModel(RenderingManager* manager, Camera* camera, Model* model, Transform transform)

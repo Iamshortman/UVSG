@@ -18,7 +18,7 @@ double ShipCellData::getCellMass()
 
 bool ShipCellData::isCellAtPoint(vector3S point)
 {
-	return m_cellType->isCellAtPoint(point - m_position);
+	return getAABB().pointIntersect((vector3D)point);
 }
 
 Mesh* ShipCellData::getMesh()
@@ -36,14 +36,11 @@ vector<Node> ShipCellData::getNodePoints()
 	return nodes;
 }
 
-vector<vector3S> ShipCellData::getCellPoints()
+AABB ShipCellData::getAABB()
 {
-	vector<vector3S> points;
-	for (vector3S point : m_cellType->getCellPoints())
-	{
-		points.push_back(point + this->m_position);
-	}
-	return points;
+	AABB aabb = m_cellType->getAABB();
+	aabb.setPos(m_position);
+	return aabb;
 }
 
 bool ShipCellData::isNull()

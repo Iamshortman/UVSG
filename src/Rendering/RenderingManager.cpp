@@ -8,8 +8,8 @@
 RenderingManager::RenderingManager()
 {
 	string Title = "UVSG";
-	int SCREEN_WIDTH = 640;
-	int SCREEN_HEIGHT = 400;
+	int SCREEN_WIDTH = 800;
+	int SCREEN_HEIGHT = 600;
 
 	window = new Window(SCREEN_WIDTH, SCREEN_HEIGHT, Title);
 	window->setBufferClearColor(1.0f, 0.0f, 0.0f, 1.0f);

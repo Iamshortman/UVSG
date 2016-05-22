@@ -15,6 +15,36 @@ int flipDirection(int direction)
 	}
 }
 
+vector3D getNormalFromDirectionVector3D(int direction)
+{
+	vector3D normals[] =
+	{
+		vector3D(0, 1, 0),
+		vector3D(0, -1, 0),
+		vector3D(0, 0, 1),
+		vector3D(0, 0, -1),
+		vector3D(1, 0, 0),
+		vector3D(-1, 0, 0),
+	};
+
+	return normals[direction];
+}
+
+vector3S getNormalFromDirectionVector3S(int direction)
+{
+	vector3S normals[] =
+	{
+		vector3S(0, 1, 0),
+		vector3S(0, -1, 0),
+		vector3S(0, 0, 1),
+		vector3S(0, 0, -1),
+		vector3S(1, 0, 0),
+		vector3S(-1, 0, 0),
+	};
+
+	return normals[direction];
+}
+
 void printQuat(const quaternionF quat)
 {
 	std::cout << "{" << quat.x << ", " << quat.y << ", " << quat.z << ", " << quat.w << "}";
