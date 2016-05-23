@@ -21,7 +21,7 @@ RigidBody::RigidBody(btCollisionShape* shape, btScalar mass, const btVector3& in
 	rigidBody = new btRigidBody(boxRigidBodyCI);
 }
 
-void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity)
+void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Transform worldTransform)
 {
 	//Remove from old physics world
 	if (world != nullptr)
@@ -33,7 +33,7 @@ void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity)
 	world = physicsWorld;
 	rigidBody->setUserPointer(entity);
 
-	setWorldTranform(entity->m_transform);
+	setWorldTransform(worldTransform);
 
 	world->addRigidBody(rigidBody);
 }
@@ -64,10 +64,30 @@ Transform RigidBody::getWorldTransform()
 	return transform;
 }
 
-void RigidBody::setWorldTranform(Transform transform)
+void RigidBody::setWorldTransform(Transform transform)
 {
 	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()) );
 	rigidBody->setCenterOfMassTransform(rigidBodyTransform);
+}
+
+vector3D RigidBody::getLinearVelocity() const
+{
+	return toGlmVec3(rigidBody->getLinearVelocity());
+}
+
+void RigidBody::setLinearVelocity(vector3D velocity)
+{
+	rigidBody->setLinearVelocity(toBtVec3(velocity));
+}
+
+vector3D RigidBody::getAngularVelocity() const
+{
+	return toGlmVec3(rigidBody->getAngularVelocity());
+}
+
+void RigidBody::setAngularVelocity(vector3D velocity)
+{
+	rigidBody->setAngularVelocity(toBtVec3(velocity));
 }
 
 

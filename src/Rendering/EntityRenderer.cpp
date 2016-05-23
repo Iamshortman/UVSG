@@ -19,7 +19,8 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 	Model* model = nullptr;
 
-	Transform entityTransform = entity->m_transform;
+	Transform entityTransform = entity->getTransform();
+	Transform worldOffset = world->getWorldOffsetMatrix();
 
 	for (int i = 0; i < entity->tempModels.size(); i++)
 	{

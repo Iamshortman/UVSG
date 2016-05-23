@@ -2,8 +2,6 @@
 #include "Scene/Scene_Game.hpp"
 #include "Scene/Scene_Editor.hpp"
 
-#include "Ship/AABB.hpp"
-
 UVSG* UVSG::instance;
 
 UVSG::UVSG()
@@ -12,15 +10,25 @@ UVSG::UVSG()
 
 	this->renderingManager = new RenderingManager();
 
-	if (SDL_IsGameController(0))
+	//char input;
+
+	//cin >> input;
+	if (true)
 	{
-		SDL_GameController* controller = SDL_GameControllerOpen(0);
-		currentScene = new Scene_Editor(controller);
-		printf("Using Controller: %s \n", SDL_GameControllerName(controller));
+		currentScene = new Scene_Game();
 	}
 	else
 	{
-		exit(15);
+		if (SDL_IsGameController(0))
+		{
+			SDL_GameController* controller = SDL_GameControllerOpen(0);
+			currentScene = new Scene_Editor(controller);
+			printf("Using Controller: %s \n", SDL_GameControllerName(controller));
+		}
+		else
+		{
+			exit(15);
+		}
 	}
 }
 

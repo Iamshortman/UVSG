@@ -42,5 +42,4 @@ class NearZoneRenderable : public Renderable
 {
 
 };
-
 #endif //RENDERABLE_HPP

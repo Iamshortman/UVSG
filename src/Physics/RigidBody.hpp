@@ -16,25 +16,28 @@ public:
 
 	virtual ~RigidBody();
 
-	void addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity);
+	void addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Transform worldTransform);
 
 	void setCollisionShape(bool deleteOldShape, btCollisionShape* newShape);
 
 	Transform getWorldTransform();
-	void setWorldTranform(Transform transform);
+	void setWorldTransform(Transform transform);
 
 	Transform getCOMTransform();
 	void setCOMTransform(Transform transform);
 
-	btRigidBody* rigidBody;
+	vector3D getLinearVelocity() const;
+	void setLinearVelocity(vector3D velocity);
 
-	void setObjectKinematic(bool kinematic){ isKinematic = kinematic; };
-	bool isObjectKinematic(){ return isKinematic; };
+	vector3D getAngularVelocity() const;
+	void setAngularVelocity(vector3D velocity);
+
 	PhysicsWorld* getPhysicsWorld() const;
 
 private:
+	btRigidBody* rigidBody;
+
 	PhysicsWorld* world = nullptr;
-	bool isKinematic = false;
 };
 
 #endif //RIGIDBODY_HPP

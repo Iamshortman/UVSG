@@ -26,7 +26,7 @@ class PhysicsWorld
 public:
 	PhysicsWorld();
 	virtual ~PhysicsWorld();
-	void update(double deltaTime, vector<Entity*> &entities);
+	void update(double deltaTime);
 	void addRigidBody(btRigidBody* body);
 	void removeRigidBody(btRigidBody* body);
 

@@ -24,6 +24,8 @@ RenderingManager::RenderingManager()
 	skybox->shader = new ShaderProgram("res/Textured.vs", "res/Textured.fs",  { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
 
 	texturePool.loadTexture(skybox->texture);
+
+	this->ambientLight = vector3F(1.0f);
 }
 
 void RenderingManager::update(double timeStep, World* world)
@@ -47,6 +49,11 @@ void RenderingManager::update(double timeStep, World* world)
 	skybox->shader->setUniform("MVP", projectionMatrix * viewMatrix);
 	skybox->mesh->draw(skybox->shader);
 	skybox->shader->deactivateProgram();
+
+	//Clear depth buffer so any other object in front of far objects.
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	world->renderFarView(&camera);
 
 	//Clear depth buffer so any other object in front of far objects.
 	glClear(GL_DEPTH_BUFFER_BIT);

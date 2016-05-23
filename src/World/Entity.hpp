@@ -19,11 +19,11 @@ private:
 	std::hash_map<string, Component*> m_components;
 	bool m_alive = true;
 
-public:
 	Transform m_transform;
-	Velocity m_Velocity;
+	Velocity m_velocity;
 	RigidBody* m_RigidBody = nullptr;
 
+public:
 	vector<void*> tempModels;
 
 	const EntityId m_entityId;
@@ -40,6 +40,27 @@ public:
 
 	void addRigidBody(RigidBody* rigidBody);
 
+	//Transform Functions
+	vector3D getPosition();
+	void setPosition(vector3D pos);
+
+	quaternionD getOrientation();
+	void setOrientation(quaternionD rot);
+
+	vector3D getScale();
+	void setScale(vector3D scale);
+
+	Transform getTransform();
+	void setTransform(Transform transform);
+
+	//Velocity Functions
+	vector3D getLinearVelocity() const;
+	void setLinearVelocity(vector3D Velocity);
+
+	vector3D getAngularVelocity() const;
+	void setAngularVelocity(vector3D Velocity);
+
+	//Component functions 
 	bool hasComponent(string componentName);
 	Component* getComponent(string componentName);
 	void addComponent(string componentName, Component* component);

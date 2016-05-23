@@ -8,7 +8,5 @@ EntityWorld::EntityWorld(EntityId id)
 
 Transform EntityWorld::getWorldOffsetMatrix()
 {
-	Transform transform = Transform();
-	transform.setPositionAndRotationFromTransform(this->m_transform);
-	return transform;
+	return this->getTransform();
 }

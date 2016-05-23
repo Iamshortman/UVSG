@@ -11,6 +11,7 @@
 #include "World/EntityManager.hpp"
 #include "Rendering/ObjLoader.hpp"
 
+
 class Scene_Game : public Scene
 {
 public:
@@ -21,6 +22,10 @@ public:
 		this->baseWorld = new World();
 		//this->baseWorld->setGravity(vector3D(0, -10, 0));
 
+		Entity* camEntity = EntityManager::instance()->createNewEntity();
+		camEntity->addToWorld(baseWorld);
+		camEntity->addComponent("playerController", new PlayerControl(5.0, 1.0, SDL_GameControllerOpen(0)));
+
  		Model* bigCubeModel = new Model();
 		bigCubeModel->localOffset = Transform();
 		bigCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
@@ -28,24 +33,22 @@ public:
 
 		Entity* bigCube = EntityManager::instance()->createNewEntity();
 		bigCube->addToWorld(baseWorld);
-		bigCube->m_transform.m_position = vector3D(0, 0, 100);
-		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 10000.0));
+		bigCube->setPosition(vector3D(0, 0, 100));
+		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		bigCube->tempModels.push_back(bigCubeModel);
 
-		bigCube->m_RigidBody->rigidBody->setDamping(0.5, 0.5);
+		Model* PlanetModel = new Model();
+		PlanetModel->shader = bigCubeModel->shader;
+		PlanetModel->mesh = loadMaterialMeshFromFile("res/Models/", "Planet.obj");
+		Entity* planet = EntityManager::instance()->createNewEntity();
+		planet->addToWorld(baseWorld);
+		planet->setPosition(vector3D(50000.0, -1000000.0, 30000000.0));
+		planet->setScale(vector3D(30000000.0));
+		planet->tempModels.push_back(PlanetModel);
+		planet->addComponent("planet", new Component());
+		planet->setOrientation(quaternionD(0.963, -0.164, -0.202, -0.067));
 
-		/*Entity* plane = EntityManager::instance()->createNewEntity();
-		plane->addToWorld(baseWorld);
-		plane->m_transform.m_position = vector3D(0, -1, 0);
-		plane->addRigidBody(new RigidBody(new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0));
 
-		Model* floorModel = new Model();
-		floorModel->localOffset = Transform();
-		floorModel->localOffset.setScale(vector3D(20.0));
-		floorModel->shader = bigCubeModel->shader;
-		floorModel->mesh = loadMaterialMeshFromFile("res/Models/", "Floor.obj");
-
-		plane->tempModels.push_back(floorModel);*/
 	};
 
 	virtual ~Scene_Game()
@@ -56,11 +59,10 @@ public:
 	virtual void update(double deltaTime)
 	{
 		baseWorld->updateWorld(deltaTime);
-		Entity* entity = EntityManager::instance()->getEntity(3);
+		Entity* entity = EntityManager::instance()->getEntity(1);
 		if (entity != nullptr)
 		{
-			vector3D pos = entity->m_transform.getOrientation() * vector3D(0, 2, -6);
-			UVSG::getInstance()->renderingManager->camera.setCameraTransform(entity->m_transform.getPos() + pos, entity->m_transform.getOrientation());
+			UVSG::getInstance()->renderingManager->camera.setCameraTransform(entity->getPosition(), entity->getOrientation());
 		}
 	};
 

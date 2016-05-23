@@ -395,76 +395,6 @@ public:
 		camPos += camOrigin;
 		camera->setCameraTransform(camPos, cameraRot);
 
-		//RayTracing
-		int width, height;
-		UVSG::getInstance()->renderingManager->window->getWindowSize(width, height);
-
-		float xPos = (float)last_MousePos[0];
-		float yPos = (float)last_MousePos[1];
-
-		camera->setProjection(45.0f, 0.01f, 100.0f, width, height);
-
-		matrix4 projectionMatrix = camera->getProjectionMatrix();
-		matrix4 viewMatrix = camera->getOriginViewMatrix();
-
-		vector3F screenPos = vector3F(xPos, height - yPos, 0.999999f);
-
-		vector4F viewport = vector4F(0.0f, 0.0f, width, height);
-		vector3D rayDirection = (vector3D)glm::unProject(screenPos, viewMatrix, projectionMatrix, viewport);
-		rayDirection = glm::normalize(rayDirection);
-		vector3D rayOrigin = camera->getPos();
-
-		vector3D worldPos = vector3D();
-		DIRECTIONS hitFace;
-		if (shipComponent->getRayCollision(rayOrigin / (double)cubeSizeOutside, (rayOrigin + (rayDirection * 200.0)) / (double)cubeSizeOutside, worldPos, hitFace))
-		{ 
-			vector3S normal = getNormalFromDirectionVector3S(hitFace);
-
-			m_cursorPos = worldPos;
-			m_cursorPos += normal;
-
-			double dist = 0;
-			AABB aabb = cursorCell->getAABB();
-			if (hitFace == UP)
-			{
-				dist = aabb.maxPos.y;
-			}
-			else if (hitFace == DOWN)
-			{
-				dist = aabb.minPos.y;
-			}
-			else if (hitFace == FORWARD)
-			{
-				dist = aabb.maxPos.z;
-			}
-			else if (hitFace == BACKWARD)
-			{
-				dist = aabb.minPos.z;
-			}
-			else if (hitFace == LEFT)
-			{
-				dist = aabb.maxPos.x;
-			}
-			else if (hitFace == BACKWARD)
-			{
-				dist = aabb.minPos.z;
-			}
-
-			m_cursorPos += normal * (int)dist;
-
-			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
-			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
-		}
-		else
-		{
-			worldPos = (rayOrigin + (rayDirection * cameraDistance)) / 3.0;
-			m_cursorPos = worldPos;
-
-			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
-			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
-		}
-
-
 		if (true)
 		{
 			static int lastState = 0;
@@ -560,7 +490,7 @@ public:
 			shipChanged = false;
 		}
 
-		/*if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
+		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -569,7 +499,7 @@ public:
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
-		}*/
+		}
 
 	};
 

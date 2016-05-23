@@ -29,54 +29,10 @@ PhysicsWorld::PhysicsWorld()
 	gContactAddedCallback = collisonCallback;
 }
 
-void PhysicsWorld::update(double timeStep, vector<Entity*> &entities)
+void PhysicsWorld::update(double timeStep)
 {
-	for (Entity* entity : entities)
-	{
-		if (entity != nullptr)
-		{
-			if (entity->m_RigidBody != nullptr)
-			{
-				entity->m_RigidBody->setWorldTranform(entity->m_transform);
-
-				vector3D linear = entity->m_Velocity.linearVelocity;
-				entity->m_RigidBody->rigidBody->setLinearVelocity(btVector3(linear.x, linear.y, linear.z));
-				vector3D angular = entity->m_Velocity.angularVelocity;
-				entity->m_RigidBody->rigidBody->setAngularVelocity(btVector3(angular.x, angular.y, angular.z));
-				entity->m_RigidBody->rigidBody->forceActivationState(DISABLE_DEACTIVATION);
-				
-				if (linear.x || linear.y || linear.z || angular.x || angular.y || angular.z)
-				{
-					entity->m_RigidBody->rigidBody->activate(true);
-				}
-				else
-				{
-					entity->m_RigidBody->rigidBody->activate(false);
-				}
-			}
-		}
-	}
-
 	//Run Physics Simulation
 	dynamicsWorld->stepSimulation(timeStep, 4);
-
-	for (Entity* entity : entities)
-	{
-		if (entity != nullptr)
-		{
-			if (entity->m_RigidBody != nullptr)
-			{
-				entity->m_transform.setPositionAndRotationFromTransform(entity->m_RigidBody->getWorldTransform());
-
-				btVector3 linear = entity->m_RigidBody->rigidBody->getLinearVelocity();
-				entity->m_Velocity.linearVelocity = vector3D(linear.getX(), linear.getY(), linear.getZ());
-
-				btVector3 angular = entity->m_RigidBody->rigidBody->getAngularVelocity();
-				entity->m_Velocity.angularVelocity = vector3D(angular.getX(), angular.getY(), angular.getZ());
-			}
-		}
-	}
-
 }
 
 void PhysicsWorld::addRigidBody(btRigidBody* body)

@@ -22,9 +22,9 @@ void PlayerControl::update(double deltaTime)
 		double angle = amount * deltaTime * this->angularSpeed;
 
 		//Negitive angle because the joystick layout is backwards
-		quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, parent->m_transform.getRight()));
+		quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, parent->getTransform().getRight()));
 
-		parent->m_transform.m_orientation = pitchQuat * parent->m_transform.m_orientation;
+		parent->setOrientation(pitchQuat * parent->getTransform().getOrientation());
 	}
 
 	int yawAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
@@ -37,7 +37,7 @@ void PlayerControl::update(double deltaTime)
 
 		quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0f, 1.0f, 0.0f)));
 
-		parent->m_transform.m_orientation = yawQuat * parent->m_transform.m_orientation;
+		parent->setOrientation(yawQuat * parent->getTransform().getOrientation());
 	}
 
 
@@ -48,7 +48,7 @@ void PlayerControl::update(double deltaTime)
 		//Get between -1 and 1
 		double amount = ((double)forwardAxis) / 32767.0f;
 		double distance = amount * deltaTime * this->linearSpeed;
-		parent->m_transform.m_position += parent->m_transform.getForward() * -distance;
+		parent->setPosition(parent->getPosition() + (parent->getTransform().getForward() * -distance));
 	}
 
 	int strafeAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
@@ -58,7 +58,7 @@ void PlayerControl::update(double deltaTime)
 		//Get between -1 and 1
 		double amount = ((double)strafeAxis) / 32767.0f;
 		double distance = amount * deltaTime * this->linearSpeed;
-		parent->m_transform.m_position += parent->m_transform.getRight() * distance;
+		parent->setPosition(parent->getPosition() + (parent->getTransform().getRight() * distance));
 	}
 
 	static int lastButton = 0;
@@ -67,8 +67,8 @@ void PlayerControl::update(double deltaTime)
 	if (button && !lastButton)
 	{
 		double rayDistance = 1000.0f;
-		vector3D startPos = parent->m_transform.getPos();
-		vector3D endPos = parent->m_transform.getPos() + (parent->m_transform.getForward() * rayDistance);
+		vector3D startPos = parent->getTransform().getPos();
+		vector3D endPos = parent->getTransform().getPos() + (parent->getTransform().getForward() * rayDistance);
 		SingleRayTestResult result = parent->getWorld()->m_physicsWorld->singleRayTest(startPos, endPos);
 
 		if (result.hasHit)

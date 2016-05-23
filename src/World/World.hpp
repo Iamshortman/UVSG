@@ -20,6 +20,7 @@ public:
 	virtual ~World();
 	void updateWorld(double deltaTime);
 	void render(Camera* camera);
+	void renderFarView(Camera* camera);
 
 	void addEntityToWorld(EntityId entityId);
 	void removeEntityFromWorld(EntityId entityId);

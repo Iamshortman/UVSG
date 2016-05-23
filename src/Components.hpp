@@ -3,6 +3,7 @@
 
 #include "Rendering/Mesh.hpp"
 #include "Rendering/TexturedMesh.hpp"
+
 #include <vector>
 
 class Transform
@@ -55,15 +56,15 @@ public:
 		return positionMatrix * rotationMatrix * scaleMatrix;
 	};
 
-	matrix4 getModleMatrix(vector3D cameraPos) const
+	matrix4 getModleMatrix(vector3D cameraPos, double divisorPosScale = 1.0) const
 	{
 		matrix4 positionMatrix = matrix4();
 		matrix4 rotationMatrix = matrix4();
 		matrix4 scaleMatrix = matrix4();
 
-		positionMatrix = glm::translate(matrix4(1.0F), (vector3F)(m_position - cameraPos));
+		positionMatrix = glm::translate(matrix4(1.0F), (vector3F)((m_position - cameraPos) / divisorPosScale));
 		rotationMatrix = glm::toMat4((quaternionF)m_orientation);
-		scaleMatrix = glm::scale(matrix4(1.0F), (vector3F)m_scale);
+		scaleMatrix = glm::scale(matrix4(1.0F), (vector3F)(m_scale / divisorPosScale));
 
 		return positionMatrix * rotationMatrix * scaleMatrix;
 	};
