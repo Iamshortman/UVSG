@@ -518,7 +518,7 @@ public:
 		/******************************************************************************************/
 		manager->window->clearBuffer();
 
-		renderModel(manager, camera, skybox, Transform(camera->getPos()));
+		manager->renderModel(camera, skybox, Transform(camera->getPos()));
 
 		//Clear depth buffer so any other object in front of far objects.
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -531,14 +531,14 @@ public:
 			if (model->mesh != nullptr)
 			{
 				model->localOffset = Transform((vector3F)it->second.m_position * cubeSizeOutside);
-				renderModelLight(manager, camera, model, Transform());
+				manager->renderModelLight(camera, model, Transform());
 			}
 		}
 		delete model;
 
 		if (shipModelOutside->mesh != nullptr)
 		{
-			renderModelLight(manager, camera, shipModelOutside, Transform());
+			manager->renderModelLight(camera, shipModelOutside, Transform());
 		}
 
 		//Cursor Draw
@@ -552,13 +552,13 @@ public:
 			model->mesh = cursorCell->getCursorMesh();
 
 			if (model->mesh != nullptr)
-				renderModelLight(manager, camera, model, Transform( (vector3D)m_cursorPos * (double)cubeSizeOutside), 0.5f);
+				manager->renderModelLight(camera, model, Transform((vector3D)m_cursorPos * (double)cubeSizeOutside), 0.5f);
 
 			delete model;
 		}
 
 		glDisable(GL_DEPTH_TEST);
-		renderModel(manager, camera, m_cursorModel, Transform((vector3D)m_cursorPos * (double)cubeSizeOutside));
+		manager->renderModelLight(camera, m_cursorModel, Transform((vector3D)m_cursorPos * (double)cubeSizeOutside));
 		glEnable(GL_DEPTH_TEST);
 
 		glDisable(GL_BLEND);
@@ -612,96 +612,7 @@ public:
 	vector3S m_cursorPos = vector3D(0.0); 
 
 private:
-	void renderModel(RenderingManager* manager, Camera* camera, Model* model, Transform transform)
-	{
-
-		matrix4 projectionMatrix = camera->getProjectionMatrix();
-		matrix4 viewMatrix = camera->getOriginViewMatrix();
-
-		matrix4 modelMatrix = transform.getModleMatrix(camera->getPos());
-		matrix3 normalMatrix = transform.getNormalMatrix();
-
-		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
-		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
-
-		model->shader->setActiveProgram();
-		if (model->texture != "")
-		{
-			manager->texturePool.bindTexture(model->texture);
-		}
-
-		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
-		model->shader->setUniform("normalMatrix", normalMatrix);
-		model->shader->setUniform("modelMatrix", modelMatrix);
-		model->shader->setUniform("ambientLight", vector3F(1.0f));
-
-		model->mesh->draw(model->shader);
-
-		model->shader->deactivateProgram();
-	}
-
-	void renderModelLight(RenderingManager* manager, Camera* camera, Model* model, Transform transform, float alphaValue = 1.0f)
-	{
-		matrix4 projectionMatrix = camera->getProjectionMatrix();
-		matrix4 viewMatrix = camera->getOriginViewMatrix();
-
-		matrix4 modelMatrix = transform.getModleMatrix(camera->getPos());
-		matrix3 normalMatrix = transform.getNormalMatrix();
-
-		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
-		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
-		matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
-
-		model->shader->setActiveProgram();
-		if (model->texture != "")
-		{
-			manager->texturePool.bindTexture(model->texture);
-		}
-
-		model->shader->setUniform("MVP", MVP);
-		model->shader->setUniform("normalMatrix", normalMatrix);
-		model->shader->setUniform("modelMatrix", modelMatrix);
-		model->shader->setUniform("ambientLight", manager->ambientLight);
-
-		model->shader->setUniform("alphaValue", alphaValue);
-
-		model->mesh->draw(model->shader);
-
-		model->shader->deactivateProgram();
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glDepthMask(false);
-		glDepthFunc(GL_EQUAL);
-
-		DirectionalShader->setActiveProgram();
-		DirectionalShader->setUniform("MVP", MVP);
-		DirectionalShader->setUniform("normalMatrix", normalMatrix);
-		DirectionalShader->setUniform("modelMatrix", modelMatrix);
-		DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
-		DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
-		DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
-		model->mesh->draw(DirectionalShader);
-		DirectionalShader->deactivateProgram();
-
-		PointShader->setActiveProgram();
-		PointShader->setUniform("MVP", MVP);
-		PointShader->setUniform("normalMatrix", normalMatrix);
-		PointShader->setUniform("modelMatrix", modelMatrix);
-		PointShader->setUniform("pointLight.base.color", pointLight->getColor());
-		PointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
-		PointShader->setUniform("pointLight.range", pointLight->m_range);
-		PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPos()));
-		PointShader->setUniform("pointLight.atten.constant", pointLight->m_attenuation.x);
-		PointShader->setUniform("pointLight.atten.linear", pointLight->m_attenuation.y);
-		PointShader->setUniform("pointLight.atten.exponent", pointLight->m_attenuation.z);
-		model->mesh->draw(PointShader);
-		PointShader->deactivateProgram();
-
-		glDepthFunc(GL_LESS);
-		glDepthMask(true);
-		glDisable(GL_BLEND);
-	}
+	
 };
 
 #endif //SCENE_EDITOR_HPP

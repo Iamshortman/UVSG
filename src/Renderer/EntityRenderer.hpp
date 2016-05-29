@@ -1,7 +1,7 @@
 #ifndef ENTITYRENDERER_HPP
 #define ENTITYRENDERER_HPP
 
-#include "Rendering/Renderer.hpp"
+#include "Renderer/Renderer.hpp"
 #include "Renderable.hpp"
 
 class EntityRenderer : public Renderer
@@ -12,6 +12,7 @@ public:
 
 	virtual void renderAmbient(World* world, Entity* entity, Camera* camera);
 	virtual void renderLighting(World* world, Entity* entity, Camera* camera);
+	virtual RenderView getRenderView();
 
 private:
 };

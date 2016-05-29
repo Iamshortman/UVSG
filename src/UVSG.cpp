@@ -10,9 +10,6 @@ UVSG::UVSG()
 
 	this->renderingManager = new RenderingManager();
 
-	//char input;
-
-	//cin >> input;
 	if (true)
 	{
 		currentScene = new Scene_Game();

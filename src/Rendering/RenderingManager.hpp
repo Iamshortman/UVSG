@@ -10,6 +10,7 @@
 #include "TexturePool.hpp"
 #include "EntityxInclude.hpp"
 #include "Renderable.hpp"
+#include "GBuffer.hpp"
 
 class BaseLight
 {
@@ -73,26 +74,38 @@ class RenderingManager
 public:
 	RenderingManager();
 	virtual ~RenderingManager();
+
+	//Render
 	void update(double deltaTime, World* world);
+
+	void renderModelLight(Camera* camera, Model* model, Transform transform, float alphaValue = 1.0f);
+	void renderModel(Camera* camera, Model* model, Transform transform);
+
+	void renderModelLight_FarView(Camera* camera, Model* model, Transform transform, double farViewScaleValue);
 
 	Camera camera;
 	Window* window = nullptr;
 	TexturePool texturePool;
 
-	const double farViewScaleValue = 10000.0;
+	GBuffer* gBuffer;
+	ShaderProgram* gBuffer_Program;
+	GLuint quadVAO = 0;
+	GLuint quadVBO;
+	void RenderQuad();
 
-	Model* firstPersonModel = nullptr;
 	Model* skybox = nullptr;
 
+	//TODO Remove in favor of the world based ambient light.
 	vector3F ambientLight = vector3F(0.3f);
 
 protected:
 
 private:
-	DirectionalLight* light;
+	DirectionalLight* directionalLight;
 	ShaderProgram* DirectionalShader;
-	ShaderProgram* pointShader;
+
 	PointLight* pointLight;
+	ShaderProgram* PointShader;
 };
 
 #endif //RENDERINGMANAGER_HPP

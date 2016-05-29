@@ -3,12 +3,16 @@
 #include "Rendering/Camera.hpp"
 #include "UVSG.hpp"
 
-#include "Rendering/EntityRenderer.hpp"
+#include "Renderer/EntityRenderer.hpp"
+#include "Renderer/PlanetRenderer.hpp"
+
+#include "Rendering/RenderingManager.hpp"
 
 World::World()
 {
 	m_physicsWorld = new PhysicsWorld();
 	m_renderer = new EntityRenderer();
+	m_PlanetRenderer = new PlanetRenderer();
 }
 
 void World::updateWorld(double deltaTime)
@@ -46,9 +50,10 @@ void World::render(Camera* camera)
 		}
 	}
 }
+
 void World::renderFarView(Camera* camera)
 {
-	const double farViewScaleValue = 100000000.0;
+	RenderingManager* manager = UVSG::getInstance()->renderingManager;
 
 	vector<Entity*> entities;
 	getEntitiesInWorld(entities);
@@ -60,35 +65,7 @@ void World::renderFarView(Camera* camera)
 	{
 		if (entity->hasComponent("planet"))
 		{
-			Model* model = (Model*)entity->tempModels[0];
-			Transform entityTransform = entity->getTransform();
-
-			if (model != nullptr)
-			{
-				matrix4 projectionMatrix = camera->getProjectionMatrix();
-
-
-				matrix4 viewMatrix = camera->getOriginViewMatrix();
-
-				matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPos(), farViewScaleValue);
-				matrix3 normalMatrix = entityTransform.getNormalMatrix();
-
-				modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
-				normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
-
-				model->shader->setActiveProgram();
-
-				model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
-				model->shader->setUniform("normalMatrix", normalMatrix);
-				model->shader->setUniform("ambientLight", UVSG::getInstance()->renderingManager->ambientLight);
-
-				if (model->mesh != nullptr)
-				{
-					model->mesh->draw(model->shader);
-				}
-
-				model->shader->deactivateProgram();
-			}
+			((PlanetRenderer*)m_PlanetRenderer)->renderAmbient(this, entity, camera);
 		}
 	}
 }
@@ -137,4 +114,5 @@ Transform World::getWorldOffsetMatrix()
 World::~World()
 {
 	delete m_physicsWorld;
+	delete m_renderer;
 }

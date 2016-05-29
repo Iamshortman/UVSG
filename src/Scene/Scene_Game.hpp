@@ -37,18 +37,12 @@ public:
 		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		bigCube->tempModels.push_back(bigCubeModel);
 
-		Model* PlanetModel = new Model();
-		PlanetModel->shader = bigCubeModel->shader;
-		PlanetModel->mesh = loadMaterialMeshFromFile("res/Models/", "Planet.obj");
 		Entity* planet = EntityManager::instance()->createNewEntity();
 		planet->addToWorld(baseWorld);
 		planet->setPosition(vector3D(50000.0, -1000000.0, 30000000.0));
 		planet->setScale(vector3D(30000000.0));
-		planet->tempModels.push_back(PlanetModel);
 		planet->addComponent("planet", new Component());
 		planet->setOrientation(quaternionD(0.963, -0.164, -0.202, -0.067));
-
-
 	};
 
 	virtual ~Scene_Game()

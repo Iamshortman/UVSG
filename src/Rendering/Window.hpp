@@ -32,7 +32,6 @@ GLclampf alpha);
         void getMousePos(int &x, int &y);
 		void setVsync(int syncRate);
 		int getVsync();
-		void setAntiAliasing(int sampleSize);
 		void set3dRendering();
 		void set2dRendering();
 

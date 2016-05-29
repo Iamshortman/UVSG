@@ -1,5 +1,4 @@
-#include "Rendering/EntityRenderer.hpp"
-#include "ObjLoader.hpp"
+#include "Renderer/EntityRenderer.hpp"
 
 #include "UVSG.hpp"
 
@@ -15,7 +14,7 @@ EntityRenderer::~EntityRenderer()
 
 void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 {
-	vector3F ambientLight = UVSG::getInstance()->renderingManager->ambientLight;
+	vector3F ambientLight = world->ambientLight;
 
 	Model* model = nullptr;
 
@@ -54,4 +53,9 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 void EntityRenderer::renderLighting(World* world, Entity* entity, Camera* camera)
 {
 
+}
+
+RenderView EntityRenderer::getRenderView()
+{
+	return NearView;
 }

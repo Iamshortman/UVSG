@@ -13,8 +13,8 @@ Window::Window(int width, int height, string windowTitle)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
 	// Create an application window with the following settings:
     window = SDL_CreateWindow(
@@ -179,24 +179,6 @@ void Window::setVsync(int syncRate)
 int Window::getVsync()
 {
 	return SDL_GL_GetSwapInterval();
-}
-
-//Not working yet
-void Window::setAntiAliasing(int sampleSize)
-{
-	if (sampleSize == 0)
-	{
-		glDisable(GL_MULTISAMPLE);
-		//If value is zero, disable Anti-Aliasing
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-	}
-	else
-	{
-		glEnable(GL_MULTISAMPLE);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, sampleSize);
-	}
 }
 
 Window::~Window()

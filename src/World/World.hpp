@@ -31,9 +31,12 @@ public:
 
 	virtual Transform getWorldOffsetMatrix();
 
-	PhysicsWorld* m_physicsWorld;
+	PhysicsWorld* m_physicsWorld; 
 
 	void* m_renderer;
+	void* m_PlanetRenderer;
+
+	vector3F ambientLight = vector3F(1.0f);
 };
 
 #endif //WORLD_HPP
