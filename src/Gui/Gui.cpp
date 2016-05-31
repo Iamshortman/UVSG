@@ -12,9 +12,45 @@ Gui::~Gui()
 
 }
 
+void Gui::drawQuad(vector2I pos, vector2I quadSize, vector2I windowSize)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, windowSize.x, windowSize.y, 0, 1, -1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glUseProgram(0);
+
+	glPushMatrix();
+
+	float scale = 2.0f;
+	glScalef(scale, scale, scale);
+
+	glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glVertex2f(pos.x, pos.y);
+	glTexCoord2f(1, 0);
+
+	glVertex2f(quadSize.x + pos.x, pos.y);
+	glTexCoord2f(1, 1);
+
+	glVertex2f(quadSize.x + pos.x, quadSize.y + pos.y);
+	glTexCoord2f(0, 1);
+
+	glVertex2f(pos.x, quadSize.y + pos.y);
+	glTexCoord2f(0, 0);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	glPopMatrix();
+}
+
 void Gui::renderGui(int windowWidth, int windowHeight)
 {
-	float width = 150;
+	float width = 110;
 	float height = 509;
 
 	float midPointx = windowWidth / 2.0f;

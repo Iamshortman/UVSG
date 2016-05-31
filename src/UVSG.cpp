@@ -10,7 +10,7 @@ UVSG::UVSG()
 
 	this->renderingManager = new RenderingManager();
 
-	if (true)
+	if (false)
 	{
 		currentScene = new Scene_Game();
 	}

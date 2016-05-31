@@ -87,16 +87,10 @@ public:
 	Window* window = nullptr;
 	TexturePool texturePool;
 
-	GBuffer* gBuffer;
-	ShaderProgram* gBuffer_Program;
-	GLuint quadVAO = 0;
-	GLuint quadVBO;
-	void RenderQuad();
-
 	Model* skybox = nullptr;
 
 	//TODO Remove in favor of the world based ambient light.
-	vector3F ambientLight = vector3F(0.3f);
+	vector3F ambientLight = vector3F(0.9f);
 
 protected:
 

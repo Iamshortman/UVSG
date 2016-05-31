@@ -60,6 +60,12 @@ public:
 	vector3D getAngularVelocity() const;
 	void setAngularVelocity(vector3D Velocity);
 
+	void applyCentralForce(vector3D force);
+	void applyCentralImpulse(vector3D impulse);
+
+	void applyTorque(vector3D torque);
+	void applyTorqueImpulse(vector3D torque);
+
 	//Component functions 
 	bool hasComponent(string componentName);
 	Component* getComponent(string componentName);

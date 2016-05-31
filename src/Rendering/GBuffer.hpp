@@ -6,14 +6,15 @@
 class GBuffer
 {
 public:
-	GBuffer(int width, int height);
+	GBuffer(int width, int height, bool Multisample = false);
 	~GBuffer();
 
 	void BindGBuffer();
 	void SetActiveTextures();
 
-private:
 	GLuint gBuffer;
+
+private:
 	GLuint gPosition, gNormal, gColorSpec;
 	GLuint rboDepth;
 

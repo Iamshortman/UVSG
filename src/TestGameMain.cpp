@@ -12,6 +12,7 @@ using namespace std;
 
 int main()
 {
+
 	//Creates the entity Manager.
 	EntityManager::createInstance();
 

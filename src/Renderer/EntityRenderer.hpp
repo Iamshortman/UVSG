@@ -4,6 +4,8 @@
 #include "Renderer/Renderer.hpp"
 #include "Renderable.hpp"
 
+class DirectionalLight;
+
 class EntityRenderer : public Renderer
 {
 public:
@@ -15,6 +17,9 @@ public:
 	virtual RenderView getRenderView();
 
 private:
+
+	DirectionalLight* directionalLight;
+	ShaderProgram* DirectionalShader;
 };
 
 #endif //ENTITYRENDERER_HPP

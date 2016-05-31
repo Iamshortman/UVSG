@@ -17,26 +17,17 @@ RenderingManager::RenderingManager()
 	camera = Camera();
 	camera.moveCameraPos(vector3D(0, 1, -10));
 
-	directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, 1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
-	DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-	pointLight = new PointLight(vector3D(0.0, 10.0, 0.0), 20.0f, vector3F(1.0), 0.4f, vector3F(0.0f, 0.0f, 0.02f));
-	PointShader = new ShaderProgram("res/Material.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
-
-	gBuffer = new GBuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
-	gBuffer_Program = new ShaderProgram("res/Shaders/LightingPass.vs", "res/Shaders/LightingPass.fs", { { 0, "in_Position" }, { 1, "in_TexCoord" } });
-
-	gBuffer_Program->setActiveProgram();
-	gBuffer_Program->setUniform("gPosition", 0);
-	gBuffer_Program->setUniform("gNormal", 1);
-	gBuffer_Program->setUniform("gColor", 2);
+	//Load Skybox
+	skybox = new Model();
+	skybox->mesh = loadMeshFromFile("res/Skybox.obj");
+	skybox->texture = "res/Skybox.png";
+	skybox->shader = new ShaderProgram("res/Textured.vs", "res/Textured.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
+	texturePool.loadTexture(skybox->texture);
 }
 
 RenderingManager::~RenderingManager()
 {
 	delete skybox;
-
-	delete gBuffer;
-	delete gBuffer_Program;
 
 	window->closeWindow();
 	delete window;
@@ -48,59 +39,28 @@ void RenderingManager::update(double timeStep, World* world)
 	window->getWindowSize(width, height);
 	camera.setProjection(45.0f, 0.01f, 1000.0f, width, height);
 
+	window->clearBuffer();
+
+	//Skybox Render
+	matrix4 projectionMatrix = camera.getProjectionMatrix();
+	matrix4 viewMatrix = camera.getOriginViewMatrix();
+	skybox->shader->setActiveProgram();
+	texturePool.bindTexture(skybox->texture);
+	skybox->shader->setUniform("MVP", projectionMatrix * viewMatrix);
+	skybox->mesh->draw(skybox->shader);
+	skybox->shader->deactivateProgram();
+
+	//Clear depth buffer so any other object in front of far objects.
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	world->renderFarView(&camera);
+
 	//Clear depth buffer so any other object will render in front of far objects.
-	//glClear(GL_DEPTH_BUFFER_BIT);
-
-	//world->renderFarView(&camera);
-
-	//Clear depth buffer so any other object will render in front of far objects.
-	//glClear(GL_DEPTH_BUFFER_BIT);
-
-	gBuffer->BindGBuffer();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	world->render(&camera);
 
-	//Unbind GBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Render GBuffer
-	gBuffer_Program->setActiveProgram();
-	gBuffer->SetActiveTextures();
-
-	RenderQuad();
-
-	gBuffer_Program->deactivateProgram();
-
 	window->updateBuffer();
-}
-
-void RenderingManager::RenderQuad()
-{
-	if (quadVAO == 0)
-	{
-		GLfloat quadVertices[] = {
-			// Positions        // Texture Coords
-			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// Setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
 }
 
 void RenderingManager::renderModel(Camera* camera, Model* model, Transform transform)

@@ -18,7 +18,7 @@ void PlayerControl::update(double deltaTime)
 	if (pitchAxis > deadzone || pitchAxis < -deadzone)
 	{
 		//Get between -1 and 1
-		double amount = ((double)pitchAxis) / 32767.0f;
+		double amount = ((double)pitchAxis) / 32767.0;
 		double angle = amount * deltaTime * this->angularSpeed;
 
 		//Negitive angle because the joystick layout is backwards
@@ -32,12 +32,19 @@ void PlayerControl::update(double deltaTime)
 	if (yawAxis > deadzone || yawAxis < -deadzone)
 	{
 		//Get between -1 and 1
-		double amount = ((double)yawAxis) / 32767.0f;
+		double amount = ((double)yawAxis) / 32767.0;
 		double angle = amount * deltaTime * this->angularSpeed;
 
 		quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0f, 1.0f, 0.0f)));
 
 		parent->setOrientation(yawQuat * parent->getTransform().getOrientation());
+	}
+
+	double linear = this->linearSpeed;
+
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+	{
+		linear *= 100000.0;
 	}
 
 
@@ -46,8 +53,8 @@ void PlayerControl::update(double deltaTime)
 	if (forwardAxis > deadzone || forwardAxis < -deadzone)
 	{
 		//Get between -1 and 1
-		double amount = ((double)forwardAxis) / 32767.0f;
-		double distance = amount * deltaTime * this->linearSpeed;
+		double amount = ((double)forwardAxis) / 32767.0;
+		double distance = amount * deltaTime * linear;
 		parent->setPosition(parent->getPosition() + (parent->getTransform().getForward() * -distance));
 	}
 
@@ -56,8 +63,8 @@ void PlayerControl::update(double deltaTime)
 	if (strafeAxis > deadzone || strafeAxis < -deadzone)
 	{
 		//Get between -1 and 1
-		double amount = ((double)strafeAxis) / 32767.0f;
-		double distance = amount * deltaTime * this->linearSpeed;
+		double amount = ((double)strafeAxis) / 32767.0;
+		double distance = amount * deltaTime * linear;
 		parent->setPosition(parent->getPosition() + (parent->getTransform().getRight() * distance));
 	}
 
@@ -78,5 +85,4 @@ void PlayerControl::update(double deltaTime)
 
 	}
 	lastButton = button;
-
 }

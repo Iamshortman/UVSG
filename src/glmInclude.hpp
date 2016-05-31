@@ -30,5 +30,6 @@ typedef glm::f64quat quaternionD;
 
 typedef glm::i16vec3 vector3S;
 typedef glm::i32vec3 vector3I;
+typedef glm::i32vec2 vector2I;
 
 #endif //GLMINCLUDE_HPP

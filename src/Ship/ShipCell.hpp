@@ -22,6 +22,8 @@ class ShipCell
 {
 public:
 	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, AABB aabb);
+	ShipCell(string jsonFile);
+
 	~ShipCell();
 
 	double getCellMass();

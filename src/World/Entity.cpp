@@ -29,6 +29,17 @@ void Entity::update(double deltaTime)
 		m_transform.setScale(scale);
 		m_velocity.linearVelocity = getLinearVelocity();
 		m_velocity.angularVelocity = getAngularVelocity();
+
+		if (m_velocity.linearVelocity.x || m_velocity.linearVelocity.y || m_velocity.linearVelocity.z 
+			|| m_velocity.angularVelocity.x || m_velocity.angularVelocity.y || m_velocity.angularVelocity.z)
+		{
+			m_RigidBody->Activate(true);
+		}
+		else
+		{
+			m_RigidBody->Activate(false);
+		}
+
 	}
 
 	//Not a huge fan of the auto keyword
@@ -208,6 +219,54 @@ void Entity::setAngularVelocity(vector3D velocity)
 	else
 	{
 		m_velocity.angularVelocity = velocity;
+	}
+}
+
+void Entity::applyCentralForce(vector3D force)
+{
+	if (m_RigidBody != nullptr)
+	{
+		m_RigidBody->applyCentralForce(force);
+	}
+	else
+	{
+
+	}
+}
+
+void Entity::applyCentralImpulse(vector3D impulse)
+{
+	if (m_RigidBody != nullptr)
+	{
+		m_RigidBody->applyCentralImpulse(impulse);
+	}
+	else
+	{
+
+	}
+}
+
+void Entity::applyTorque(vector3D torque)
+{
+	if (m_RigidBody != nullptr)
+	{
+		m_RigidBody->applyTorque(torque);
+	}
+	else
+	{
+		
+	}
+}
+
+void Entity::applyTorqueImpulse(vector3D torque)
+{
+	if (m_RigidBody != nullptr)
+	{
+		m_RigidBody->applyTorqueImpulse(torque);
+	}
+	else
+	{
+
 	}
 }
 

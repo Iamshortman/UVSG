@@ -6,6 +6,12 @@
 
 bool collisonCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 {
+	Entity* entity1 = (Entity*)colObj0Wrap->getCollisionObject()->getUserPointer();
+
+	if (entity1 == nullptr)
+	{
+		return true;
+	}
 
 	return true;
 }
@@ -32,7 +38,7 @@ PhysicsWorld::PhysicsWorld()
 void PhysicsWorld::update(double timeStep)
 {
 	//Run Physics Simulation
-	dynamicsWorld->stepSimulation(timeStep, 4);
+	dynamicsWorld->stepSimulation(timeStep, 8, 1.0/120.0);
 }
 
 void PhysicsWorld::addRigidBody(btRigidBody* body)

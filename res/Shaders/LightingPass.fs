@@ -11,5 +11,5 @@ uniform sampler2D gColor;
 
 void main(void) 
 {
-	fragmentColor = texture(gPosition, out_TexCoord);
+	fragmentColor = texture(gColor, out_TexCoord);
 }

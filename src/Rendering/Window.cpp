@@ -13,8 +13,8 @@ Window::Window(int width, int height, string windowTitle)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
 	// Create an application window with the following settings:
     window = SDL_CreateWindow(

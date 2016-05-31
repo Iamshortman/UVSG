@@ -13,22 +13,24 @@
 
 #include "Components/ShipFlightControl.hpp"
 
+#include <iostream>
+#include <io.h>
+
 class Scene_Editor : public Scene
 {
 public:
 	Gui* m_Gui;
 
 	ShipCell* hullCell = nullptr;
-	ShipCell* bridgeCell = nullptr;
-	ShipCell* cargoCell = nullptr;
-	ShipCell* bridge1Cell = nullptr;
+	ShipCell* cockpit1Cell = nullptr;
+	ShipCell* cockpit2Cell = nullptr;
+	ShipCell* engine1Cell = nullptr;
 
-	ShipCell* cursorCell = nullptr;
+	vector<ShipCell*> shipCells;
+	int shipCell_Index = 0;
 
 	//Temp int Mouse
 	int intMouse = 0;
-
-	int buildLevel = 0;
 
 	Scene_Editor(SDL_GameController* controllerToUse)
 	{
@@ -61,53 +63,31 @@ public:
 		m_cursorModel->mesh = loadMaterialMeshFromFile("res/", "Cursor.obj");
 		m_cursorModel->texture = "";
 
-		shipComponent = new ShipComponent();
+		shipComponent = new ShipComponent(cubeSizeOutside);
 		this->shipChanged = true;
 
-		if (true)
+		UVSG::getInstance()->renderingManager->texturePool.loadTexture("res/Textures/metalPanel_Cells_Green.png");
+		UVSG::getInstance()->renderingManager->texturePool.loadTexture("res/Textures/glassPanel.png");
+
+		//Loads Ship Cells from .json files
+		_finddata_t data;
+		int ff = _findfirst("res/ShipParts/Small_Ship/*.json", &data);
+		string fileLoc = "res/ShipParts/Small_Ship/";
+
+		if (ff != -1)
 		{
-			vector<Node> nodes;
-			for (int i = 0; i < 6; i++)
+			int res = 0;
+			while (res != -1)
 			{
-				nodes.push_back(Node(vector3S(0), i));
+				string fileName = data.name;
+				printf("Loading Ship Cell from: %s \n", (fileLoc + fileName).c_str());
+				ShipCell* cell = new ShipCell(fileLoc + fileName);
+				shipCells.push_back(cell);
+
+				res = _findnext(ff, &data);
 			}
-			hullCell = new ShipCell(nullptr, loadMaterialMeshFromFile("res/ShipParts/", "Hull_Cursor.obj"), 200, nodes, AABB());
+			_findclose(ff);
 		}
-		
-
-		if (true)
-		{
-			vector<Node> nodes = 
-			{
-				Node(vector3S(0, 1, 0), UP),
-				Node(vector3S(0, -1, 0), DOWN),
-				Node(vector3S(0, 0, -2), BACKWARD),
-				Node(vector3S(1, 0, 0), LEFT),
-				Node(vector3S(-1, 0, 0), RIGHT),
-			};
-
-			bridgeCell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge_Cursor.obj"), 3000, nodes, AABB(vector3D(-1.5, -1.5, -2.5), vector3D(1.5, 1.5, 1.5)));
-		}
-
-		if (true)
-		{
-
-		}
-
-
-		if (true)
-		{
-			vector<Node> nodes =
-			{
-				Node(vector3S(0, 0, 0), BACKWARD),
-				Node(vector3S(1, 0, 1), LEFT),
-				Node(vector3S(-1, 0, 1), RIGHT),
-			};
-
-			bridge1Cell = new ShipCell(loadMaterialMeshFromFile("res/ShipParts/", "Bridge1.obj"), loadMaterialMeshFromFile("res/ShipParts/", "Bridge1_Cursor.obj"), 3000, nodes, AABB(vector3D(-1.5, -0.95, -0.5), vector3D(1.5, 0.95, 2.5)));
-		}
-
-		cursorCell = bridge1Cell;
 	};
 
 	virtual ~Scene_Editor()
@@ -128,11 +108,16 @@ public:
 	{
 		const double stepTime = 0.3;
 
+		int fowardBack = -SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+		int LeftRight = -SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+		int deadzone1 = 16000;
+
 		//UP cursor Movement
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))
+			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))
+			if (fowardBack > deadzone1)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -158,7 +143,8 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+			if (fowardBack < -deadzone1)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -184,7 +170,8 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+			if (LeftRight > deadzone1)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -210,7 +197,8 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+			if (LeftRight < -deadzone1)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -285,7 +273,6 @@ public:
 		}
 
 		//Camera Update
-		int deadzone = 4000;
 
 		int pitchAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
 
@@ -363,28 +350,25 @@ public:
 
 				cameraRot = yawQuat * cameraRot;
 			}
+		}
 
-			if (true)
+		if (true)
+		{
+			double amount = -intMouse;
+
+			cameraDistance += amount * deltaTime * zoomSpeed * 2.0;
+
+			if (cameraDistance < minDistance)
 			{
-				double amount = -intMouse;
+				cameraDistance = minDistance;
+			}
 
-				cameraDistance += amount * deltaTime * zoomSpeed * 2.0;
-
-				if (cameraDistance < minDistance)
-				{
-					cameraDistance = minDistance;
-				}
-
-				if (cameraDistance > maxDistance)
-				{
-					cameraDistance = maxDistance;
-				}
+			if (cameraDistance > maxDistance)
+			{
+				cameraDistance = maxDistance;
 			}
 		}
-		else
-		{
-			buildLevel += intMouse;
-		}
+
 		last_MousePos[0] = current_MousePos[0];
 		last_MousePos[1] = current_MousePos[1];
 
@@ -409,7 +393,7 @@ public:
 				}
 				else
 				{
-					ShipCellData newCell = ShipCellData(cursorCell, (vector3S)m_cursorPos);
+					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos);
 					if (shipComponent->canPlaceCell(newCell))
 					{
 						shipComponent->addCell(newCell);
@@ -434,9 +418,9 @@ public:
 					shipComponent->removeCell(pos);
 					shipChanged = true;
 				}
-				else
+				else if (shipCells[shipCell_Index] != nullptr)
 				{
-					ShipCellData newCell = ShipCellData(cursorCell, (vector3S)m_cursorPos);
+					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos);
 					if (shipComponent->canPlaceCell(newCell))
 					{
 						shipComponent->addCell(newCell);
@@ -450,31 +434,31 @@ public:
 		if (true)
 		{
 			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
 			if (currentState && !lastState)
 			{
-				cursorCell = bridgeCell;
-			}
-		}
+				shipCell_Index--;
+				if (shipCell_Index < 0)
+				{
+					shipCell_Index = shipCells.size() - 1;
+				}
 
+			}
+			lastState = currentState;
+		}
 		if (true)
 		{
 			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 			if (currentState && !lastState)
 			{
-				cursorCell = hullCell;
+				shipCell_Index++;
+				if (shipCell_Index >  shipCells.size() - 1)
+				{
+					shipCell_Index = 0;
+				}
 			}
-		}
-
-		if (true)
-		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
-			if (currentState && !lastState)
-			{
-				cursorCell = cargoCell;
-			}
+			lastState = currentState;
 		}
 
 
@@ -490,7 +474,7 @@ public:
 			shipChanged = false;
 		}
 
-		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, (vector3S)m_cursorPos)))
+		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -545,11 +529,11 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if (shipComponent->canPlaceCell(ShipCellData(cursorCell, m_cursorPos)))
+		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], m_cursorPos)))
 		{
 			Model* model = new Model();
 			model->shader = MaterialShader;
-			model->mesh = cursorCell->getCursorMesh();
+			model->mesh = shipCells[shipCell_Index]->getCursorMesh();
 
 			if (model->mesh != nullptr)
 				manager->renderModelLight(camera, model, Transform((vector3D)m_cursorPos * (double)cubeSizeOutside), 0.5f);
@@ -569,17 +553,20 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		manager->window->set2dRendering();
+		vector2I windowSize = vector2I(width, height);
 
-		//manager->texturePool.loadTexture("res/Textures/metalPanel_Cells.png");
-		//manager->texturePool.bindTexture("res/Textures/metalPanel_Cells.png");
-		//m_Gui->renderGui(width,height);
+		manager->texturePool.bindTexture("res/Textures/metalPanel_Cells_Green.png");
+		m_Gui->drawQuad(vector2I(0.0), vector2I(110, 509), windowSize);
+
+		manager->texturePool.bindTexture("res/Textures/glassPanel.png");
+		m_Gui->drawQuad(vector2I(5, 30 + (100 * shipCell_Index)), vector2I(100, 100), windowSize);
 
 		glDisable(GL_BLEND);
 
 		manager->window->updateBuffer();
 	};
 
-	float cubeSizeOutside = 3.0f;
+	float cubeSizeOutside = 1.0f;
 	float cubeSizeInside = 2.6f;
 
 	ShipComponent* shipComponent = nullptr;
@@ -597,6 +584,8 @@ public:
 
 	bool shipChanged = false;
 	SDL_GameController* controller;
+	int deadzone = 4000;
+
 	vector3D camOrigin = vector3D(0.0);
 
 	double cameraDistance = 20.0;

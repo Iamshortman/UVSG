@@ -1,15 +1,16 @@
 #include "Renderer/EntityRenderer.hpp"
-
-#include "UVSG.hpp"
+#include "Rendering/RenderingManager.hpp"
 
 EntityRenderer::EntityRenderer()
 {
-
+	directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, 1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
+	DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 }
 
 EntityRenderer::~EntityRenderer()
 {
-
+	delete directionalLight;
+	delete DirectionalShader;
 }
 
 void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
@@ -34,9 +35,11 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
 		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
 
+		matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
+
 		model->shader->setActiveProgram();
 
-		model->shader->setUniform("MVP", projectionMatrix * viewMatrix * modelMatrix);
+		model->shader->setUniform("MVP", MVP);
 		model->shader->setUniform("normalMatrix", normalMatrix);
 		model->shader->setUniform("ambientLight", ambientLight);
 
@@ -46,6 +49,26 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		}
 
 		model->shader->deactivateProgram();
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDepthMask(false);
+		glDepthFunc(GL_EQUAL);
+
+		DirectionalShader->setActiveProgram();
+		DirectionalShader->setUniform("MVP", MVP);
+		DirectionalShader->setUniform("normalMatrix", normalMatrix);
+		DirectionalShader->setUniform("modelMatrix", modelMatrix);
+		DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
+		DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
+		DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
+		model->mesh->draw(DirectionalShader);
+		DirectionalShader->deactivateProgram();
+
+
+		glDepthFunc(GL_LESS);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
 	}
 
 }

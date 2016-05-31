@@ -36,7 +36,7 @@ public:
 	void* m_renderer;
 	void* m_PlanetRenderer;
 
-	vector3F ambientLight = vector3F(1.0f);
+	vector3F ambientLight = vector3F(0.4f);
 };
 
 #endif //WORLD_HPP

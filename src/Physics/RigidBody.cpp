@@ -38,6 +38,12 @@ void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Tr
 	world->addRigidBody(rigidBody);
 }
 
+void RigidBody::Activate(bool activate)
+{
+	rigidBody->activate(activate);
+}
+
+
 //Not sure this actually works.....
 void RigidBody::setCollisionShape(bool deleteOldShape, btCollisionShape* newShape)
 {
@@ -107,6 +113,26 @@ void RigidBody::setCOMTransform(Transform transform)
 	btTransform COMTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()));
 	btDefaultMotionState* state = (btDefaultMotionState*)rigidBody->getMotionState();
 	state->m_centerOfMassOffset = COMTransform;
+}
+
+void RigidBody::applyCentralForce(vector3D force)
+{
+	rigidBody->applyCentralForce(toBtVec3(force));
+}
+
+void RigidBody::applyCentralImpulse(vector3D impulse)
+{
+	rigidBody->applyCentralImpulse(toBtVec3(impulse));
+}
+
+void RigidBody::applyTorque(vector3D torque)
+{
+	rigidBody->applyTorque(toBtVec3(torque));
+}
+
+void RigidBody::applyTorqueImpulse(vector3D torque)
+{
+	rigidBody->applyTorqueImpulse(toBtVec3(torque));
 }
 
 PhysicsWorld* RigidBody::getPhysicsWorld() const

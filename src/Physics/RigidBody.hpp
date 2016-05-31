@@ -18,6 +18,8 @@ public:
 
 	void addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Transform worldTransform);
 
+	void Activate(bool activate);
+
 	void setCollisionShape(bool deleteOldShape, btCollisionShape* newShape);
 
 	Transform getWorldTransform();
@@ -31,6 +33,12 @@ public:
 
 	vector3D getAngularVelocity() const;
 	void setAngularVelocity(vector3D velocity);
+
+	void applyCentralForce(vector3D force);
+	void applyCentralImpulse(vector3D impulse);
+
+	void applyTorque(vector3D torque);
+	void applyTorqueImpulse(vector3D torque);
 
 	PhysicsWorld* getPhysicsWorld() const;
 

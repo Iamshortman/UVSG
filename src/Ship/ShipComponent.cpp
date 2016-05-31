@@ -2,8 +2,9 @@
 
 #include "Util.hpp"
 
-ShipComponent::ShipComponent()
+ShipComponent::ShipComponent(double shipSize)
 {
+	this->shipOutsideSize = shipSize;
 	m_shipCells = Ship_Map();
 }
 

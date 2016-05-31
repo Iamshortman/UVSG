@@ -26,7 +26,7 @@ typedef std::unordered_map<vector3S, ShipCellData, ShipMapKeyFuncs> Ship_Map;
 class ShipComponent : public Component
 {
 public:
-	ShipComponent();
+	ShipComponent(double shipSize);
 
 	Ship_Map m_shipCells;
 
@@ -43,7 +43,7 @@ public:
 
 	Mesh* genOutsideMesh();
 
-	double shipOutsideSize = 3.0;
+	double shipOutsideSize;
 };
 
 #endif //SHIPCOMPONENT_HPP
