@@ -1,6 +1,15 @@
 #include "Components/PlayerControl.hpp"
 #include "World/Entity.hpp"
 #include "World/World.hpp"
+#include "Ship/ShipComponent.hpp"
+
+PlayerControl::PlayerControl(double linear, double angular, SDL_GameController* controllerToUse)
+{
+	linearSpeed = linear;
+	angularSpeed = angular;
+	m_controller = controllerToUse;
+	printf("Using Controller: %s \n", SDL_GameControllerName(m_controller));
+};
 
 void PlayerControl::update(double deltaTime)
 {
@@ -11,78 +20,83 @@ void PlayerControl::update(double deltaTime)
 		exit(1);
 	}
 
+	Transform transform = parent->getTransform();
+	quaternionD rotation = transform.getOrientation();
+
 	int deadzone = 8000;
 
-	int pitchAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY); //SDL_JoystickGetAxis(joystick, 5);
-
+	int pitchAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
 	if (pitchAxis > deadzone || pitchAxis < -deadzone)
 	{
 		//Get between -1 and 1
 		double amount = ((double)pitchAxis) / 32767.0;
-		double angle = amount * deltaTime * this->angularSpeed;
 
-		//Negitive angle because the joystick layout is backwards
-		quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, parent->getTransform().getRight()));
-
-		parent->setOrientation(pitchQuat * parent->getTransform().getOrientation());
+		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getLeft()) * rotation;
 	}
 
-	int yawAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-
+	int yawAxis = -SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
 	if (yawAxis > deadzone || yawAxis < -deadzone)
 	{
 		//Get between -1 and 1
 		double amount = ((double)yawAxis) / 32767.0;
-		double angle = amount * deltaTime * this->angularSpeed;
 
-		quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0f, 1.0f, 0.0f)));
-
-		parent->setOrientation(yawQuat * parent->getTransform().getOrientation());
+		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, vector3D(0, 1, 0)) * rotation;
 	}
+
+	transform.setOrientation(rotation);
 
 	double linear = this->linearSpeed;
 
-	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
 	{
 		linear *= 100000.0;
 	}
 
-
-	int forwardAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY); //SDL_JoystickGetAxis(joystick, 1);
+	int forwardAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTY);
 
 	if (forwardAxis > deadzone || forwardAxis < -deadzone)
 	{
 		//Get between -1 and 1
 		double amount = ((double)forwardAxis) / 32767.0;
 		double distance = amount * deltaTime * linear;
-		parent->setPosition(parent->getPosition() + (parent->getTransform().getForward() * -distance));
+		transform.setPos(transform.getPos() + (transform.getForward() * -distance));
 	}
 
-	int strafeAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+	int strafeAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
 
 	if (strafeAxis > deadzone || strafeAxis < -deadzone)
 	{
 		//Get between -1 and 1
 		double amount = ((double)strafeAxis) / 32767.0;
 		double distance = amount * deltaTime * linear;
-		parent->setPosition(parent->getPosition() + (parent->getTransform().getRight() * distance));
+		transform.setPos(transform.getPos() + (transform.getRight() * distance));
 	}
 
-	static int lastButton = 0;
+	parent->setTransform(transform);
 
-	int button = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+	static int lastButton = 0;
+	int button = SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_A);
 	if (button && !lastButton)
 	{
 		double rayDistance = 1000.0f;
-		vector3D startPos = parent->getTransform().getPos();
-		vector3D endPos = parent->getTransform().getPos() + (parent->getTransform().getForward() * rayDistance);
+		vector3D startPos = transform.getPos();
+		vector3D endPos = transform.getPos() + (transform.getForward() * rayDistance);
 		SingleRayTestResult result = parent->getWorld()->m_physicsWorld->singleRayTest(startPos, endPos);
 
 		if (result.hasHit)
 		{
-			printf("Hit\n");
-		}
+			Entity* entity = result.hitEntity;
 
+			if (entity->hasComponent("shipComponent"))
+			{
+				ShipComponent* component = (ShipComponent*)entity->getComponent("shipComponent");
+				vector3B cellPos = getUnpackedPos(result.userValue);
+				ShipCellData data = component->getCell(cellPos);
+
+				printVec((vector3D) cellPos);
+				printEndLine();
+			}
+		}
 	}
 	lastButton = button;
 }

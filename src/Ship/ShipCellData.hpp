@@ -1,7 +1,7 @@
 #ifndef SHIPCELLDATA_HPP
 #define SHIPCELLDATA_HPP
 
-#include "Rendering/MaterialMesh.hpp"
+#include "Rendering/Model/MaterialMesh.hpp"
 #include "Directions.hpp"
 
 #include "Ship/ShipCell.hpp"
@@ -13,16 +13,18 @@ class ShipCellData
 {
 public:
 	int m_direction = FORWARD;
-	vector3S m_position; 
+	vector3B m_position; 
 
 	ShipCellData();
-	ShipCellData(ShipCell* cellType, vector3S position, int direction = 0);
+	ShipCellData(ShipCell* cellType, vector3B position, int direction = 0);
 
 	double getCellMass();
-	bool isCellAtPoint(vector3S point);
+	bool isCellAtPoint(vector3B point);
 	Mesh* getMesh();
 	vector<Node> getNodePoints();
 	AABB getAABB();
+	void addCollisionShape(vector3D pos, btCompoundShape* shape);
+	
 	bool isNull();
 
 

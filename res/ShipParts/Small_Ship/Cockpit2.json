@@ -1,12 +1,10 @@
 {
-  "ShipCell": 
-  {
     "cell_ID": "smallship_Cockpit2",
     "name": "cockpit2",
     "mass": 1200,
     "mesh_loc": "res/ShipParts/Small_Ship/",
     "mesh": "Cockpit2.obj",
-    "mesh_cursor": "Cockpit2.obj",
+    "mesh_cursor": "Cockpit2_Cursor.obj",
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 1.5, 2.5],
 	
@@ -25,7 +23,7 @@
         "direction": 1
       },
       {
-        "position": [0, 0, 1],
+        "position": [0, 0, 2],
         "direction": 2
       },
       {
@@ -56,8 +54,12 @@
         "position": [0, 0, 2],
         "direction": 5
       }
-	]
+	],
 	
-  }
-  
+	"physics_mesh":
+	{
+		"mesh_loc": "res/ShipParts/Small_Ship/",
+		"mesh": "Cockpit2_Cursor.obj",
+		"offset": [0, 0, 0]
+	}
 }

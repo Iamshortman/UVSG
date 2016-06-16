@@ -1,6 +1,9 @@
 #include "World/Entity.hpp"
 #include "World/World.hpp"
 
+//Resolve the prototype class
+#include "Renderer/Renderer.hpp"
+
 Entity::Entity(EntityId id)
 	:m_entityId(id)
 {

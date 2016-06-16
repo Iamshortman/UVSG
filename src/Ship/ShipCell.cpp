@@ -1,11 +1,15 @@
 #include "ShipCell.hpp"
 
 #include "Rendering/ObjLoader.hpp"
+
 #include <jsoncons/json.hpp>
 using jsoncons::json;
 using jsoncons::pretty_print;
 
-Node::Node(vector3S position, int direction)
+#include <Physics/BoxCollisionShape.hpp>
+#include <Physics/MeshCollisionShape.hpp>
+
+Node::Node(vector3B position, int direction)
 {
 	m_position = position;
 	m_direction = direction;
@@ -27,8 +31,9 @@ ShipCell::ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> 
 
 ShipCell::ShipCell(string jsonFile)
 {
-	json file = json::parse_file(jsonFile);
-	json cell = file["ShipCell"];
+	json cell = json::parse_file(jsonFile);
+
+	m_cellId = cell["cell_ID"].as<string>();
 
 	//Load Cell from file
 	m_mass = cell["mass"].as<double>();
@@ -47,27 +52,54 @@ ShipCell::ShipCell(string jsonFile)
 		m_cursorMesh = loadMaterialMeshFromFile(mesh_loc, mesh_cursor);
 	}
 
-	json nodes = cell["nodes"];
-	for (int i = 0; i < nodes.size(); i++)
+	if (cell.has_member("nodes"))
 	{
-		int x = nodes[i]["position"][0].as<int>();
-		int y = nodes[i]["position"][1].as<int>();
-		int z = nodes[i]["position"][2].as<int>();
+		json nodes = cell["nodes"];
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			vector<int> pos = nodes[i]["position"].as<vector<int>>();
+			int direction = nodes[i]["direction"].as<int>();
 
-		int direction = nodes[i]["direction"].as<int>();
-
-		m_nodes.push_back(Node(vector3S(x, y, z), direction));
+			m_nodes.push_back(Node(vector3B(pos[0], pos[1], pos[2]), direction));
+		}
 	}
 
 	vector<double> min_pos = cell["aabbMin"].as<vector<double>>();
 	vector<double> max_pos = cell["aabbMax"].as<vector<double>>();
 	m_aabb = AABB(vector3D(min_pos[0], min_pos[1], min_pos[2]), vector3D(max_pos[0], max_pos[1], max_pos[2]));
+
+	if (cell.has_member("physics_box"))
+	{
+		json physcis = cell["physics_box"];
+		vector<double> size = physcis["halfExtends"].as<vector<double>>();
+		vector<double> offset = physcis["offset"].as<vector<double>>();
+		shapeOffset = vector3D(offset[0], offset[1], offset[2]);
+		shape = new BoxCollisionShape(vector3D(size[0], size[1], size[2]));
+	}
+	else if (cell.has_member("physics_mesh"))
+	{
+		json physcis = cell["physics_mesh"]; 
+
+		string mesh_loc = physcis["mesh_loc"].as<string>();
+		string mesh = physcis["mesh"].as<string>();
+
+		shape = new MeshCollisionShape(mesh_loc, mesh);
+
+		vector<double> offset = physcis["offset"].as<vector<double>>();
+		shapeOffset = vector3D(offset[0], offset[1], offset[2]);
+	}
 }
 
 ShipCell::~ShipCell()
 {
+	delete shape;
 	delete m_mesh;
 	delete m_cursorMesh;
+}
+
+string ShipCell::getCellId()
+{
+	return m_cellId;
 }
 
 double ShipCell::getCellMass()

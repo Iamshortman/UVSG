@@ -1,7 +1,5 @@
 {
-  "ShipCell": 
-  {
-    "cell_ID": "smallship_hull",
+	"cell_ID": "smallship_hull",
     "name": "Hull",
     "mass": 200,
     "mesh_loc": "res/ShipParts/Small_Ship/",
@@ -36,8 +34,11 @@
         "position": [0, 0, 0],
         "direction": 5
       }
-	]
+	],
 	
-  }
-  
+	"physics_box":
+	{
+		"halfExtends": [0.5, 0.5, 0.5],
+		"offset": [0, 0, 0]
+	}
 }

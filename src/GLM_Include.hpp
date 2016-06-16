@@ -1,5 +1,5 @@
-#ifndef GLMINCLUDE_HPP
-#define GLMINCLUDE_HPP
+#ifndef GLM_INCLUDE_HPP
+#define GLM_INCLUDE_HPP
 
 //Used to include GLM in correct order
 #include <stdlib.h>
@@ -28,8 +28,8 @@ typedef glm::quat quaternionF;
 typedef glm::f64vec3 vector3D;
 typedef glm::f64quat quaternionD;
 
-typedef glm::i16vec3 vector3S;
+typedef glm::i8vec3 vector3B;
 typedef glm::i32vec3 vector3I;
 typedef glm::i32vec2 vector2I;
 
-#endif //GLMINCLUDE_HPP
+#endif //GLM_INCLUDE_HPP

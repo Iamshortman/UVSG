@@ -1,8 +1,8 @@
 #ifndef SHADERPROGRAM_HPP
 #define SHADERPROGRAM_HPP
 
-#include "openGL.hpp"
-#include "glmInclude.hpp"
+#include "OpenGL_Include.hpp"
+#include "GLM_Include.hpp"
 
 #include <vector>
 #include <string>

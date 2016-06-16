@@ -1,6 +1,6 @@
 #include "Gui.hpp"
 
-#include "Rendering/openGL.hpp"
+#include "Rendering/OpenGL_Include.hpp"
 
 Gui::Gui()
 {
@@ -30,16 +30,16 @@ void Gui::drawQuad(vector2I pos, vector2I quadSize, vector2I windowSize)
 
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-	glVertex2f(pos.x, pos.y);
+	glVertex2f((GLfloat)pos.x, (GLfloat)pos.y);
 	glTexCoord2f(1, 0);
 
-	glVertex2f(quadSize.x + pos.x, pos.y);
+	glVertex2f((GLfloat)(quadSize.x + pos.x), (GLfloat)pos.y);
 	glTexCoord2f(1, 1);
 
-	glVertex2f(quadSize.x + pos.x, quadSize.y + pos.y);
+	glVertex2f((GLfloat)(quadSize.x + pos.x), (GLfloat)(quadSize.y + pos.y));
 	glTexCoord2f(0, 1);
 
-	glVertex2f(pos.x, quadSize.y + pos.y);
+	glVertex2f((GLfloat)pos.x, (GLfloat)(quadSize.y + pos.y));
 	glTexCoord2f(0, 0);
 
 	glEnd();

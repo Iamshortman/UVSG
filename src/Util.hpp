@@ -1,7 +1,7 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 #include "Physics/PhysicsWorld.hpp"
 #include "Ship/Directions.hpp"
 
@@ -11,11 +11,11 @@ using namespace std;
 int flipDirection(int direction);
 
 vector3D getNormalFromDirectionVector3D(int direction);
-vector3S getNormalFromDirectionVector3S(int direction);
+vector3B getNormalFromDirectionvector3B(int direction);
 
 void printQuat(const quaternionF quat);
 void printVec(const vector3F vec);
-void printVec(const vector3S vec);
+void printVec(const vector3B vec);
 void printVec(const vector3D vec);
 
 void printEndLine();
@@ -32,4 +32,8 @@ double toRad(double degree);
 
 float toDeg(float rad);
 double toDeg(double rad);
+
+int getPackedPos(vector3B pos);
+vector3B getUnpackedPos(int packedPos);
+
 #endif //UTIL_HPP

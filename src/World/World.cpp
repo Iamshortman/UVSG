@@ -46,7 +46,14 @@ void World::render(Camera* camera)
 	{
 		if (entity != nullptr)
 		{
-			((EntityRenderer*)m_renderer)->renderAmbient(this, entity, camera);
+			if (entity->m_renderer == nullptr)
+			{
+				m_renderer->renderAmbient(this, entity, camera);
+			}
+			else
+			{
+				entity->m_renderer->renderAmbient(this, entity, camera);
+			}
 		}
 	}
 }
@@ -65,7 +72,7 @@ void World::renderFarView(Camera* camera)
 	{
 		if (entity->hasComponent("planet"))
 		{
-			((PlanetRenderer*)m_PlanetRenderer)->renderAmbient(this, entity, camera);
+			m_PlanetRenderer->renderAmbient(this, entity, camera);
 		}
 	}
 }

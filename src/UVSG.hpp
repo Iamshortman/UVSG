@@ -4,6 +4,7 @@
 #include "Rendering/RenderingManager.hpp"
 #include "EntityxInclude.hpp"
 #include "Scene/Scene.hpp"
+#include "Ship/ShipCellDictionary.hpp"
 
 class UVSG
 {
@@ -20,6 +21,7 @@ public:
 
 	RenderingManager* renderingManager;
 	Scene* currentScene;
+	ShipCellDictionary* shipCellDictionary;
 
 protected:
 

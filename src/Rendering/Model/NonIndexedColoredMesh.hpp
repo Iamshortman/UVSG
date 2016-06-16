@@ -1,10 +1,11 @@
 #ifndef NONINDEXEDCOLOREDMESH_HPP
 #define NONINDEXEDCOLOREDMESH_HPP
 
-#include "openGL.hpp"
-#include "glmInclude.hpp"
-#include "Mesh.hpp"
 #include <vector>
+
+#include "Rendering/OpenGL_Include.hpp"
+#include "GLM_Include.hpp"
+#include "Mesh.hpp"
 
 struct NonIndexedColoredVertex
 {

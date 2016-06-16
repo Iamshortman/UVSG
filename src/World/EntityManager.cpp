@@ -28,9 +28,9 @@ Entity* EntityManager::getEntity(EntityId id)
 	return m_entities[id];
 }
 
-vector<Entity*> EntityManager::getAllEntities()
+std::vector<Entity*> EntityManager::getAllEntities()
 {
-	vector<Entity*> entities;
+	std::vector<Entity*> entities;
 
 	for (auto entity : m_entities)
 	{

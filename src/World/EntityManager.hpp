@@ -20,7 +20,7 @@ public:
 	void destroyEntity(EntityId id);
 
 	Entity* getEntity(EntityId id);
-	vector<Entity*> getAllEntities();
+	std::vector<Entity*> getAllEntities();
 
 	static void createInstance();
 	static EntityManager* instance();

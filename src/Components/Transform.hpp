@@ -1,10 +1,7 @@
-#ifndef COMPONETS_HPP
-#define COMPONETS_HPP
+#ifndef TRANSFORM_HPP
+#define TRANSFORM_HPP
 
-#include "Rendering/Mesh.hpp"
-#include "Rendering/TexturedMesh.hpp"
-
-#include <vector>
+#include "GLM_Include.hpp"
 
 class Transform
 {
@@ -50,7 +47,7 @@ public:
 		matrix4 scaleMatrix = matrix4();
 
 		positionMatrix = glm::translate(matrix4(1.0F), (vector3F)m_position);
-		rotationMatrix = glm::toMat4((quaternionF) m_orientation);
+		rotationMatrix = glm::toMat4((quaternionF)m_orientation);
 		scaleMatrix = glm::scale(matrix4(1.0F), (vector3F)m_scale);
 
 		return positionMatrix * rotationMatrix * scaleMatrix;
@@ -71,15 +68,8 @@ public:
 
 	matrix3 getNormalMatrix() const
 	{
-		return glm::toMat3((quaternionF) m_orientation);
+		return glm::toMat3((quaternionF)m_orientation);
 	};
 };
 
-class Velocity
-{
-public:
-	vector3D linearVelocity;
-	vector3D angularVelocity;
-};
-
-#endif //COMPONETS_HPP
+#endif //TRANSFORM_HPP

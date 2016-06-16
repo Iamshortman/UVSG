@@ -1,7 +1,7 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include "openGL.hpp"
+#include "OpenGL_Include.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>

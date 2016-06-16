@@ -56,21 +56,29 @@ SingleRayTestResult PhysicsWorld::singleRayTest(vector3D startPos, vector3D endP
 	btVector3 start = toBtVec3(startPos);
 	btVector3 end = toBtVec3(endPos);
 
-	btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
+	btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
 
 	// Perform raycast
-	dynamicsWorld->rayTest(start, end, RayCallback);
+	dynamicsWorld->rayTest(start, end, rayCallback);
 
 	SingleRayTestResult result;
 
-	if (RayCallback.hasHit())
+	if (rayCallback.hasHit())
 	{
 		result.hasHit = true;
-		const btRigidBody* hitBody = btRigidBody::upcast(RayCallback.m_collisionObject);
+		const btRigidBody* hitBody = btRigidBody::upcast(rayCallback.m_collisionObject);
 		result.hitBody = hitBody;
-		result.hitPosition = toGlmVec3(RayCallback.m_hitPointWorld);
-		result.hitNormal = toGlmVec3(RayCallback.m_hitNormalWorld);
+		result.hitPosition = toGlmVec3(rayCallback.m_hitPointWorld);
+		result.hitNormal = toGlmVec3(rayCallback.m_hitNormalWorld);
 		result.hitEntity = (Entity*)hitBody->getUserPointer();
+		result.index = rayCallback.m_partId;
+
+		const btCollisionShape* shape = hitBody->getCollisionShape();
+		if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+		{
+			btCompoundShape* compoundShape = (btCompoundShape*)hitBody->getCollisionShape();
+			result.userValue = compoundShape->getChildShape(result.index)->getUserIndex();
+		}
 	}
 
 	return result;
@@ -81,25 +89,25 @@ SingleRayTestResult PhysicsWorld::singleRayTestNotMe(vector3D startPos, vector3D
 	btVector3 start = toBtVec3(startPos);
 	btVector3 end = toBtVec3(endPos);
 
-	btCollisionWorld::AllHitsRayResultCallback RayCallback(start, end);
+	btCollisionWorld::AllHitsRayResultCallback rayCallback(start, end);
 
 	// Perform raycast
-	dynamicsWorld->rayTest(start, end, RayCallback);
+	dynamicsWorld->rayTest(start, end, rayCallback);
 
 	SingleRayTestResult result;
 
-	if (RayCallback.hasHit())
+	if (rayCallback.hasHit())
 	{
 		int closestHitIndex = -1;
 
-		for (int i = 0; i < RayCallback.m_collisionObjects.size(); i++)
+		for (int i = 0; i < rayCallback.m_collisionObjects.size(); i++)
 		{
-			if (RayCallback.m_collisionObjects[i] != me)
+			if (rayCallback.m_collisionObjects[i] != me)
 			{
 				if (closestHitIndex != -1)
 				{
-					btVector3 distance1 = RayCallback.m_hitPointWorld[i] - start;
-					btVector3 distance2 = RayCallback.m_hitPointWorld[closestHitIndex] - start;
+					btVector3 distance1 = rayCallback.m_hitPointWorld[i] - start;
+					btVector3 distance2 = rayCallback.m_hitPointWorld[closestHitIndex] - start;
 					if (distance1.length() < distance2.length())
 					{
 						closestHitIndex = i;
@@ -116,10 +124,10 @@ SingleRayTestResult PhysicsWorld::singleRayTestNotMe(vector3D startPos, vector3D
 		if (closestHitIndex != -1)
 		{
 			result.hasHit = true;
-			const btRigidBody* hitBody = btRigidBody::upcast(RayCallback.m_collisionObjects[closestHitIndex]);
+			const btRigidBody* hitBody = btRigidBody::upcast(rayCallback.m_collisionObjects[closestHitIndex]);
 			result.hitBody = hitBody;
-			result.hitPosition = toGlmVec3(RayCallback.m_hitPointWorld[closestHitIndex]);
-			result.hitNormal = toGlmVec3(RayCallback.m_hitNormalWorld[closestHitIndex]);
+			result.hitPosition = toGlmVec3(rayCallback.m_hitPointWorld[closestHitIndex]);
+			result.hitNormal = toGlmVec3(rayCallback.m_hitNormalWorld[closestHitIndex]);
 			result.hitEntity = (Entity*)hitBody->getUserPointer();
 		}
 

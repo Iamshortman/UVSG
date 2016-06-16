@@ -343,3 +343,26 @@ void loadTriMesh(std::string filePath, std::string fileName, btTriangleMesh* tri
 
 	return;
 }
+
+void loadConvexHull(std::string filePath, std::string fileName, btConvexHullShape* shape)
+{
+	std::vector<vector3F> vertices;
+	std::vector<vector3F> normals;
+	std::vector<unsigned short> materialIndex;
+	std::vector<Material> materials;
+	if (loadMaterialOBJ(fileName, vertices, normals, materialIndex, materials, filePath))
+	{
+		std::vector<MaterialVertex> vertexVector;
+		for (unsigned int i = 0; i < vertices.size(); i += 3)
+		{
+			vector3F point = vertices[i];
+			shape->addPoint(btVector3(-point.x, point.y, point.z));
+		}
+	}
+	else
+	{
+		exit(1);
+	}
+
+	return;
+}

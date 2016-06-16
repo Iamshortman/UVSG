@@ -1,11 +1,12 @@
 #ifndef RENDERINGMANAGER_HPP
 #define RENDERINGMANAGER_HPP
 
-#include "Components.hpp"
+#include "Components/Velocity.hpp"
+#include "Components/Transform.hpp"
 
 #include "Camera.hpp"
 #include "Window.hpp"
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 #include "ShaderProgram.hpp"
 #include "TexturePool.hpp"
 #include "EntityxInclude.hpp"

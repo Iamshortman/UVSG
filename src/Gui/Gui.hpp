@@ -4,7 +4,7 @@
 #include <hash_map>
 #include <String>
 
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 #include "GuiComponent.hpp"
 
 class Gui

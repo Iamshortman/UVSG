@@ -8,6 +8,7 @@
 #include "Components/ShipFlightControl.hpp"
 #include "Components/PlayerControl.hpp"
 #include "Components/TimeToLive.hpp"
+#include "Components/ScriptComponent.hpp"
 
 #include "World/EntityManager.hpp"
 #include "Rendering/ObjLoader.hpp"
@@ -25,7 +26,9 @@ public:
 
 		Entity* camEntity = EntityManager::instance()->createNewEntity();
 		camEntity->addToWorld(baseWorld);
-		//camEntity->addComponent("playerController", new PlayerControl(5.0, 1.0, SDL_GameControllerOpen(0)));
+		//camEntity->addComponent("playerController", new PlayerControl(5.0, 0.5, SDL_GameControllerOpen(0)));
+		//camEntity->setPosition(vector3D(0, 10, -10));
+		//camEntity->addComponent("TempScript", new ScriptComponent());
 
  		Model* bigCubeModel = new Model();
 		bigCubeModel->localOffset = Transform();
@@ -34,7 +37,7 @@ public:
 
 		Entity* bigCube = EntityManager::instance()->createNewEntity();
 		bigCube->addToWorld(baseWorld);
-		bigCube->setPosition(vector3D(0, 0, 500));
+		bigCube->setPosition(vector3D(0, 0, 100));
 		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		bigCube->tempModels.push_back(bigCubeModel);
 
@@ -45,7 +48,7 @@ public:
 		planet->addComponent("planet", new Component());
 		planet->setOrientation(quaternionD(0.963, -0.164, -0.202, -0.067));
 
-		Entity* ship = EntityManager::instance()->createNewEntity();
+		/*Entity* ship = EntityManager::instance()->createNewEntity();
 		ship->addToWorld(baseWorld);
 		ship->setPosition(vector3D(0, 0, 10));
 
@@ -56,7 +59,7 @@ public:
 		ship->tempModels.push_back(shipModel);
 
 		ship->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
-		ship->addComponent("FlightControl", new ShipFlightControl(SDL_GameControllerOpen(0)));
+		ship->addComponent("FlightControl", new ShipFlightControl(SDL_GameControllerOpen(0)));*/
 
 		Entity* landingPad = EntityManager::instance()->createNewEntity();
 		landingPad->addToWorld(baseWorld);
@@ -72,6 +75,10 @@ public:
 		loadTriMesh("res/Models/", "LandingPad.obj", triMesh);
 		landingPad->addRigidBody(new RigidBody(new btBvhTriangleMeshShape(triMesh, true), 0.0));
 
+		/*Entity* ground = EntityManager::instance()->createNewEntity();;
+		ground->addRigidBody(new RigidBody(new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0));
+		ground->setPosition(vector3D(0, 2, 0));
+		ground->addToWorld(baseWorld);*/
 	};
 
 	virtual ~Scene_Game()
@@ -82,7 +89,7 @@ public:
 	virtual void update(double deltaTime)
 	{
 		baseWorld->updateWorld(deltaTime);
-		Entity* entity = EntityManager::instance()->getEntity(4);
+		Entity* entity = EntityManager::instance()->getEntity(5);
 		if (entity != nullptr)
 		{
 			vector3D pos = entity->getOrientation() * vector3D(0, 2, -6);

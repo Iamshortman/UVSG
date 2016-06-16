@@ -27,6 +27,17 @@ UVSG::UVSG()
 			exit(15);
 		}
 	}
+
+	shipCellDictionary = new ShipCellDictionary();
+	shipCellDictionary->loadAllCellsFromFolder("res/ShipParts/Small_Ship/");
+}
+
+
+UVSG::~UVSG()
+{
+	delete currentScene;
+	delete renderingManager;
+	delete shipCellDictionary;
 }
 
 void UVSG::update(double deltaTime)
@@ -81,12 +92,6 @@ void UVSG::exitGame()
 const bool UVSG::getShouldClose()
 {
 	return shouldClose;
-}
-
-UVSG::~UVSG()
-{
-	delete currentScene;
-	delete renderingManager;
 }
 
 UVSG* UVSG::getInstance()

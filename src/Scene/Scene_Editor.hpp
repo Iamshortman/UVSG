@@ -6,15 +6,13 @@
 #include "World/World.hpp"
 #include "Rendering/RenderingManager.hpp"
 #include "Rendering/ObjLoader.hpp"
+#include "Renderer/ShipRenderer.hpp"
 #include "Gui/Gui.hpp"
 
 #include "Ship/ShipComponent.hpp"
 #include "Ship/ShipCell.hpp"
 
 #include "Components/ShipFlightControl.hpp"
-
-#include <iostream>
-#include <io.h>
 
 class Scene_Editor : public Scene
 {
@@ -26,7 +24,6 @@ public:
 	ShipCell* cockpit2Cell = nullptr;
 	ShipCell* engine1Cell = nullptr;
 
-	vector<ShipCell*> shipCells;
 	int shipCell_Index = 0;
 
 	//Temp int Mouse
@@ -68,44 +65,30 @@ public:
 
 		UVSG::getInstance()->renderingManager->texturePool.loadTexture("res/Textures/metalPanel_Cells_Green.png");
 		UVSG::getInstance()->renderingManager->texturePool.loadTexture("res/Textures/glassPanel.png");
-
-		//Loads Ship Cells from .json files
-		_finddata_t data;
-		int ff = _findfirst("res/ShipParts/Small_Ship/*.json", &data);
-		string fileLoc = "res/ShipParts/Small_Ship/";
-
-		if (ff != -1)
-		{
-			int res = 0;
-			while (res != -1)
-			{
-				string fileName = data.name;
-				printf("Loading Ship Cell from: %s \n", (fileLoc + fileName).c_str());
-				ShipCell* cell = new ShipCell(fileLoc + fileName);
-				shipCells.push_back(cell);
-
-				res = _findnext(ff, &data);
-			}
-			_findclose(ff);
-		}
 	};
 
 	virtual ~Scene_Editor()
 	{
-		delete shipComponent;
 		delete shipModelInside;
 		delete shipModelOutside;
 
 		delete MaterialShader;
-		delete PointShader;
-		delete DirectionalShader;
 
-		delete skybox;
+		delete skybox->mesh;
+		delete skybox->shader;
+
 		delete m_cursorModel;
+
+		delete directionalLight;
+		delete DirectionalShader;
+		delete pointLight;
+		delete PointShader;
 	};
 
 	virtual void update(double deltaTime)
 	{
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("Test");
+
 		const double stepTime = 0.3;
 
 		int fowardBack = -SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
@@ -116,7 +99,6 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))
 			if (fowardBack > deadzone1)
 			{
 				//First movement happens when the button is first pushed
@@ -143,7 +125,6 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
 			if (fowardBack < -deadzone1)
 			{
 				//First movement happens when the button is first pushed
@@ -170,7 +151,6 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
 			if (LeftRight > deadzone1)
 			{
 				//First movement happens when the button is first pushed
@@ -197,7 +177,6 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
 			if (LeftRight < -deadzone1)
 			{
 				//First movement happens when the button is first pushed
@@ -379,13 +358,13 @@ public:
 		camPos += camOrigin;
 		camera->setCameraTransform(camPos, cameraRot);
 
-		if (true)
+		if (false)
 		{
 			static int lastState = 0;
 			int currentState = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT);
 			if (currentState && !lastState)
 			{
-				vector3S pos = (vector3S)m_cursorPos;
+				vector3B pos = (vector3B)m_cursorPos;
 				if (shipComponent->hasCellAtPos(pos))
 				{
 					shipComponent->removeCell(pos);
@@ -393,7 +372,7 @@ public:
 				}
 				else
 				{
-					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos);
+					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos);
 					if (shipComponent->canPlaceCell(newCell))
 					{
 						shipComponent->addCell(newCell);
@@ -412,7 +391,7 @@ public:
 			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
 			if (currentState && !lastState)
 			{
-				vector3S pos = (vector3S)m_cursorPos;
+				vector3B pos = (vector3B)m_cursorPos;
 				if (shipComponent->hasCellAtPos(pos))
 				{
 					shipComponent->removeCell(pos);
@@ -420,7 +399,7 @@ public:
 				}
 				else if (shipCells[shipCell_Index] != nullptr)
 				{
-					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos);
+					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos);
 					if (shipComponent->canPlaceCell(newCell))
 					{
 						shipComponent->addCell(newCell);
@@ -440,7 +419,7 @@ public:
 				shipCell_Index--;
 				if (shipCell_Index < 0)
 				{
-					shipCell_Index = shipCells.size() - 1;
+					shipCell_Index = (int)shipCells.size() - 1;
 				}
 
 			}
@@ -461,7 +440,6 @@ public:
 			lastState = currentState;
 		}
 
-
 		if (shipChanged == true)
 		{
 			if (shipModelOutside->mesh != nullptr)
@@ -474,7 +452,7 @@ public:
 			shipChanged = false;
 		}
 
-		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], (vector3S)m_cursorPos)))
+		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -485,6 +463,23 @@ public:
 			mesh->materials[0].diffuse_Color = vector3F(0.800000f, 0.254604f, 0.002949f);
 		}
 
+		//Load game world
+		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
+		{
+			printf("Loading Game World!!!\n");
+			UVSG* instace = UVSG::getInstance();
+			Scene_Game* game = new Scene_Game();
+			instace->currentScene = game;
+
+			Entity* ship = EntityManager::instance()->createNewEntity();
+			ship->m_renderer = new ShipRenderer();
+
+			ship->addComponent("shipComponent", shipComponent);
+			ship->addComponent("FlightControl", new ShipFlightControl(controller));
+			ship->addToWorld(game->baseWorld);
+			shipComponent->initializeEntity();
+			ship->setPosition(vector3D(0, 10, 0));
+		}
 	};
 
 	virtual void render(RenderingManager* manager)
@@ -529,7 +524,8 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], m_cursorPos)))
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("Test");
+		if (shipCells[shipCell_Index] != nullptr)
 		{
 			Model* model = new Model();
 			model->shader = MaterialShader;
@@ -556,7 +552,7 @@ public:
 		vector2I windowSize = vector2I(width, height);
 
 		manager->texturePool.bindTexture("res/Textures/metalPanel_Cells_Green.png");
-		m_Gui->drawQuad(vector2I(0.0), vector2I(110, 509), windowSize);
+		m_Gui->drawQuad(vector2I(0), vector2I(110, 509), windowSize);
 
 		manager->texturePool.bindTexture("res/Textures/glassPanel.png");
 		m_Gui->drawQuad(vector2I(5, 30 + (100 * shipCell_Index)), vector2I(100, 100), windowSize);
@@ -598,7 +594,7 @@ public:
 	quaternionD cameraRot;
 
 	Model* m_cursorModel = nullptr;
-	vector3S m_cursorPos = vector3D(0.0); 
+	vector3B m_cursorPos = vector3D(0.0); 
 
 private:
 	

@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#include "openGL.hpp"
+#include "OpenGL_Include.hpp"
 
 using std::string;
 

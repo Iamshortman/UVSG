@@ -10,6 +10,9 @@ class World;
 #include "Physics/PhysicsWorld.hpp"
 #include "Rendering/Camera.hpp"
 
+//Prototype Classes
+class Renderer;
+
 class World
 {
 private:
@@ -33,8 +36,8 @@ public:
 
 	PhysicsWorld* m_physicsWorld; 
 
-	void* m_renderer;
-	void* m_PlanetRenderer;
+	Renderer* m_renderer;
+	Renderer* m_PlanetRenderer;
 
 	vector3F ambientLight = vector3F(0.4f);
 };

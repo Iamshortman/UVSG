@@ -1,7 +1,7 @@
 #ifndef Material_HPP
 #define Material_HPP
 
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 
 struct Material
 {

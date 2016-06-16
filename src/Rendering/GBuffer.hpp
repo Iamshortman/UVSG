@@ -1,7 +1,7 @@
 #ifndef GBUFFER_HPP
 #define GBUFFER_HPP
 
-#include "Rendering/openGL.hpp"
+#include "Rendering/OpenGL_Include.hpp"
 
 class GBuffer
 {

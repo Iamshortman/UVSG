@@ -1,10 +1,12 @@
 #ifndef RENDERABLE_HPP
 #define RENDERABLE_HPP
 
-#include "Components.hpp"
-#include "Rendering/ShaderProgram.hpp"
-#include "Rendering/Mesh.hpp"
 #include <vector>
+
+#include "Components/Velocity.hpp"
+#include "Components/Transform.hpp"
+#include "Rendering/ShaderProgram.hpp"
+#include "Rendering/Model/Mesh.hpp"
 
 struct Model
 {

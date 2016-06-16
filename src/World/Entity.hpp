@@ -2,13 +2,17 @@
 #define ENTITY_HPP
 
 #include <hash_map>
+#include <string>
+#include <vector>
 
-#include "Components.hpp"
 #include "Physics/RigidBody.hpp"
 #include "Components/Component.hpp"
+#include "Components/Velocity.hpp"
+#include "Components/Transform.hpp"
 
-//Prototype Class
+//Prototype Classes
 class World;
+class Renderer;
 
 typedef uint32_t EntityId;
 
@@ -16,7 +20,7 @@ class Entity
 {
 private:
 	World* m_world = nullptr;
-	std::hash_map<string, Component*> m_components;
+	std::hash_map<std::string, Component*> m_components;
 	bool m_alive = true;
 
 	Transform m_transform;
@@ -24,7 +28,8 @@ private:
 	RigidBody* m_RigidBody = nullptr;
 
 public:
-	vector<void*> tempModels;
+	Renderer* m_renderer = nullptr;
+	std::vector<void*> tempModels;
 
 	const EntityId m_entityId;
 	Entity(EntityId id);
@@ -67,10 +72,10 @@ public:
 	void applyTorqueImpulse(vector3D torque);
 
 	//Component functions 
-	bool hasComponent(string componentName);
-	Component* getComponent(string componentName);
-	void addComponent(string componentName, Component* component);
-	void removeComponent(string componentName);
+	bool hasComponent(std::string componentName);
+	Component* getComponent(std::string componentName);
+	void addComponent(std::string componentName, Component* component);
+	void removeComponent(std::string componentName);
 };
 
 #endif //ENTITY_HPP

@@ -6,8 +6,9 @@
 
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "Components.hpp"
-#include "glmInclude.hpp"
+#include "Components/Velocity.hpp"
+#include "Components/Transform.hpp"
+#include "GLM_Include.hpp"
 #include "Util.hpp"
 #include "World/Entity.hpp"
 
@@ -18,6 +19,8 @@ struct SingleRayTestResult
 	const btRigidBody* hitBody;
 	vector3D hitPosition;
 	vector3D hitNormal;
+	int index = 0;
+	int userValue = 0;
 };
 
 class PhysicsWorld

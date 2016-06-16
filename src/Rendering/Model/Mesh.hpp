@@ -1,10 +1,11 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-#include "ShaderProgram.hpp"
-#include "openGL.hpp"
-#include <glmInclude.hpp>
 #include <vector>
+
+#include "Rendering/ShaderProgram.hpp"
+#include "Rendering/OpenGL_Include.hpp"
+#include "GLM_Include.hpp"
 
 class Mesh
 {

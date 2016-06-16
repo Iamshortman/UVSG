@@ -30,16 +30,16 @@ vector3D getNormalFromDirectionVector3D(int direction)
 	return normals[direction];
 }
 
-vector3S getNormalFromDirectionVector3S(int direction)
+vector3B getNormalFromDirectionvector3B(int direction)
 {
-	vector3S normals[] =
+	vector3B normals[] =
 	{
-		vector3S(0, 1, 0),
-		vector3S(0, -1, 0),
-		vector3S(0, 0, 1),
-		vector3S(0, 0, -1),
-		vector3S(1, 0, 0),
-		vector3S(-1, 0, 0),
+		vector3B(0, 1, 0),
+		vector3B(0, -1, 0),
+		vector3B(0, 0, 1),
+		vector3B(0, 0, -1),
+		vector3B(1, 0, 0),
+		vector3B(-1, 0, 0),
 	};
 
 	return normals[direction];
@@ -55,7 +55,7 @@ void printVec(const vector3F vec)
 	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
 
-void printVec(const vector3S vec)
+void printVec(const vector3B vec)
 {
 	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
 }
@@ -129,4 +129,18 @@ float toDeg(float rad)
 double toDeg(double rad)
 {
 	return rad * 57.295779513;
+}
+
+int getPackedPos(vector3B pos)
+{
+	unsigned int x = pos.x;
+	unsigned int y = pos.y;
+	unsigned int z = pos.z;
+
+	return (x & 0x000000FF) | ((y << 8) & 0x0000FF00) | ((z << 16) & 0x00FF0000);
+}
+
+vector3B getUnpackedPos(int packedPos)
+{
+	return vector3B((packedPos), (packedPos & 0x0000FF00) >> 8, (packedPos & 0x00FF0000) >> 16);
 }

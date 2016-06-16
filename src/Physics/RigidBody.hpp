@@ -2,8 +2,10 @@
 #define RIGIDBODY_HPP
 
 #include <btBulletDynamicsCommon.h>
-#include "glmInclude.hpp"
-#include "Components.hpp"
+
+#include "GLM_Include.hpp"
+#include "Components/Velocity.hpp"
+#include "Components/Transform.hpp"
 
 class PhysicsWorld;
 class Entity;

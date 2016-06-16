@@ -1,8 +1,8 @@
 #ifndef COLOREDMESH_HPP
 #define COLOREDMESH_HPP
 
-#include "openGL.hpp"
-#include "glmInclude.hpp"
+#include "Rendering/OpenGL_Include.hpp"
+#include "GLM_Include.hpp"
 #include "Mesh.hpp"
 #include <vector>
 

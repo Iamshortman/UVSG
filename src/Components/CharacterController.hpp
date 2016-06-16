@@ -2,7 +2,7 @@
 #define CHARACTERCONTROLLER_HPP
 
 #include "EntityxInclude.hpp"
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 #include "Components.hpp"
 #include "Physics/RigidBody.hpp"
 #include "Physics/PhysicsWorld.hpp"

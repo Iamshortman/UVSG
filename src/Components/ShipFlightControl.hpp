@@ -3,7 +3,7 @@
 
 #include "Components/Component.hpp"
 #include "SDL2/SDL_gamecontroller.h"
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 
 class ShipFlightControl : public Component
 {
@@ -17,12 +17,18 @@ private:
 	SDL_GameController* m_controller = nullptr;
 
 	//Flight Data
-	double m_throttle = 0.0; //Forward Back Throttle
-	double m_upDownThrottle = 0.0;
-	double m_leftRightThrottle = 0.0;
+	vector3D m_throttle;
+
+	vector3D m_turnSpeedCurrent;
 
 	//In Rotations Per Second
-	vector3D turnSpeeds;
+	vector3D m_turnSpeedMax;
+	//In Rotations Per Second/Per Second
+	vector3D m_turnSpeedAcceleration;
+	vector3D m_turnSpeedDeceleration;
+
+	double m_SpeedCurrent;
+	double m_SpeedAcceleration;
 };
 
 #endif //SHIPFLIGHTCONTROL_HPP

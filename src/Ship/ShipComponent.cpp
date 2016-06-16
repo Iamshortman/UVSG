@@ -1,5 +1,6 @@
 #include "Ship/ShipComponent.hpp"
 
+#include "Renderable.hpp"
 #include "Util.hpp"
 
 ShipComponent::ShipComponent(double shipSize)
@@ -8,12 +9,58 @@ ShipComponent::ShipComponent(double shipSize)
 	m_shipCells = Ship_Map();
 }
 
+void ShipComponent::initializeEntity()
+{
+	Entity* parent = getParent();
+	if (parent == nullptr)
+	{
+		printf("No parent!!!\n");
+		exit(1);
+	}
+
+	outsideMesh = genOutsideMesh();
+
+	double totalMass = 0.0;
+	vector3D centerOfMass = vector3D(0.0);
+	int totalCellCount = 0;
+
+	btCompoundShape* shape = new btCompoundShape();
+
+	for (auto it = this->m_shipCells.begin(); it != this->m_shipCells.end(); ++it)
+	{
+		vector3B pos = it->first;
+		vector3D pos1 = (vector3D)pos;
+		ShipCellData cell = it->second;
+
+		totalCellCount++;
+		double mass = cell.getCellMass();
+		totalMass += mass;
+		centerOfMass += pos1 * mass;
+
+		cell.addCollisionShape(pos1, shape);
+	}
+
+	centerOfMass /= totalMass;
+
+	m_centerOfMass = centerOfMass;
+
+	for (int i = 0; i < shape->getNumChildShapes(); i++)
+	{
+		btTransform transform = shape->getChildTransform(i);
+		transform.setOrigin(transform.getOrigin() - toBtVec3(centerOfMass));
+		shape->updateChildTransform(i, transform, false);
+	}
+
+	parent->setTransform(parent->getPosition() + centerOfMass);
+	parent->addRigidBody(new RigidBody(shape, totalMass));
+}
+
 void ShipComponent::addCell(ShipCellData cell)
 {
 	m_shipCells[cell.m_position] = cell;
 }
 
-void ShipComponent::removeCell(vector3S pos)
+void ShipComponent::removeCell(vector3B pos)
 {
 	if (m_shipCells.find(pos) != m_shipCells.end())
 	{
@@ -22,7 +69,7 @@ void ShipComponent::removeCell(vector3S pos)
 	}
 }
 
-ShipCellData ShipComponent::getCell(vector3S pos)
+ShipCellData ShipComponent::getCell(vector3B pos)
 {
 	if (m_shipCells.find(pos) != m_shipCells.end())
 	{
@@ -41,7 +88,7 @@ ShipCellData ShipComponent::getCell(vector3S pos)
 	return ShipCellData();
 }
 
-bool ShipComponent::hasCellAtPos(vector3S pos)
+bool ShipComponent::hasCellAtPos(vector3B pos)
 {
 	if (m_shipCells.find(pos) != m_shipCells.end())
 	{
@@ -60,7 +107,7 @@ bool ShipComponent::hasCellAtPos(vector3S pos)
 	return false;
 }
 
-bool ShipComponent::hasNode(vector3S pos, int direction)
+bool ShipComponent::hasNode(vector3B pos, int direction)
 {
 	Node testNode = Node(pos, direction);
 
@@ -144,14 +191,14 @@ Mesh* ShipComponent::genOutsideMesh()
 		vector3F(-1, 0, 0),
 	};
 
-	vector3S cellOffset[] =
+	vector3B cellOffset[] =
 	{
-		vector3S(0, 1, 0),
-		vector3S(0, -1, 0),
-		vector3S(0, 0, 1),
-		vector3S(0, 0, -1),
-		vector3S(1, 0, 0),
-		vector3S(-1, 0, 0),
+		vector3B(0, 1, 0),
+		vector3B(0, -1, 0),
+		vector3B(0, 0, 1),
+		vector3B(0, 0, -1),
+		vector3B(1, 0, 0),
+		vector3B(-1, 0, 0),
 	};
 
 	int indices[6][4] = 

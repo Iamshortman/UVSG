@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#include "glmInclude.hpp"
+#include "GLM_Include.hpp"
 #include "Ship/Directions.hpp"
 
 using std::max;

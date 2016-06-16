@@ -1,10 +1,10 @@
 #ifndef MATERIALMESH_HPP
 #define MATERIALMESH_HPP
 
-#include "openGL.hpp"
-#include "glmInclude.hpp"
+#include "Rendering/OpenGL_Include.hpp"
+#include "GLM_Include.hpp"
 #include "Mesh.hpp"
-#include "Material.hpp"
+#include "Rendering/Material.hpp"
 #include <vector>
 
 struct MaterialVertex
