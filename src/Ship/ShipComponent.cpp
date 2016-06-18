@@ -51,7 +51,7 @@ void ShipComponent::initializeEntity()
 		shape->updateChildTransform(i, transform, false);
 	}
 
-	parent->setTransform(parent->getPosition() + centerOfMass);
+	parent->setTransform(parent->getTransform().getPosition() + centerOfMass);
 	parent->addRigidBody(new RigidBody(shape, totalMass));
 }
 

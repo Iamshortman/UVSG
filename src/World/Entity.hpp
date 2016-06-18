@@ -28,6 +28,11 @@ private:
 	RigidBody* m_RigidBody = nullptr;
 
 public:
+
+	Entity* ridingEntity = nullptr;
+	Entity*	riddenByEntity = nullptr;
+	vector3D ridingOffset = vector3D(0, 2, -6);
+
 	Renderer* m_renderer = nullptr;
 	std::vector<void*> tempModels;
 
@@ -46,12 +51,6 @@ public:
 	void addRigidBody(RigidBody* rigidBody);
 
 	//Transform Functions
-	vector3D getPosition();
-	void setPosition(vector3D pos);
-
-	quaternionD getOrientation();
-	void setOrientation(quaternionD rot);
-
 	vector3D getScale();
 	void setScale(vector3D scale);
 
@@ -70,6 +69,8 @@ public:
 
 	void applyTorque(vector3D torque);
 	void applyTorqueImpulse(vector3D torque);
+
+	void setDampening(double linear, double angular);
 
 	//Component functions 
 	bool hasComponent(std::string componentName);

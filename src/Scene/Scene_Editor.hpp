@@ -19,11 +19,6 @@ class Scene_Editor : public Scene
 public:
 	Gui* m_Gui;
 
-	ShipCell* hullCell = nullptr;
-	ShipCell* cockpit1Cell = nullptr;
-	ShipCell* cockpit2Cell = nullptr;
-	ShipCell* engine1Cell = nullptr;
-
 	int shipCell_Index = 0;
 
 	//Temp int Mouse
@@ -478,7 +473,8 @@ public:
 			ship->addComponent("FlightControl", new ShipFlightControl(controller));
 			ship->addToWorld(game->baseWorld);
 			shipComponent->initializeEntity();
-			ship->setPosition(vector3D(0, 10, 0));
+			
+			ship->setTransform(Transform(vector3D(0, 10, 0)));
 		}
 	};
 
@@ -497,7 +493,7 @@ public:
 		/******************************************************************************************/
 		manager->window->clearBuffer();
 
-		manager->renderModel(camera, skybox, Transform(camera->getPos()));
+		manager->renderModel(camera, skybox, Transform(camera->getPosition()));
 
 		//Clear depth buffer so any other object in front of far objects.
 		glClear(GL_DEPTH_BUFFER_BIT);

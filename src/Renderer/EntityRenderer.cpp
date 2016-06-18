@@ -29,7 +29,7 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		matrix4 projectionMatrix = camera->getProjectionMatrix();
 		matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPos());
+		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPosition());
 		matrix3 normalMatrix = entityTransform.getNormalMatrix();
 
 		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();

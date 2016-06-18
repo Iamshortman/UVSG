@@ -40,7 +40,7 @@ vector<Node> ShipCellData::getNodePoints()
 AABB ShipCellData::getAABB()
 {
 	AABB aabb = m_cellType->getAABB();
-	aabb.setPos(m_position);
+	aabb.setPosition(m_position);
 	return aabb;
 }
 

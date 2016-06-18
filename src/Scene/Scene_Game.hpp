@@ -17,7 +17,7 @@
 class Scene_Game : public Scene
 {
 public:
-	Entity* camEntity = nullptr;
+	Entity* cam_Entity = nullptr;
 
 	Scene_Game()
 	{
@@ -26,44 +26,51 @@ public:
 
 		Entity* camEntity = EntityManager::instance()->createNewEntity();
 		camEntity->addToWorld(baseWorld);
-		//camEntity->addComponent("playerController", new PlayerControl(5.0, 0.5, SDL_GameControllerOpen(0)));
-		//camEntity->setPosition(vector3D(0, 10, -10));
-		//camEntity->addComponent("TempScript", new ScriptComponent());
+		camEntity->addComponent("playerController", new PlayerControl(5.0, 0.5, SDL_GameControllerOpen(0)));
+		Transform transform;
+		transform.setPosition(vector3D(0, 10, -10));
+		camEntity->setTransform(transform);
+		cam_Entity = camEntity;
 
  		Model* bigCubeModel = new Model();
 		bigCubeModel->localOffset = Transform();
 		bigCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 		bigCubeModel->mesh = loadMaterialMeshFromFile("res/", "BigCube.obj");
 
+		transform = Transform();
 		Entity* bigCube = EntityManager::instance()->createNewEntity();
 		bigCube->addToWorld(baseWorld);
-		bigCube->setPosition(vector3D(0, 0, 100));
+		transform.setPosition(vector3D(0, 0, 100));
+		bigCube->setTransform(transform);
 		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		bigCube->tempModels.push_back(bigCubeModel);
+		bigCube->setDampening(0.5, 0.5);
 
+		transform = Transform();
 		Entity* planet = EntityManager::instance()->createNewEntity();
 		planet->addToWorld(baseWorld);
-		planet->setPosition(vector3D(50000.0, -1000000.0, 30000000.0));
+		transform.setPosition(vector3D(50000.0, -1000000.0, 30000000.0));
 		planet->setScale(vector3D(30000000.0));
 		planet->addComponent("planet", new Component());
-		planet->setOrientation(quaternionD(0.963, -0.164, -0.202, -0.067));
+		transform.setOrientation(quaternionD(0.963, -0.164, -0.202, -0.067));
+		planet->setTransform(transform);
 
 		/*Entity* ship = EntityManager::instance()->createNewEntity();
 		ship->addToWorld(baseWorld);
 		ship->setPosition(vector3D(0, 0, 10));
-
 		Model* shipModel = new Model();
 		shipModel->localOffset = Transform();
 		shipModel->shader = bigCubeModel->shader;
 		shipModel->mesh = loadMaterialMeshFromFile("res/Models/", "Ship_Lightning.obj");
 		ship->tempModels.push_back(shipModel);
-
 		ship->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		ship->addComponent("FlightControl", new ShipFlightControl(SDL_GameControllerOpen(0)));*/
 
+		transform = Transform();
 		Entity* landingPad = EntityManager::instance()->createNewEntity();
 		landingPad->addToWorld(baseWorld);
-		landingPad->setPosition(vector3D(0, -10, 0));
+		transform.setPosition(vector3D(0, -10, 0));
+		landingPad->setTransform(transform);
 
 		Model* landingPadModel = new Model();
 		landingPadModel->localOffset = Transform();
@@ -89,11 +96,10 @@ public:
 	virtual void update(double deltaTime)
 	{
 		baseWorld->updateWorld(deltaTime);
-		Entity* entity = EntityManager::instance()->getEntity(5);
-		if (entity != nullptr)
+		if (cam_Entity != nullptr)
 		{
-			vector3D pos = entity->getOrientation() * vector3D(0, 2, -6);
-			UVSG::getInstance()->renderingManager->camera.setCameraTransform(entity->getPosition() + pos, entity->getOrientation());
+			Transform transform = cam_Entity->getTransform();
+			UVSG::getInstance()->renderingManager->camera.setCameraTransform(transform.getPosition(), transform.getOrientation());
 		}
 	};
 

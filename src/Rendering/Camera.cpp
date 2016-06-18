@@ -47,7 +47,7 @@ vector3D Camera::getRight()
 	return glm::cross(m_Forward, m_Up);
 }
 
-vector3D Camera::getPos()
+vector3D Camera::getPosition()
 {
     return m_Pos;
 }

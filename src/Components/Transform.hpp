@@ -15,7 +15,7 @@ public:
 	vector3D m_scale = vector3D(1.0f); //Start m_scale with a default of 1.0f
 
 	//Getters for the directional vectors.
-	vector3D getPos() const { return m_position; };
+	vector3D getPosition() const { return m_position; };
 	vector3D getForward() const { return m_orientation * vector3D(0.0f, 0.0f, 1.0f); };
 	vector3D getUp() const { return m_orientation * vector3D(0.0f, 1.0f, 0.0f); };
 	vector3D getRight() const { return m_orientation * vector3D(-1.0f, 0.0f, 0.0f); };
@@ -23,20 +23,20 @@ public:
 	quaternionD getOrientation() const { return m_orientation; };
 	vector3D getScale() const { return m_scale; };
 
-	void setPos(const vector3D& vec){ m_position = vec; };
+	void setPosition(const vector3D& vec){ m_position = vec; };
 	void setOrientation(const quaternionD& quat){ m_orientation = quat; }
 	void setScale(const vector3D& vec){ m_scale = vec; }
 
 	void setTransform(const Transform& transform)
 	{
-		this->setPos(transform.getPos());
+		this->setPosition(transform.getPosition());
 		this->setOrientation(transform.getOrientation());
 		this->setScale(transform.getScale());
 	};
 
 	void setPositionAndRotationFromTransform(const Transform& transform)
 	{
-		this->setPos(transform.getPos());
+		this->setPosition(transform.getPosition());
 		this->setOrientation(transform.getOrientation());
 	};
 

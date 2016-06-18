@@ -49,8 +49,8 @@ public:
 			ComponentHandle<RigidBody> componentRigidBody = entity.component<RigidBody>();
 			ComponentHandle<CharacterController> componentCharacter = entity.component<CharacterController>();
 
-			vector3D startPos = componentTransform->getPos();
-			vector3D endPos = componentTransform->getPos() + (componentTransform->getUp() * -2.0);
+			vector3D startPos = componentTransform->getPosition();
+			vector3D endPos = componentTransform->getPosition() + (componentTransform->getUp() * -2.0);
 
 			SingleRayTestResult result = componentRigidBody->getPhysicsWorld()->singleRayTestNotMe(startPos, endPos, componentRigidBody->rigidBody);
 
@@ -63,7 +63,7 @@ public:
 			componentCharacter->m_onGround = false;
 			if (result.hasHit && result.hitBody != componentRigidBody->rigidBody)
 			{
-				vector3D diffrance = glm::abs(componentTransform->getPos() - result.hitPosition);
+				vector3D diffrance = glm::abs(componentTransform->getPosition() - result.hitPosition);
 				double distance = glm::length(diffrance);
 
 				//If the player is too close to the ground, adjust it up.
@@ -71,7 +71,7 @@ public:
 				{
 					double adjustAmount = 1.5 - distance;
 
-					componentTransform->setPos(componentTransform->getPos() + (componentTransform->getUp() * adjustAmount));
+					componentTransform->setPosition(componentTransform->getPosition() + (componentTransform->getUp() * adjustAmount));
 					componentVelocity->linearVelocity.y = 0.0;
 					componentCharacter->m_onGround = true;
 					componentCharacter->timeInAir = 0.0;

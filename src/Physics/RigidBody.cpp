@@ -21,6 +21,17 @@ RigidBody::RigidBody(btCollisionShape* shape, btScalar mass, const btVector3& in
 	rigidBody = new btRigidBody(boxRigidBodyCI);
 }
 
+RigidBody::~RigidBody()
+{
+	if (world != nullptr)
+	{
+		world->removeRigidBody(rigidBody);
+	}
+	delete rigidBody->getMotionState();
+	delete rigidBody->getCollisionShape();
+	delete rigidBody;
+}
+
 void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Transform worldTransform)
 {
 	//Remove from old physics world
@@ -36,6 +47,21 @@ void RigidBody::addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Tr
 	setWorldTransform(worldTransform);
 
 	world->addRigidBody(rigidBody);
+}
+
+void RigidBody::removeFromPhysicsWorld()
+{
+	//Remove from old physics world
+	if (world != nullptr)
+	{
+		world->removeRigidBody(rigidBody);
+		world = nullptr;
+	}
+}
+
+bool RigidBody::isInPhysicsWorld()
+{
+	return world != nullptr;
 }
 
 void RigidBody::Activate(bool activate)
@@ -64,7 +90,7 @@ Transform RigidBody::getWorldTransform()
 	Transform transform;
 	btTransform bulletTransform = rigidBody->getCenterOfMassTransform();
 
-	transform.setPos( toGlmVec3(bulletTransform.getOrigin()) );
+	transform.setPosition( toGlmVec3(bulletTransform.getOrigin()) );
 	transform.setOrientation(toGlmQuat(bulletTransform.getRotation()));
 
 	return transform;
@@ -72,7 +98,7 @@ Transform RigidBody::getWorldTransform()
 
 void RigidBody::setWorldTransform(Transform transform)
 {
-	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()) );
+	btTransform rigidBodyTransform = btTransform( toBtQuat(transform.getOrientation()), toBtVec3(transform.getPosition()) );
 	rigidBody->setCenterOfMassTransform(rigidBodyTransform);
 }
 
@@ -102,7 +128,7 @@ Transform RigidBody::getCOMTransform()
 	Transform transform;
 	btTransform bulletTransform = ((btDefaultMotionState*)rigidBody->getMotionState())->m_centerOfMassOffset;
 
-	transform.setPos(toGlmVec3(bulletTransform.getOrigin()));
+	transform.setPosition(toGlmVec3(bulletTransform.getOrigin()));
 	transform.setOrientation(toGlmQuat(bulletTransform.getRotation()));
 
 	return transform;
@@ -110,7 +136,7 @@ Transform RigidBody::getCOMTransform()
 
 void RigidBody::setCOMTransform(Transform transform)
 {
-	btTransform COMTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPos()));
+	btTransform COMTransform = btTransform(toBtQuat(transform.getOrientation()), toBtVec3(transform.getPosition()));
 	btDefaultMotionState* state = (btDefaultMotionState*)rigidBody->getMotionState();
 	state->m_centerOfMassOffset = COMTransform;
 }
@@ -135,18 +161,12 @@ void RigidBody::applyTorqueImpulse(vector3D torque)
 	rigidBody->applyTorqueImpulse(toBtVec3(torque));
 }
 
+void RigidBody::setDampening(double linear, double angular)
+{
+	rigidBody->setDamping(linear, angular);
+}
+
 PhysicsWorld* RigidBody::getPhysicsWorld() const
 {
 	return world;
-}
-
-RigidBody::~RigidBody()
-{	
-	if (world != nullptr)
-	{
-		world->removeRigidBody(rigidBody);
-	}
-	delete rigidBody->getMotionState();
-	delete rigidBody->getCollisionShape();
-	delete rigidBody;
 }

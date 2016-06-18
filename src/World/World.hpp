@@ -6,9 +6,12 @@ class World;
 
 #include <set>
 #include <algorithm>
+
 #include "World/Entity.hpp"
 #include "Physics/PhysicsWorld.hpp"
 #include "Rendering/Camera.hpp"
+#include "Rendering/Lights/Lights.hpp"
+
 
 //Prototype Classes
 class Renderer;
@@ -40,6 +43,7 @@ public:
 	Renderer* m_PlanetRenderer;
 
 	vector3F ambientLight = vector3F(0.4f);
+
 };
 
 #endif //WORLD_HPP

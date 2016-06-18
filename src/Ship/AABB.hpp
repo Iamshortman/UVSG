@@ -23,7 +23,7 @@ public:
 		maxPos = max;
 	};
 
-	void setPos(vector3D position)
+	void setPosition(vector3D position)
 	{
 		pos = position;
 	};

@@ -22,7 +22,7 @@ public:
     vector3D getForward();
     vector3D getRight();
     vector3D getUp();
-    vector3D getPos();
+    vector3D getPosition();
 	quaternionF getOrientation();
 
 	void setProjection(float frameOfView, float nearClipping, float farClipping, int screenWidth, int screenheight);

@@ -10,46 +10,80 @@ Entity::Entity(EntityId id)
 
 }
 
-void Entity::update(double deltaTime)
+Entity::~Entity()
 {
-	//Move Entity based on velocity even if there is no RigidBody.
-	if (m_RigidBody == nullptr)
+	delete m_RigidBody;
+
+	//Remove from the current world
+	if (m_world != nullptr)
 	{
-		Transform transform = getTransform();
-
-		//Move Entity Based on Velocity
-		transform.setPos(transform.getPos() + (getLinearVelocity() * deltaTime));
-
-		//TODO figure out angular Velocity.
-
-		setTransform(transform);
-	}
-	else
-	{
-		//If there is a RigidBody, sync the entities values too the Rigid Bodies values
-		vector3D scale = m_transform.getScale();
-		m_transform = getTransform();
-		m_transform.setScale(scale);
-		m_velocity.linearVelocity = getLinearVelocity();
-		m_velocity.angularVelocity = getAngularVelocity();
-
-		if (m_velocity.linearVelocity.x || m_velocity.linearVelocity.y || m_velocity.linearVelocity.z 
-			|| m_velocity.angularVelocity.x || m_velocity.angularVelocity.y || m_velocity.angularVelocity.z)
-		{
-			m_RigidBody->Activate(true);
-		}
-		else
-		{
-			m_RigidBody->Activate(false);
-		}
-
+		m_world->removeEntityFromWorld(m_entityId);
 	}
 
 	//Not a huge fan of the auto keyword
 	//But what are you going to do
 	for (auto iterator : m_components)
 	{
+		delete iterator.second;
+	}
+}
+
+void Entity::kill()
+{
+	this->m_alive = false;
+}
+
+void Entity::update(double deltaTime)
+{
+	//Not a huge fan of the auto keyword
+	//But what are you going to do
+	for (auto iterator : m_components)
+	{
 		iterator.second->update(deltaTime);
+	}
+
+	if (ridingEntity == nullptr)
+	{
+		//Move Entity based on velocity even if there is no RigidBody.
+		if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
+		{
+			//If there is a RigidBody, sync the entities values too the Rigid Bodies values
+			vector3D scale = m_transform.getScale();
+			m_transform = getTransform();
+			m_transform.setScale(scale);
+			m_velocity.linearVelocity = getLinearVelocity();
+			m_velocity.angularVelocity = getAngularVelocity();
+
+			if (m_velocity.linearVelocity.x || m_velocity.linearVelocity.y || m_velocity.linearVelocity.z
+				|| m_velocity.angularVelocity.x || m_velocity.angularVelocity.y || m_velocity.angularVelocity.z)
+			{
+				m_RigidBody->Activate(true);
+			}
+			else
+			{
+				m_RigidBody->Activate(false);
+			}
+		}
+		else
+		{
+			Transform transform = getTransform();
+
+			//Move Entity Based on Velocity
+			transform.setPosition(transform.getPosition() + (getLinearVelocity() * deltaTime));
+
+			//TODO figure out angular Velocity.
+
+			setTransform(transform);
+		}
+	}
+
+	if (riddenByEntity != nullptr)
+	{
+		Transform transform = this->getTransform();
+		vector3D pos = transform.getOrientation() * ridingOffset;
+		transform.m_position += pos;
+
+		riddenByEntity->setTransform(transform);
 	}
 }
 
@@ -70,7 +104,7 @@ void Entity::addToWorld(World* world)
 		m_world->addEntityToWorld(m_entityId);
 	}
 
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->addToPhysicsWorld(m_world->m_physicsWorld, this, m_transform);
 	}
@@ -90,58 +124,6 @@ void Entity::addRigidBody(RigidBody* rigidBody)
 	}
 }
 
-vector3D Entity::getPosition()
-{
-	if (m_RigidBody != nullptr)
-	{
-		return m_RigidBody->getWorldTransform().getPos();
-	}
-	else
-	{
-		return m_transform.getPos();
-	}
-}
-
-void Entity::setPosition(vector3D pos)
-{
-	if (m_RigidBody != nullptr)
-	{
-		Transform transform = m_RigidBody->getWorldTransform();
-		transform.setPos(pos);
-		m_RigidBody->setWorldTransform(transform);
-	}
-	else
-	{
-		m_transform.setPos(pos);
-	}
-}
-
-quaternionD Entity::getOrientation()
-{
-	if (m_RigidBody != nullptr)
-	{
-		return m_RigidBody->getWorldTransform().getOrientation();
-	}
-	else
-	{
-		return m_transform.getOrientation();
-	}
-}
-
-void Entity::setOrientation(quaternionD rot)
-{
-	if (m_RigidBody != nullptr)
-	{
-		Transform transform = m_RigidBody->getWorldTransform();
-		transform.setOrientation(rot);
-		m_RigidBody->setWorldTransform(transform);
-	}
-	else
-	{
-		m_transform.setOrientation(rot);
-	}
-}
-
 vector3D Entity::getScale()
 {
 	return m_transform.getScale();
@@ -154,7 +136,7 @@ void Entity::setScale(vector3D scale)
 
 Transform Entity::getTransform()
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		return m_RigidBody->getWorldTransform();
 	}
@@ -166,7 +148,7 @@ Transform Entity::getTransform()
 
 void Entity::setTransform(Transform transform)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->setWorldTransform(transform);
 	}
@@ -179,7 +161,7 @@ void Entity::setTransform(Transform transform)
 //Velocity Functions
 vector3D Entity::getLinearVelocity() const
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		return m_RigidBody->getLinearVelocity();
 	}
@@ -191,7 +173,7 @@ vector3D Entity::getLinearVelocity() const
 
 void Entity::setLinearVelocity(vector3D velocity)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->setLinearVelocity(velocity);
 	}
@@ -203,7 +185,7 @@ void Entity::setLinearVelocity(vector3D velocity)
 
 vector3D Entity::getAngularVelocity() const
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		return m_RigidBody->getAngularVelocity();
 	}
@@ -215,7 +197,7 @@ vector3D Entity::getAngularVelocity() const
 
 void Entity::setAngularVelocity(vector3D velocity)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->setAngularVelocity(velocity);
 	}
@@ -227,7 +209,7 @@ void Entity::setAngularVelocity(vector3D velocity)
 
 void Entity::applyCentralForce(vector3D force)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->applyCentralForce(force);
 	}
@@ -239,7 +221,7 @@ void Entity::applyCentralForce(vector3D force)
 
 void Entity::applyCentralImpulse(vector3D impulse)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->applyCentralImpulse(impulse);
 	}
@@ -251,7 +233,7 @@ void Entity::applyCentralImpulse(vector3D impulse)
 
 void Entity::applyTorque(vector3D torque)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->applyTorque(torque);
 	}
@@ -263,7 +245,7 @@ void Entity::applyTorque(vector3D torque)
 
 void Entity::applyTorqueImpulse(vector3D torque)
 {
-	if (m_RigidBody != nullptr)
+	if (m_RigidBody != nullptr && m_RigidBody->isInPhysicsWorld())
 	{
 		m_RigidBody->applyTorqueImpulse(torque);
 	}
@@ -296,25 +278,10 @@ void Entity::removeComponent(string componentName)
 	m_components.erase(componentName);
 }
 
-void Entity::kill()
+void Entity::setDampening(double linear, double angular)
 {
-	this->m_alive = false;
-}
-
-Entity::~Entity()
-{
-	delete m_RigidBody;
-
-	//Remove from the current world
-	if (m_world != nullptr)
+	if (m_RigidBody != nullptr)
 	{
-		m_world->removeEntityFromWorld(m_entityId);
-	}
-
-	//Not a huge fan of the auto keyword
-	//But what are you going to do
-	for (auto iterator : m_components)
-	{
-		delete iterator.second;
+		m_RigidBody->setDampening(linear, angular);
 	}
 }

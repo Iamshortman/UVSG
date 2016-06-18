@@ -37,6 +37,19 @@ void ShipFlightControl::update(double deltaTime)
 		exit(1);
 	}
 
+	if (parent->riddenByEntity == nullptr)
+	{
+		//Dampen Movement if is there is no riding entity
+		parent->setDampening(0.5, 0.5);
+
+		return;
+	}
+	else
+	{
+		//Reset Dampening
+		parent->setDampening(0.0, 0.0);
+	}
+
 	//Max Speed in meters per second
 	double maxSpeed[] = { 15.0, 15.0, 115.0, 15.0, 15.0, 15.0 };
 
@@ -46,7 +59,7 @@ void ShipFlightControl::update(double deltaTime)
 	bool FlightAssistEnabled = true;
 
 	Transform transform = parent->getTransform();
-	quaternionD rotation = parent->getOrientation();
+	quaternionD rotation = transform.getOrientation();
 	vector3D linearVelocity = parent->getLinearVelocity();
 
 	FlightAssistEnabled = true;
@@ -276,7 +289,18 @@ void ShipFlightControl::update(double deltaTime)
 	rotation = glm::angleAxis(m_turnSpeedCurrent.y * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation;
 	rotation = glm::angleAxis(m_turnSpeedCurrent.z * (M_PI * 2.0) * deltaTime, transform.getForward()) * rotation;
 
-	parent->setOrientation(rotation);
+	transform.setOrientation(rotation);
+	parent->setTransform(transform);
 
 	parent->setAngularVelocity(Lerp(parent->getAngularVelocity(), vector3D(0.0), deltaTime * 3.0));
+
+	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_BACK))
+	{
+		//Unmounting the rider
+		if (parent->riddenByEntity != nullptr)
+		{
+			parent->riddenByEntity->ridingEntity = nullptr;
+			parent->riddenByEntity = nullptr;
+		}
+	}
 }

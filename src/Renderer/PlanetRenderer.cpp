@@ -23,7 +23,7 @@ void PlanetRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 	matrix4 projectionMatrix = camera->getProjectionMatrix();
 	matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-	matrix4 modelMatrix = transform.getModleMatrix(camera->getPos(), farViewScaleValue);
+	matrix4 modelMatrix = transform.getModleMatrix(camera->getPosition(), farViewScaleValue);
 	matrix3 normalMatrix = transform.getNormalMatrix();
 
 	//modelMatrix = modelMatrix * model->localOffset.getModleMatrix();

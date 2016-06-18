@@ -69,7 +69,7 @@ void RenderingManager::renderModel(Camera* camera, Model* model, Transform trans
 	matrix4 projectionMatrix = camera->getProjectionMatrix();
 	matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-	matrix4 modelMatrix = transform.getModleMatrix(camera->getPos());
+	matrix4 modelMatrix = transform.getModleMatrix(camera->getPosition());
 	matrix3 normalMatrix = transform.getNormalMatrix();
 
 	modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
@@ -96,7 +96,7 @@ void RenderingManager::renderModelLight(Camera* camera, Model* model, Transform 
 	matrix4 projectionMatrix = camera->getProjectionMatrix();
 	matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-	matrix4 modelMatrix = transform.getModleMatrix(camera->getPos());
+	matrix4 modelMatrix = transform.getModleMatrix(camera->getPosition());
 	matrix3 normalMatrix = transform.getNormalMatrix();
 
 	modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
@@ -142,7 +142,7 @@ void RenderingManager::renderModelLight(Camera* camera, Model* model, Transform 
 	PointShader->setUniform("pointLight.base.color", pointLight->getColor());
 	PointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
 	PointShader->setUniform("pointLight.range", pointLight->m_range);
-	PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPos()));
+	PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPosition()));
 	PointShader->setUniform("pointLight.atten.constant", pointLight->m_attenuation.x);
 	PointShader->setUniform("pointLight.atten.linear", pointLight->m_attenuation.y);
 	PointShader->setUniform("pointLight.atten.exponent", pointLight->m_attenuation.z);
@@ -159,7 +159,7 @@ void RenderingManager::renderModelLight_FarView(Camera* camera, Model* model, Tr
 	matrix4 projectionMatrix = camera->getProjectionMatrix();
 	matrix4 viewMatrix = camera->getOriginViewMatrix();
 
-	matrix4 modelMatrix = transform.getModleMatrix(camera->getPos(), farViewScaleValue);
+	matrix4 modelMatrix = transform.getModleMatrix(camera->getPosition(), farViewScaleValue);
 	matrix3 normalMatrix = transform.getNormalMatrix();
 
 	modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
@@ -203,7 +203,7 @@ void RenderingManager::renderModelLight_FarView(Camera* camera, Model* model, Tr
 	PointShader->setUniform("pointLight.base.color", pointLight->getColor());
 	PointShader->setUniform("pointLight.base.intensity", pointLight->getIntensity());
 	PointShader->setUniform("pointLight.range", pointLight->m_range);
-	PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPos()));
+	PointShader->setUniform("pointLight.positionWorld", (vector3F)(pointLight->m_position - camera->getPosition()));
 	PointShader->setUniform("pointLight.atten.constant", pointLight->m_attenuation.x);
 	PointShader->setUniform("pointLight.atten.linear", pointLight->m_attenuation.y);
 	PointShader->setUniform("pointLight.atten.exponent", pointLight->m_attenuation.z);

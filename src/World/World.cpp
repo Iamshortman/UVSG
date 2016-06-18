@@ -17,6 +17,8 @@ World::World()
 
 void World::updateWorld(double deltaTime)
 {
+	m_physicsWorld->update(deltaTime);
+
 	vector<Entity*> entities;
 	getEntitiesInWorld(entities);
 
@@ -34,7 +36,6 @@ void World::updateWorld(double deltaTime)
 			}
 		}
 	}
-	m_physicsWorld->update(deltaTime);
 }
 
 void World::render(Camera* camera)

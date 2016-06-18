@@ -20,6 +20,12 @@ void PlayerControl::update(double deltaTime)
 		exit(1);
 	}
 
+	if (parent->ridingEntity != nullptr)
+	{ 
+		//No movement if is riding entity
+		return;
+	}
+
 	Transform transform = parent->getTransform();
 	quaternionD rotation = transform.getOrientation();
 
@@ -59,7 +65,7 @@ void PlayerControl::update(double deltaTime)
 		//Get between -1 and 1
 		double amount = ((double)forwardAxis) / 32767.0;
 		double distance = amount * deltaTime * linear;
-		transform.setPos(transform.getPos() + (transform.getForward() * -distance));
+		transform.setPosition(transform.getPosition() + (transform.getForward() * -distance));
 	}
 
 	int strafeAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
@@ -69,7 +75,7 @@ void PlayerControl::update(double deltaTime)
 		//Get between -1 and 1
 		double amount = ((double)strafeAxis) / 32767.0;
 		double distance = amount * deltaTime * linear;
-		transform.setPos(transform.getPos() + (transform.getRight() * distance));
+		transform.setPosition(transform.getPosition() + (transform.getRight() * distance));
 	}
 
 	parent->setTransform(transform);
@@ -79,8 +85,8 @@ void PlayerControl::update(double deltaTime)
 	if (button && !lastButton)
 	{
 		double rayDistance = 1000.0f;
-		vector3D startPos = transform.getPos();
-		vector3D endPos = transform.getPos() + (transform.getForward() * rayDistance);
+		vector3D startPos = transform.getPosition();
+		vector3D endPos = transform.getPosition() + (transform.getForward() * rayDistance);
 		SingleRayTestResult result = parent->getWorld()->m_physicsWorld->singleRayTest(startPos, endPos);
 
 		if (result.hasHit)
@@ -95,6 +101,10 @@ void PlayerControl::update(double deltaTime)
 
 				printVec((vector3D) cellPos);
 				printEndLine();
+
+				//Sets parent to ride the ship
+				entity->riddenByEntity = parent;
+				parent->ridingEntity = entity;
 			}
 		}
 	}

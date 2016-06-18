@@ -19,6 +19,8 @@ public:
 	virtual ~RigidBody();
 
 	void addToPhysicsWorld(PhysicsWorld* physicsWorld, Entity* entity, Transform worldTransform);
+	void removeFromPhysicsWorld();
+	bool isInPhysicsWorld();
 
 	void Activate(bool activate);
 
@@ -41,6 +43,8 @@ public:
 
 	void applyTorque(vector3D torque);
 	void applyTorqueImpulse(vector3D torque);
+
+	void setDampening(double linear, double angular);
 
 	PhysicsWorld* getPhysicsWorld() const;
 
