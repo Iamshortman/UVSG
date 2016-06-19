@@ -42,6 +42,11 @@ void PlanetRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 	ambientShader->deactivateProgram();
 }
 
+void PlanetRenderer::renderTransparency(World* world, Entity* entity, Camera* camera)
+{
+
+}
+
 void PlanetRenderer::renderLighting(World* world, Entity* entity, Camera* camera)
 {
 

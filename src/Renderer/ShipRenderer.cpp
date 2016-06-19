@@ -28,8 +28,6 @@ void ShipRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 	ShipComponent* ship = (ShipComponent*)entity->getComponent("shipComponent");
 
-	materialShader->setActiveProgram();
-
 	Mesh* outsideMesh = ship->outsideMesh;
 	if (outsideMesh != nullptr)
 	{
@@ -45,11 +43,34 @@ void ShipRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 		matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
 
+		materialShader->setActiveProgram();
+
 		materialShader->setUniform("MVP", MVP);
 		materialShader->setUniform("normalMatrix", normalMatrix);
 		materialShader->setUniform("ambientLight", ambientLight);
 
 		outsideMesh->draw(materialShader);
+
+		materialShader->deactivateProgram();
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDepthMask(false);
+		glDepthFunc(GL_EQUAL);
+
+		DirectionalShader->setActiveProgram();
+		DirectionalShader->setUniform("MVP", MVP);
+		DirectionalShader->setUniform("normalMatrix", normalMatrix);
+		DirectionalShader->setUniform("modelMatrix", modelMatrix);
+		DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
+		DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
+		DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
+		outsideMesh->draw(DirectionalShader);
+		DirectionalShader->deactivateProgram();
+
+		glDepthFunc(GL_LESS);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
 	}
 
 	//For each cell in the ship
@@ -70,16 +91,102 @@ void ShipRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 			matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
 
+			materialShader->setActiveProgram();
+
 			materialShader->setUniform("MVP", MVP);
 			materialShader->setUniform("normalMatrix", normalMatrix);
 			materialShader->setUniform("ambientLight", ambientLight);
 
 			mesh->draw(materialShader);
+
+			materialShader->deactivateProgram();
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+			glDepthMask(false);
+			glDepthFunc(GL_EQUAL);
+
+			DirectionalShader->setActiveProgram();
+			DirectionalShader->setUniform("MVP", MVP);
+			DirectionalShader->setUniform("normalMatrix", normalMatrix);
+			DirectionalShader->setUniform("modelMatrix", modelMatrix);
+			DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
+			DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
+			DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
+			mesh->draw(DirectionalShader);
+			DirectionalShader->deactivateProgram();
+
+			glDepthFunc(GL_LESS);
+			glDepthMask(true);
+			glDisable(GL_BLEND);
 		}
 	}
+}
 
-	materialShader->deactivateProgram();
+void ShipRenderer::renderTransparency(World* world, Entity* entity, Camera* camera)
+{
+	vector3F ambientLight = world->ambientLight;
 
+	Transform entityTransform = entity->getTransform();
+	Transform worldOffset = world->getWorldOffsetMatrix();
+
+	Transform localOffset;
+
+	ShipComponent* ship = (ShipComponent*)entity->getComponent("shipComponent");
+
+	//For each cell in the ship
+	for (auto it : ship->m_shipCells)
+	{
+		//Render Transparent Interior Mesh
+		Mesh* mesh = it.second.getInteriorMesh();
+		if (mesh != nullptr)
+		{
+			localOffset = Transform(((vector3D)it.first) - ship->m_centerOfMass);
+			matrix4 projectionMatrix = camera->getProjectionMatrix();
+			matrix4 viewMatrix = camera->getOriginViewMatrix();
+
+			matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPosition());
+			matrix3 normalMatrix = entityTransform.getNormalMatrix();
+
+			modelMatrix = modelMatrix * localOffset.getModleMatrix();
+			normalMatrix = normalMatrix * localOffset.getNormalMatrix();
+
+			matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			materialShader->setActiveProgram();
+
+			materialShader->setUniform("MVP", MVP);
+			materialShader->setUniform("normalMatrix", normalMatrix);
+			materialShader->setUniform("ambientLight", ambientLight);
+
+			mesh->draw(materialShader);
+
+			materialShader->deactivateProgram();
+			glDisable(GL_BLEND);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+			glDepthMask(false);
+			glDepthFunc(GL_EQUAL);
+
+			DirectionalShader->setActiveProgram();
+			DirectionalShader->setUniform("MVP", MVP);
+			DirectionalShader->setUniform("normalMatrix", normalMatrix);
+			DirectionalShader->setUniform("modelMatrix", modelMatrix);
+			DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
+			DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
+			DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
+			mesh->draw(DirectionalShader);
+			DirectionalShader->deactivateProgram();
+
+			glDepthFunc(GL_LESS);
+			glDepthMask(true);
+			glDisable(GL_BLEND);
+		}
+	}
 }
 
 void ShipRenderer::renderLighting(World* world, Entity* entity, Camera* camera)

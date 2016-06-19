@@ -10,6 +10,7 @@
 #include "Physics/CollisionShape.hpp"
 
 #include <vector>
+using std::vector;
 
 class Node
 {
@@ -21,10 +22,25 @@ public:
 	int m_direction;
 };
 
+class CockpitSeat
+{
+public:
+	CockpitSeat(vector3D position, int direction)
+	{
+		m_position = position;
+		m_direction = direction;
+	};
+
+	vector3D m_position;
+	int m_direction;
+
+	Entity* m_occupyingEntity = nullptr;
+};
+
 class ShipCell
 {
 public:
-	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, std::vector<Node> nodes, AABB aabb);
+	ShipCell(Mesh* mesh, Mesh* cursorMesh, double mass, vector<Node> nodes, AABB aabb);
 	ShipCell(string jsonFile);
 
 	~ShipCell();
@@ -33,11 +49,15 @@ public:
 	double getCellMass();
 	Mesh* getMesh();
 	Mesh* getCursorMesh();
-	std::vector<Node> getNodePoints();
+	Mesh* getInteriorMesh();
+	vector<Node> getNodePoints();
 	AABB getAABB();
 
 	CollisionShape* shape;
 	vector3D shapeOffset;
+
+	vector<CockpitSeat> m_seats;
+
 
 private:
 	string m_cellId;
@@ -45,8 +65,9 @@ private:
 	double m_mass;
 	Mesh* m_mesh = nullptr;
 	Mesh* m_cursorMesh = nullptr;
+	Mesh* m_interiorMesh = nullptr;
 
-	std::vector<Node> m_nodes;
+	vector<Node> m_nodes;
 	AABB m_aabb;
 };
 

@@ -15,6 +15,7 @@ class Renderer
 {
 	public:
 		virtual void renderAmbient(World* world, Entity* entity, Camera* camera) = 0;
+		virtual void renderTransparency(World* world, Entity* entity, Camera* camera) = 0;
 		virtual void renderLighting(World* world, Entity* entity, Camera* camera) = 0;
 		virtual RenderView getRenderView() = 0;
 };

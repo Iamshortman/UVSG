@@ -30,8 +30,6 @@ private:
 public:
 
 	Entity* ridingEntity = nullptr;
-	Entity*	riddenByEntity = nullptr;
-	vector3D ridingOffset = vector3D(0, 2, -6);
 
 	Renderer* m_renderer = nullptr;
 	std::vector<void*> tempModels;

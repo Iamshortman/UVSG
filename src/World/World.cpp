@@ -57,6 +57,22 @@ void World::render(Camera* camera)
 			}
 		}
 	}
+
+	//Transparent Pass
+	for (Entity* entity : entities)
+	{
+		if (entity != nullptr)
+		{
+			if (entity->m_renderer == nullptr)
+			{
+				m_renderer->renderTransparency(this, entity, camera);
+			}
+			else
+			{
+				entity->m_renderer->renderTransparency(this, entity, camera);
+			}
+		}
+	}
 }
 
 void World::renderFarView(Camera* camera)

@@ -73,6 +73,11 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 }
 
+void EntityRenderer::renderTransparency(World* world, Entity* entity, Camera* camera)
+{
+
+}
+
 void EntityRenderer::renderLighting(World* world, Entity* entity, Camera* camera)
 {
 

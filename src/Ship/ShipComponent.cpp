@@ -9,13 +9,53 @@ ShipComponent::ShipComponent(double shipSize)
 	m_shipCells = Ship_Map();
 }
 
+void ShipComponent::update(double deltaTime)
+{
+	Entity* parent = getParent();
+	if (parent == nullptr)
+	{
+		printf("Error: No parent!!!\n");
+		return;
+	}
+
+	bool beingRidden = false;
+
+	//Loop though all the cells
+	for (auto it = this->m_shipCells.begin(); it != this->m_shipCells.end(); ++it)
+	{
+		vector3B cellPos = it->first;
+		ShipCellData cell = it->second;
+
+		if (m_seatMap.find(cellPos) != m_seatMap.end())
+		{
+
+			for (int i = 0; i < m_seatMap[cellPos].size(); i++)
+			{
+				Entity* entity = m_seatMap[cellPos][i].m_occupyingEntity;
+				if (entity != nullptr)
+				{
+					beingRidden = true;
+
+					Transform transform = parent->getTransform();
+					vector3D pos = transform.getOrientation() * (m_seatMap[cellPos][i].m_position + (vector3D)cellPos - m_centerOfMass);
+					transform.m_position += pos;
+
+					entity->setTransform(transform);
+				}
+			}
+		}
+	}
+
+	this->isBeingRidden = beingRidden;
+}
+
 void ShipComponent::initializeEntity()
 {
 	Entity* parent = getParent();
 	if (parent == nullptr)
 	{
-		printf("No parent!!!\n");
-		exit(1);
+		printf("Error: No parent!!!\n");
+		return;
 	}
 
 	outsideMesh = genOutsideMesh();
@@ -38,6 +78,12 @@ void ShipComponent::initializeEntity()
 		centerOfMass += pos1 * mass;
 
 		cell.addCollisionShape(pos1, shape);
+
+		//Add Seats
+		if (cell.getSeats().size() > 0)
+		{
+			m_seatMap[cell.m_position] = cell.getSeats();
+		}
 	}
 
 	centerOfMass /= totalMass;
@@ -251,4 +297,28 @@ Mesh* ShipComponent::genOutsideMesh()
 	materials.push_back(mat);
 
 	return new MaterialMesh(vertices, materials);
+}
+
+void ShipComponent::EjectOccupancy()
+{
+	//Loop though all the cells
+	for (auto it = this->m_shipCells.begin(); it != this->m_shipCells.end(); ++it)
+	{
+		vector3B cellPos = it->first;
+		ShipCellData cell = it->second;
+
+		//If the cell has a cockpit, update the position of the occupying entities
+		if (m_seatMap.find(cellPos) != m_seatMap.end())
+		{
+			for (int i = 0; i < m_seatMap[cellPos].size(); i++)
+			{
+				Entity* entity = m_seatMap[cellPos][i].m_occupyingEntity;
+				if (entity != nullptr)
+				{
+					entity->ridingEntity = nullptr;
+					m_seatMap[cellPos][i].m_occupyingEntity = nullptr;
+				}
+			}
+		}
+	}
 }

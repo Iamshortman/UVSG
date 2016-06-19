@@ -77,14 +77,14 @@ void Entity::update(double deltaTime)
 		}
 	}
 
-	if (riddenByEntity != nullptr)
+	/*if (riddenByEntity != nullptr)
 	{
 		Transform transform = this->getTransform();
 		vector3D pos = transform.getOrientation() * ridingOffset;
 		transform.m_position += pos;
 
 		riddenByEntity->setTransform(transform);
-	}
+	}*/
 }
 
 void Entity::addToWorld(World* world)

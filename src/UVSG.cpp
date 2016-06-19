@@ -32,7 +32,6 @@ UVSG::UVSG()
 	shipCellDictionary->loadAllCellsFromFolder("res/ShipParts/Small_Ship/");
 }
 
-
 UVSG::~UVSG()
 {
 	delete currentScene;

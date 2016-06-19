@@ -38,18 +38,25 @@ ShipCell::ShipCell(string jsonFile)
 	//Load Cell from file
 	m_mass = cell["mass"].as<double>();
 	
-	string mesh_loc = cell["mesh_loc"].as<string>();
-	string mesh = cell["mesh"].as<string>();
-	string mesh_cursor = cell["mesh_cursor"].as<string>();
-
-	if (mesh != "" && mesh_loc != "")
+	if (cell.has_member("mesh") && cell.has_member("mesh_loc"))
 	{
+		string mesh = cell["mesh"].as<string>();
+		string mesh_loc = cell["mesh_loc"].as<string>();
 		m_mesh = loadMaterialMeshFromFile(mesh_loc, mesh);
 	}
 
-	if (mesh_cursor != "" && mesh_loc != "")
+	if (cell.has_member("mesh_cursor") && cell.has_member("mesh_loc"))
 	{
-		m_cursorMesh = loadMaterialMeshFromFile(mesh_loc, mesh_cursor);
+		string mesh = cell["mesh_cursor"].as<string>();
+		string mesh_loc = cell["mesh_loc"].as<string>();
+		m_cursorMesh = loadMaterialMeshFromFile(mesh_loc, mesh);
+	}
+
+	if (cell.has_member("mesh_interior") && cell.has_member("mesh_loc"))
+	{
+		string mesh = cell["mesh_interior"].as<string>();
+		string mesh_loc = cell["mesh_loc"].as<string>();
+		m_interiorMesh = loadMaterialMeshFromFile(mesh_loc, mesh);
 	}
 
 	if (cell.has_member("nodes"))
@@ -88,6 +95,19 @@ ShipCell::ShipCell(string jsonFile)
 		vector<double> offset = physcis["offset"].as<vector<double>>();
 		shapeOffset = vector3D(offset[0], offset[1], offset[2]);
 	}
+
+
+	if (cell.has_member("cockpit"))
+	{
+		json seats = cell["cockpit"];
+		for (int i = 0; i < seats.size(); i++)
+		{
+			vector<double> pos = seats[i]["seat_position"].as<vector<double>>();
+			int direction = seats[i]["seat_direction"].as<int>();
+
+			m_seats.push_back(CockpitSeat(vector3D(pos[0], pos[1], pos[2]), direction));
+		}
+	}
 }
 
 ShipCell::~ShipCell()
@@ -112,9 +132,14 @@ Mesh* ShipCell::getMesh()
 	return m_mesh;
 }
 
-Mesh*ShipCell::getCursorMesh()
+Mesh* ShipCell::getCursorMesh()
 {
 	return m_cursorMesh;
+}
+
+Mesh* ShipCell::getInteriorMesh()
+{
+	return m_interiorMesh;
 }
 
 std::vector<Node> ShipCell::getNodePoints()

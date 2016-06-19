@@ -13,6 +13,7 @@ public:
 	~EntityRenderer();
 
 	virtual void renderAmbient(World* world, Entity* entity, Camera* camera);
+	virtual void renderTransparency(World* world, Entity* entity, Camera* camera);
 	virtual void renderLighting(World* world, Entity* entity, Camera* camera);
 	virtual RenderView getRenderView();
 

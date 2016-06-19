@@ -1,6 +1,11 @@
 #include "ShipCellData.hpp"
 #include "Util.hpp"
 
+ShipCellData::ShipCellData()
+{
+	//creates a null object
+}
+
 ShipCellData::ShipCellData(ShipCell* cellType, vector3B position, int direction)
 {
 	m_cellType = cellType;
@@ -8,8 +13,16 @@ ShipCellData::ShipCellData(ShipCell* cellType, vector3B position, int direction)
 	m_direction = direction;
 }
 
-ShipCellData::ShipCellData()
+ShipCellData::ShipCellData(const ShipCellData &data)
 {
+	m_cellType = data.m_cellType;
+	m_position = data.m_position;
+	m_direction = data.m_direction;
+}
+
+ShipCellData::~ShipCellData()
+{
+
 }
 
 double ShipCellData::getCellMass()
@@ -27,6 +40,11 @@ Mesh* ShipCellData::getMesh()
 	return m_cellType->getMesh();
 }
 
+Mesh* ShipCellData::getInteriorMesh()
+{
+	return m_cellType->getInteriorMesh();
+}
+
 vector<Node> ShipCellData::getNodePoints()
 {
 	vector<Node> nodes;
@@ -35,6 +53,11 @@ vector<Node> ShipCellData::getNodePoints()
 		nodes.push_back(Node(node.m_position + this->m_position, node.m_direction));
 	}
 	return nodes;
+}
+
+vector<CockpitSeat> ShipCellData::getSeats()
+{
+	return m_cellType->m_seats;
 }
 
 AABB ShipCellData::getAABB()

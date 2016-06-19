@@ -5,6 +5,7 @@
     "mesh_loc": "res/ShipParts/Small_Ship/",
     "mesh": "Cockpit1.obj",
     "mesh_cursor": "Cockpit1_Cursor.obj",
+	"mesh_interior": "Cockpit1_Interior.obj",
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 1.5, 1.5],
 	
@@ -42,6 +43,14 @@
         "position": [0, 0, 1],
         "direction": 5
       }
+	],
+	
+	"cockpit":
+	[
+		{
+		"seat_position": [0, 0.72, 0.25],
+		"seat_direction": 2
+		}
 	],
 	
 	"physics_mesh":

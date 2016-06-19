@@ -99,12 +99,17 @@ void PlayerControl::update(double deltaTime)
 				vector3B cellPos = getUnpackedPos(result.userValue);
 				ShipCellData data = component->getCell(cellPos);
 
-				printVec((vector3D) cellPos);
-				printEndLine();
+				//If the cell has a cockpit, update the position of the occupying entities
+				if (component->m_seatMap.find(cellPos) != component->m_seatMap.end())
+				{
+					printVec((vector3D)cellPos);
+					printEndLine();
 
-				//Sets parent to ride the ship
-				entity->riddenByEntity = parent;
-				parent->ridingEntity = entity;
+					//Sets parent to ride the ship
+					parent->ridingEntity = entity;
+					component->m_seatMap[cellPos][0].m_occupyingEntity = parent;
+				}
+
 			}
 		}
 	}

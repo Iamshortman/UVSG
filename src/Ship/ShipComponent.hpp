@@ -22,13 +22,21 @@ struct ShipMapKeyFuncs
 };
 
 typedef std::unordered_map<vector3B, ShipCellData, ShipMapKeyFuncs> Ship_Map;
+typedef std::unordered_map<vector3B, vector<CockpitSeat>, ShipMapKeyFuncs> Ship_Seat_Map;
 
 class ShipComponent : public Component
 {
 public:
-	ShipComponent(double shipSize);
-
 	Ship_Map m_shipCells;
+	Ship_Seat_Map m_seatMap;
+
+	Mesh* outsideMesh;
+	double shipOutsideSize;
+	vector3D m_centerOfMass;
+	bool isBeingRidden = false;
+
+	ShipComponent(double shipSize);
+	virtual void update(double deltaTime);
 
 	void initializeEntity();
 
@@ -39,15 +47,13 @@ public:
 	bool hasCellAtPos(vector3B pos);
 	bool hasNode(vector3B pos, int direction);
 	bool canPlaceCell(ShipCellData& cell);
-
-	bool getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace);
-
-	Mesh* outsideMesh;
+	bool getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace); 
 	Mesh* genOutsideMesh();
 
-	double shipOutsideSize;
+	void EjectOccupancy();
 
-	vector3D m_centerOfMass;
+
+
 };
 
 #endif //SHIPCOMPONENT_HPP

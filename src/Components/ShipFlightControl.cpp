@@ -5,6 +5,7 @@
 #include "Util.hpp"
 
 #include "Ship/Directions.hpp"
+#include "Ship/ShipComponent.hpp"
 
 ShipFlightControl::ShipFlightControl(SDL_GameController* controllerToUse)
 {
@@ -33,11 +34,18 @@ void ShipFlightControl::update(double deltaTime)
 	Entity* parent = getParent();
 	if (parent == nullptr)
 	{
-		printf("No parent!!!\n");
-		exit(1);
+		printf("Error: No parent!!!\n");
+		return;
 	}
 
-	if (parent->riddenByEntity == nullptr)
+	ShipComponent* component = (ShipComponent*)parent->getComponent("shipComponent");
+	if (component == nullptr)
+	{
+		printf("Error: missing componet!!!\n");
+		return;
+	}
+
+	if (component->isBeingRidden == false)
 	{
 		//Dampen Movement if is there is no riding entity
 		parent->setDampening(0.5, 0.5);
@@ -296,11 +304,6 @@ void ShipFlightControl::update(double deltaTime)
 
 	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_BACK))
 	{
-		//Unmounting the rider
-		if (parent->riddenByEntity != nullptr)
-		{
-			parent->riddenByEntity->ridingEntity = nullptr;
-			parent->riddenByEntity = nullptr;
-		}
+		component->EjectOccupancy();
 	}
 }

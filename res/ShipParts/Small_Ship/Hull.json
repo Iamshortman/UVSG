@@ -3,7 +3,6 @@
     "name": "Hull",
     "mass": 200,
     "mesh_loc": "res/ShipParts/Small_Ship/",
-    "mesh": "",
     "mesh_cursor": "Hull_Cursor.obj",
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 0.5, 0.5],

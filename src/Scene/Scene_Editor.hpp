@@ -462,15 +462,16 @@ public:
 		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
 		{
 			printf("Loading Game World!!!\n");
+
+			Entity* ship = EntityManager::instance()->createNewEntity();
+
 			UVSG* instace = UVSG::getInstance();
 			Scene_Game* game = new Scene_Game();
 			instace->currentScene = game;
 
-			Entity* ship = EntityManager::instance()->createNewEntity();
 			ship->m_renderer = new ShipRenderer();
-
-			ship->addComponent("shipComponent", shipComponent);
 			ship->addComponent("FlightControl", new ShipFlightControl(controller));
+			ship->addComponent("shipComponent", shipComponent);
 			ship->addToWorld(game->baseWorld);
 			shipComponent->initializeEntity();
 			
