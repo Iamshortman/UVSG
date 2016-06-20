@@ -59,10 +59,10 @@ void ShipFlightControl::update(double deltaTime)
 	}
 
 	//Max Speed in meters per second
-	double maxSpeed[] = { 15.0, 15.0, 115.0, 15.0, 15.0, 15.0 };
+	double maxSpeed[] = { 15.0, 15.0, 225.0, 15.0, 15.0, 15.0 };
 
 	//Acceleration in meters per second per second
-	double accelerations[] = { 15.0, 15.0, 15.0, 15.0, 15.0, 15.0 };
+	double accelerations[] = { 15.0, 15.0, 150.0, 150.0, 15.0, 15.0 };
 
 	bool FlightAssistEnabled = true;
 

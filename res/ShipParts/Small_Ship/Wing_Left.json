@@ -13,4 +13,11 @@
 		"halfExtends": [1.0, 0.1, 1.5],
 		"offset": [0.5, 0, 1]
 	}
+	
+	/*"physics_mesh":
+	{
+		"mesh_loc": "res/ShipParts/Small_Ship/",
+		"mesh": "Wing_Left.obj",
+		"offset": [0, 0, 0]
+	}*/
 }

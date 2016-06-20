@@ -13,6 +13,7 @@
 #include "World/EntityManager.hpp"
 #include "Rendering/ObjLoader.hpp"
 
+#include "Renderer/RayTracingDebug.hpp"
 
 class Scene_Game : public Scene
 {
@@ -40,7 +41,7 @@ public:
 		transform = Transform();
 		Entity* bigCube = EntityManager::instance()->createNewEntity();
 		bigCube->addToWorld(baseWorld);
-		transform.setPosition(vector3D(0, 0, 100));
+		transform.setPosition(vector3D(0, 10, 100));
 		bigCube->setTransform(transform);
 		bigCube->addRigidBody(new RigidBody(new btBoxShape(btVector3(5.0, 5.0, 5.0)), 100.0));
 		bigCube->tempModels.push_back(bigCubeModel);
@@ -86,6 +87,13 @@ public:
 		ground->addRigidBody(new RigidBody(new btStaticPlaneShape(btVector3(0, 1, 0), 0), 0.0));
 		ground->setPosition(vector3D(0, 2, 0));
 		ground->addToWorld(baseWorld);*/
+
+
+		/*Entity* debugRay = EntityManager::instance()->createNewEntity();
+		debugRay->addToWorld(baseWorld);
+		transform.setPosition(vector3D(0, 20, 0));
+		debugRay->setTransform(transform);
+		debugRay->m_renderer = new RayTracingDebug();*/
 	};
 
 	virtual ~Scene_Game()

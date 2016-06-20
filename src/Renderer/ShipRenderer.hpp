@@ -1,5 +1,5 @@
-#ifndef ENTITYRENDERER_HPP
-#define ENTITYRENDERER_HPP
+#ifndef SHIPRENDERER_HPP
+#define SHIPRENDERER_HPP
 
 #include "Renderer/Renderer.hpp"
 #include "Renderable.hpp"
@@ -25,4 +25,4 @@ private:
 	ShaderProgram* DirectionalShader = nullptr;
 };
 
-#endif //ENTITYRENDERER_HPP
+#endif //SHIPRENDERER_HPP

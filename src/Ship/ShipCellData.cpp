@@ -75,7 +75,7 @@ void ShipCellData::addCollisionShape(vector3D pos, btCompoundShape* shape)
 		int bitPackedPos = getPackedPos(m_position);
 
 		childShape->setUserIndex(bitPackedPos);
-		shape->addChildShape(btTransform(btQuaternion(0, 1, 0, 1).normalize(), toBtVec3(pos + m_cellType->shapeOffset)), childShape);
+		shape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), toBtVec3(pos + m_cellType->shapeOffset)), childShape);
 	}
 }
 
