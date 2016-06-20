@@ -16,7 +16,7 @@ PlanetRenderer::~PlanetRenderer()
 
 void PlanetRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 {
-	const double farViewScaleValue = 10000000.0;
+	const double farViewScaleValue = 100000.0;
 
 	Transform transform = entity->getTransform();
 

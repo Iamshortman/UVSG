@@ -55,7 +55,7 @@ void PlayerControl::update(double deltaTime)
 
 	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
 	{
-		linear *= 100000.0;
+		linear *= 100.0;
 	}
 
 	int forwardAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTY);

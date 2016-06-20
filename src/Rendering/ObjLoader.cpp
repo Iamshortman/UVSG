@@ -321,6 +321,8 @@ bool loadMaterial(std::string filePath, std::vector<Material> &materials)
 }
 
 
+
+
 #include "Util.hpp"
 void loadTriMesh(std::string filePath, std::string fileName, btTriangleMesh* triMesh)
 {
@@ -344,19 +346,61 @@ void loadTriMesh(std::string filePath, std::string fileName, btTriangleMesh* tri
 	return;
 }
 
+bool loadVerticesOBJ(std::string filePath, std::string fileName, std::vector<vector3F> & out_vertices)
+{
+	std::string filePathFull = filePath + fileName;
+	FILE * file = fopen(filePathFull.c_str(), "r");
+	if (file == NULL)
+	{
+		printf("Cannot Open File: %s \n", filePathFull.c_str());
+		return false;
+	}
+
+	std::vector< unsigned int > vertexIndices, normalIndices;
+	std::vector< vector3F > temp_vertices;
+	std::vector< vector3F > temp_normals;
+	std::vector<unsigned short> temp_material;
+
+	unsigned short currentMaterial = 0;
+
+	while (1)
+	{
+		char lineHeader[128];
+		// read the first word of the line
+		int res = fscanf(file, "%s", lineHeader);
+		if (res == EOF)
+			break; // EOF = End Of File. Quit the loop.
+
+		// else : parse lineHeader
+
+		if (strcmp(lineHeader, "v") == 0)
+		{
+			vector3F vertex;
+			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			out_vertices.push_back(vertex);
+		}
+		else
+		{
+			// Probably a comment, eat up the rest of the line
+			char stupidBuffer[1000];
+			fgets(stupidBuffer, 1000, file);
+		}
+
+	}
+
+	return true;
+}
+
 void loadConvexHull(std::string filePath, std::string fileName, btConvexHullShape* shape)
 {
 	std::vector<vector3F> vertices;
-	std::vector<vector3F> normals;
-	std::vector<unsigned short> materialIndex;
-	std::vector<Material> materials;
-	if (loadMaterialOBJ(fileName, vertices, normals, materialIndex, materials, filePath))
+	if (loadVerticesOBJ(filePath, fileName, vertices))
 	{
 		std::vector<MaterialVertex> vertexVector;
-		for (unsigned int i = 0; i < vertices.size(); i += 3)
+		for (unsigned int i = 0; i < vertices.size(); i++)
 		{
 			vector3F point = vertices[i];
-			shape->addPoint(btVector3(-point.x, point.y, point.z));
+			shape->addPoint(btVector3(point.x, point.y, point.z));
 		}
 	}
 	else
