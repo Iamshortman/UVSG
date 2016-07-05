@@ -447,7 +447,7 @@ public:
 			shipChanged = false;
 		}
 
-		if (shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos)))
+		if (shipCell_Index < shipCells.size() && shipCells[shipCell_Index] != nullptr && shipComponent->canPlaceCell(ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos)))
 		{
 			MaterialMesh* mesh = (MaterialMesh*)m_cursorModel->mesh;
 			mesh->materials[0].diffuse_Color = vector3F(0.0f, 1.0f, 0.0f);
@@ -522,7 +522,7 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("Test");
-		if (shipCells[shipCell_Index] != nullptr)
+		if (shipCell_Index < shipCells.size() && shipCells[shipCell_Index] != nullptr)
 		{
 			Model* model = new Model();
 			model->shader = MaterialShader;

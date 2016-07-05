@@ -10,8 +10,8 @@ Window::Window(int width, int height, string windowTitle)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
@@ -28,8 +28,6 @@ Window::Window(int width, int height, string windowTitle)
 	//SDL_MaximizeWindow(window);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	setVsync(1);
 
     if( window == NULL )
     {
@@ -50,6 +48,8 @@ Window::Window(int width, int height, string windowTitle)
 
 	initGL();
 	resizeWindow(width, height);
+
+	setVsync(0);
 }
 
 void Window::initGL()

@@ -18,7 +18,7 @@ void ShipCellDictionary::loadAllCellsFromFolder(string folder)
 {
 	//Loads Ship Cells from .json files
 	_finddata_t data;
-	int ff = (int)_findfirst((folder + "*.json").c_str(), &data);
+	intptr_t ff = _findfirst((folder + "*.json").c_str(), &data);
 
 	if (ff != -1)
 	{

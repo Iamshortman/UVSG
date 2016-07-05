@@ -2,8 +2,9 @@
 #define SHIPFLIGHTCONTROL_HPP
 
 #include "Components/Component.hpp"
-#include "SDL2/SDL_gamecontroller.h"
 #include "GLM_Include.hpp"
+
+#include <SDL2/SDL_gamecontroller.h>
 
 class ShipFlightControl : public Component
 {

@@ -46,7 +46,7 @@ void PlayerControl::update(double deltaTime)
 		//Get between -1 and 1
 		double amount = ((double)yawAxis) / 32767.0;
 
-		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, vector3D(0, 1, 0)) * rotation;
+		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation;
 	}
 
 	transform.setOrientation(rotation);
