@@ -4,6 +4,7 @@
 
 #include "World/EntityManager.hpp"
 #include "UVSG.hpp"
+#include "Input/InputManager.hpp"
 
 #include <stdlib.h>
 #include <math.h>
@@ -12,13 +13,12 @@ using namespace std;
 
 int main()
 {
-
-	//Creates the entity Manager.
-	EntityManager::createInstance();
-
 	SDL_Init(SDL_INIT_EVERYTHING);
-
 	SDL_GameControllerAddMappingsFromFile("res/gamecontrollerdb.txt");
+
+	//Create Singletons
+	InputManager::Instance = new InputManager();
+	EntityManager::Instance = new EntityManager();
 
 	UVSG* game = new UVSG();
 
@@ -56,6 +56,5 @@ int main()
 	//Requires the enter button to be hit before we end.
 	cin.get();
 	
-
 	return 0;
 }

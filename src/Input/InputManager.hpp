@@ -12,8 +12,14 @@ using std::vector;
 class InputManager
 {
 public:
+
+	//Instance for the Singleton design pattern;
+	static InputManager* Instance;
+
 	InputManager();
 	~InputManager();
+
+	void update(double deltaTime);
 
 	double getAxis(string name);
 

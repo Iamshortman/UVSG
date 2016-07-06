@@ -1,4 +1,5 @@
 #include "UVSG.hpp"
+#include "Input/InputManager.hpp"
 #include "Scene/Scene_Game.hpp"
 #include "Scene/Scene_Editor.hpp"
 
@@ -9,6 +10,7 @@ UVSG::UVSG()
 	instance = this;
 
 	this->renderingManager = new RenderingManager();
+	this->renderingManager->window->setVsync(1);
 
 	if (false)
 	{
@@ -75,6 +77,8 @@ void UVSG::update(double deltaTime)
 		renderingManager->window->HandleEvent(event);
 
 	}
+	
+	InputManager::Instance->update(deltaTime);
 
 	currentScene->update(deltaTime);
 

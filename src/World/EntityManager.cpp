@@ -1,6 +1,6 @@
 #include "World/EntityManager.hpp"
 
-EntityManager* EntityManager::m_instance = nullptr;
+EntityManager* EntityManager::Instance = nullptr;
 
 EntityManager::EntityManager()
 {
@@ -38,14 +38,4 @@ std::vector<Entity*> EntityManager::getAllEntities()
 	}
 
 	return entities;
-}
-
-void EntityManager::createInstance()
-{
-	m_instance = new EntityManager();
-}
-
-EntityManager* EntityManager::instance()
-{
-	return m_instance;
 }

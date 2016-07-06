@@ -463,7 +463,7 @@ public:
 		{
 			printf("Loading Game World!!!\n");
 
-			Entity* ship = EntityManager::instance()->createNewEntity();
+			Entity* ship = EntityManager::Instance->createNewEntity();
 
 			UVSG* instace = UVSG::getInstance();
 			Scene_Game* game = new Scene_Game();

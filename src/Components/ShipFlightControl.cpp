@@ -1,11 +1,13 @@
 #include "Components/ShipFlightControl.hpp"
-#include "World/Entity.hpp"
-#include <stdio.h>
-#include <stdlib.h> 
-#include "Util.hpp"
 
+#include "World/Entity.hpp"
+#include "Util.hpp"
 #include "Ship/Directions.hpp"
 #include "Ship/ShipComponent.hpp"
+#include "Input/InputManager.hpp"
+
+#include <stdio.h>
+#include <stdlib.h> 
 
 ShipFlightControl::ShipFlightControl(SDL_GameController* controllerToUse)
 {
@@ -59,10 +61,10 @@ void ShipFlightControl::update(double deltaTime)
 	}
 
 	//Max Speed in meters per second
-	double maxSpeed[] = { 15.0, 15.0, 225.0, 15.0, 15.0, 15.0 };
+	double maxSpeed[] = { 15.0, 15.0, 225.0, 50.0, 15.0, 15.0 };
 
 	//Acceleration in meters per second per second
-	double accelerations[] = { 15.0, 15.0, 150.0, 150.0, 15.0, 15.0 };
+	double accelerations[] = { 150.0, 15.0, 150.0, 150.0, 150.0, 150.0 };
 
 	bool FlightAssistEnabled = true;
 
@@ -72,7 +74,7 @@ void ShipFlightControl::update(double deltaTime)
 
 	FlightAssistEnabled = true;
 
-	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_A))
+	if (InputManager::Instance->getButtonDown("ship_flight_assist"))
 	{
 		FlightAssistEnabled = false;
 	}
@@ -80,18 +82,9 @@ void ShipFlightControl::update(double deltaTime)
 	//Forward Backward Movment
 	if (true)
 	{
-		if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
-		{
-			m_throttle.z = 1.0;
-		}
-		else if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
-		{
-			m_throttle.z = -1.0;
-		}
-		else
-		{
-			m_throttle.z = 0.0;
-		}
+		m_throttle.z = InputManager::Instance->getAxis("ship_throttle");
+		m_throttle.z += 1.0;
+		m_throttle.z /= 2.0;
 
 		double currentForwardVelocity = glm::dot(transform.getForward(), linearVelocity);
 		double desiredForwardVelocity = m_throttle.z * (m_throttle.z > 0 ? maxSpeed[FORWARD] : maxSpeed[BACKWARD]);
@@ -201,18 +194,9 @@ void ShipFlightControl::update(double deltaTime)
 	//Update Velocity
 	parent->setLinearVelocity(linearVelocity);
 
-	int deadzone = 8000;
-
 	if (true)
 	{
-		double yawAmount = 0.0;
-		int yawAxis = -SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
-		if (yawAxis > deadzone || yawAxis < -deadzone)
-		{
-			//Get between -1 and 1
-			yawAmount = ((double)yawAxis) / 32767.0;
-		}
-		double turnSpeedDesired = m_turnSpeedMax.x * yawAmount;
+		double turnSpeedDesired = m_turnSpeedMax.x * InputManager::Instance->getAxis("ship_pitch");
 		double turnSpeedCurrent = m_turnSpeedCurrent.x;
 		if (turnSpeedCurrent < turnSpeedDesired)
 		{
@@ -235,14 +219,7 @@ void ShipFlightControl::update(double deltaTime)
 
 	if (true)
 	{
-		double yawAmount = 0.0;
-		int yawAxis = -SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
-		if (yawAxis > deadzone || yawAxis < -deadzone)
-		{
-			//Get between -1 and 1
-			yawAmount = ((double)yawAxis) / 32767.0;
-		}
-		double turnSpeedDesired = m_turnSpeedMax.y * yawAmount;
+		double turnSpeedDesired = m_turnSpeedMax.y * InputManager::Instance->getAxis("ship_yaw");
 		double turnSpeedCurrent = m_turnSpeedCurrent.y;
 		if (turnSpeedCurrent < turnSpeedDesired)
 		{
@@ -265,14 +242,7 @@ void ShipFlightControl::update(double deltaTime)
 
 	if (true)
 	{
-		double rollAmount = 0.0;
-		int rollAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
-		if (rollAxis > deadzone || rollAxis < -deadzone)
-		{
-			//Get between -1 and 1
-			rollAmount = ((double)rollAxis) / 32767.0;
-		}
-		double turnSpeedDesired = m_turnSpeedMax.z * rollAmount;
+		double turnSpeedDesired = m_turnSpeedMax.z * InputManager::Instance->getAxis("ship_roll");
 		double turnSpeedCurrent = m_turnSpeedCurrent.z;
 		if (turnSpeedCurrent < turnSpeedDesired)
 		{
@@ -293,11 +263,11 @@ void ShipFlightControl::update(double deltaTime)
 		m_turnSpeedCurrent.z = turnSpeedCurrent;
 	}
 
-	rotation = glm::angleAxis(m_turnSpeedCurrent.x * (M_PI * 2.0) * deltaTime, transform.getLeft()) * rotation;
-	rotation = glm::angleAxis(m_turnSpeedCurrent.y * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation;
-	rotation = glm::angleAxis(m_turnSpeedCurrent.z * (M_PI * 2.0) * deltaTime, transform.getForward()) * rotation;
+	quaternionD rotation1 = glm::angleAxis(m_turnSpeedCurrent.x * (M_PI * 2.0) * deltaTime, transform.getLeft());
+	rotation1 = glm::angleAxis(m_turnSpeedCurrent.y * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation1;
+	rotation1 = glm::angleAxis(m_turnSpeedCurrent.z * (M_PI * 2.0) * deltaTime, transform.getForward()) * rotation1;
 
-	transform.setOrientation(rotation);
+	transform.setOrientation(rotation1 * rotation);
 	parent->setTransform(transform);
 
 	parent->setAngularVelocity(Lerp(parent->getAngularVelocity(), vector3D(0.0), deltaTime * 3.0));

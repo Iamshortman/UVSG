@@ -18,6 +18,11 @@ public:
 	InputDevice(string name);
 	~InputDevice();
 
+	void update(double deltaTime);
+
+	void addAxis(string name, InputAxis* axis);
+	void addButton(string name, InputButton* button);
+
 	bool hasAxis(string name);
 	double getAxis(string name);
 

@@ -25,9 +25,6 @@ void PlanetRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 	matrix4 modelMatrix = transform.getModleMatrix(camera->getPosition(), farViewScaleValue);
 	matrix3 normalMatrix = transform.getNormalMatrix();
-
-	//modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
-	//normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
 	matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
 
 	ambientShader->setActiveProgram();

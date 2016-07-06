@@ -8,13 +8,11 @@
 
 class EntityManager
 {
-private:
-	static EntityManager* m_instance;
-
-	std::hash_map<EntityId, Entity*> m_entities;
-	EntityId nextId = 1;
 
 public:
+	//Instance for the Singleton design pattern;
+	static EntityManager* Instance;
+
 	EntityManager();
 	Entity* createNewEntity();
 	void destroyEntity(EntityId id);
@@ -22,8 +20,10 @@ public:
 	Entity* getEntity(EntityId id);
 	std::vector<Entity*> getAllEntities();
 
-	static void createInstance();
-	static EntityManager* instance();
+private:
+	std::hash_map<EntityId, Entity*> m_entities;
+	EntityId nextId = 1;
+
 };
 
 #endif //ENTITYMANAGER_HPP

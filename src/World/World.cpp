@@ -32,7 +32,7 @@ void World::updateWorld(double deltaTime)
 			}
 			else
 			{
-				EntityManager::instance()->destroyEntity(entity->m_entityId);
+				EntityManager::Instance->destroyEntity(entity->m_entityId);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ void World::getEntitiesInWorld(vector<Entity*> &entities)
 	for (set<EntityId>::iterator i = m_entitiesInWorld.begin(); i != m_entitiesInWorld.end(); i++)
 	{
 		EntityId entityId = *i;
-		entities.push_back(EntityManager::instance()->getEntity(entityId));
+		entities.push_back(EntityManager::Instance->getEntity(entityId));
 	}
 }
 
