@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h> 
 
-ShipFlightControl::ShipFlightControl(SDL_GameController* controllerToUse)
-{
-	m_controller = controllerToUse;
-	
+#define M_PI 3.14159265358979323846
+
+ShipFlightControl::ShipFlightControl()
+{	
 	m_turnSpeedCurrent = vector3D(0.0);
 	m_turnSpeedMax = vector3D(0.2, 0.15, 0.4);
 	m_turnSpeedAcceleration = vector3D(0.4);
@@ -64,7 +64,7 @@ void ShipFlightControl::update(double deltaTime)
 	double maxSpeed[] = { 15.0, 15.0, 225.0, 50.0, 15.0, 15.0 };
 
 	//Acceleration in meters per second per second
-	double accelerations[] = { 150.0, 15.0, 150.0, 150.0, 150.0, 150.0 };
+	double accelerations[] = { 250.0, 250.0, 250.0, 250.0, 250.0, 250.0 };
 
 	bool FlightAssistEnabled = true;
 
@@ -82,9 +82,29 @@ void ShipFlightControl::update(double deltaTime)
 	//Forward Backward Movment
 	if (true)
 	{
-		m_throttle.z = InputManager::Instance->getAxis("ship_throttle");
-		m_throttle.z += 1.0;
-		m_throttle.z /= 2.0;
+		if (InputManager::Instance->hasAxis("ship_throttle"))
+		{
+			m_throttle.z = InputManager::Instance->getAxis("ship_throttle");
+			m_throttle.z += 1.0;
+			m_throttle.z /= 2.0;
+		}
+
+		if (InputManager::Instance->getButtonDown("ship_throttle_up"))
+		{
+			m_throttle.z += 0.5 * deltaTime;
+			if (m_throttle.z > 1.0)
+			{
+				m_throttle.z = 1.0;
+			}
+		}
+		else if (InputManager::Instance->getButtonDown("ship_throttle_down"))
+		{
+			m_throttle.z -= 0.5 * deltaTime;
+			if (m_throttle.z < 0.0)
+			{
+				m_throttle.z = 0.0;
+			}
+		}
 
 		double currentForwardVelocity = glm::dot(transform.getForward(), linearVelocity);
 		double desiredForwardVelocity = m_throttle.z * (m_throttle.z > 0 ? maxSpeed[FORWARD] : maxSpeed[BACKWARD]);
@@ -272,7 +292,7 @@ void ShipFlightControl::update(double deltaTime)
 
 	parent->setAngularVelocity(Lerp(parent->getAngularVelocity(), vector3D(0.0), deltaTime * 3.0));
 
-	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_BACK))
+	if (InputManager::Instance->getButtonPressed("ship_eject"))
 	{
 		component->EjectOccupancy();
 	}

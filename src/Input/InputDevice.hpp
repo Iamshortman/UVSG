@@ -10,12 +10,22 @@
 using std::string;
 using std::hash_map;
 
+enum InputType
+{
+	KEYBOARD_MOUSE,
+	JOYSTICK,
+	GAMEPAD
+};
+
 class InputDevice
 {
 public:
 	string m_name;
+	InputType m_deviceType;
+	void* m_devicePtr  = nullptr;
 
-	InputDevice(string name);
+
+	InputDevice(string name, InputType type, void* devicePtr);
 	~InputDevice();
 
 	void update(double deltaTime);

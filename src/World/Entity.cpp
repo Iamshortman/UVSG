@@ -255,6 +255,13 @@ void Entity::applyTorqueImpulse(vector3D torque)
 	}
 }
 
+void Entity::setDampening(double linear, double angular)
+{
+	if (m_RigidBody != nullptr)
+	{
+		m_RigidBody->setDampening(linear, angular);
+	}
+}
 
 bool Entity::hasComponent(string componentName)
 {
@@ -278,10 +285,13 @@ void Entity::removeComponent(string componentName)
 	m_components.erase(componentName);
 }
 
-void Entity::setDampening(double linear, double angular)
+Transform Entity::getRenderTransform()
 {
-	if (m_RigidBody != nullptr)
-	{
-		m_RigidBody->setDampening(linear, angular);
-	}
+	Transform worldTransform = m_world->getWorldOffsetMatrix();
+	Transform transform = getTransform();
+
+	transform.setOrientation(worldTransform.getOrientation() * transform.getOrientation());
+	transform.setPosition(worldTransform.getPosition() + (worldTransform.getOrientation() * transform.getPosition()));
+
+	return transform;
 }

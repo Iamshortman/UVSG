@@ -21,8 +21,7 @@ void ShipRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 {
 	vector3F ambientLight = world->ambientLight;
 
-	Transform entityTransform = entity->getTransform();
-	Transform worldOffset = world->getWorldOffsetMatrix();
+	Transform entityTransform = entity->getRenderTransform();
 
 	Transform localOffset;
 
@@ -127,8 +126,7 @@ void ShipRenderer::renderTransparency(World* world, Entity* entity, Camera* came
 {
 	vector3F ambientLight = world->ambientLight;
 
-	Transform entityTransform = entity->getTransform();
-	Transform worldOffset = world->getWorldOffsetMatrix();
+	Transform entityTransform = entity->getRenderTransform();
 
 	Transform localOffset;
 

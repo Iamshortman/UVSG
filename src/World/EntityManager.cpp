@@ -14,6 +14,15 @@ Entity* EntityManager::createNewEntity()
 	nextId++;
 	return entity;
 }
+
+EntityWorld* EntityManager::createNewEntityWorld()
+{
+	EntityWorld* entity = new EntityWorld(nextId);
+	m_entities[nextId] = entity;
+	nextId++;
+	return entity;
+}
+
 void EntityManager::destroyEntity(EntityId id)
 {
 	if (m_entities.count(id))

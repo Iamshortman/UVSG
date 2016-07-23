@@ -1,8 +1,10 @@
 #include "InputDevice.hpp"
 
-InputDevice::InputDevice(string name)
+InputDevice::InputDevice(string name, InputType type, void* devicePtr)
 {
 	m_name = name;
+	m_deviceType = type;
+	m_devicePtr = devicePtr;
 }
 
 InputDevice::~InputDevice()

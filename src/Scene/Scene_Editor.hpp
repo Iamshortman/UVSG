@@ -24,11 +24,9 @@ public:
 	//Temp int Mouse
 	int intMouse = 0;
 
-	Scene_Editor(SDL_GameController* controllerToUse)
+	Scene_Editor()
 	{
 		m_Gui = new Gui();
-
-		controller = controllerToUse;
 
 		//Load Skybox
 		skybox = new Model();
@@ -82,19 +80,18 @@ public:
 
 	virtual void update(double deltaTime)
 	{
-		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("Test");
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("smallship_all");
 
 		const double stepTime = 0.3;
 
-		int fowardBack = -SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-		int LeftRight = -SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
-		int deadzone1 = 16000;
+		double fowardBack = InputManager::Instance->getAxis("editor_cell_forward_back");
+		double LeftRight = InputManager::Instance->getAxis("editor_cell_left_right");
 
-		//UP cursor Movement
+		//FORWARD cursor Movement
 		if (true)
 		{
 			static double time = 0.0;
-			if (fowardBack > deadzone1)
+			if (fowardBack > 0.0)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -116,11 +113,11 @@ public:
 			}
 		}
 
-		//Down cursor Movement
+		//BACK cursor Movement
 		if (true)
 		{
 			static double time = 0.0;
-			if (fowardBack < -deadzone1)
+			if (fowardBack < 0.0)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -146,7 +143,7 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (LeftRight > deadzone1)
+			if (LeftRight > 0.0)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -172,7 +169,7 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (LeftRight < -deadzone1)
+			if (LeftRight < 0.0)
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -198,7 +195,7 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+			if (InputManager::Instance->getButtonDown("editor_cell_up"))
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -224,7 +221,7 @@ public:
 		if (true)
 		{
 			static double time = 0.0;
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
+			if (InputManager::Instance->getButtonDown("editor_cell_down"))
 			{
 				//First movement happens when the button is first pushed
 				if (time == -1.0)
@@ -248,12 +245,10 @@ public:
 
 		//Camera Update
 
-		int pitchAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-
-		if (pitchAxis > deadzone || pitchAxis < -deadzone)
+		if (InputManager::Instance->hasAxis("editor_camera_pitch"))
 		{
 			//Get between -1 and 1
-			double amount = ((double)pitchAxis) / 32767.0;
+			double amount = InputManager::Instance->getAxis("editor_camera_pitch");
 			double angle = amount * deltaTime * rotSpeed;
 
 			quaternionD pitchQuat = glm::normalize(glm::angleAxis(-angle, cameraRot * vector3D(-1.0, 0.0, 0.0)));
@@ -261,12 +256,10 @@ public:
 			cameraRot = pitchQuat * cameraRot;
 		}
 
-		int yawAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-
-		if (yawAxis > deadzone || yawAxis < -deadzone)
+		if (InputManager::Instance->hasAxis("editor_camera_yaw"))
 		{
 			//Get between -1 and 1
-			double amount = ((double)yawAxis) / 32767.0;
+			double amount = InputManager::Instance->getAxis("editor_camera_yaw");
 			double angle = amount * deltaTime * rotSpeed;
 
 			quaternionD yawQuat = glm::normalize(glm::angleAxis(-angle, vector3D(0.0, 1.0, 0.0)));
@@ -274,10 +267,7 @@ public:
 			cameraRot = yawQuat * cameraRot;
 		}
 
-		int rightTrigger = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-		int leftTrigger = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-
-		if (rightTrigger > deadzone || leftTrigger > deadzone)
+		/*if (true)
 		{
 			int inputValue = -rightTrigger + leftTrigger;
 			//Get between -1 and 1
@@ -294,7 +284,7 @@ public:
 			{
 				cameraDistance = maxDistance;
 			}
-		}
+		}*/
 
 		//MOUSE CONTROLLS
 		static int last_MousePos[] = { 0, 0 };
@@ -353,7 +343,7 @@ public:
 		camPos += camOrigin;
 		camera->setCameraTransform(camPos, cameraRot);
 
-		if (false)
+		if (true)
 		{
 			static int lastState = 0;
 			int currentState = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT);
@@ -378,61 +368,43 @@ public:
 			lastState = currentState;
 		}
 
-
 		//EDITOR CONTROLS
-		if (true)
+		if (InputManager::Instance->getButtonPressed("editor_cell_place"))
 		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-			if (currentState && !lastState)
+			vector3B pos = (vector3B)m_cursorPos;
+			if (shipComponent->hasCellAtPos(pos))
 			{
-				vector3B pos = (vector3B)m_cursorPos;
-				if (shipComponent->hasCellAtPos(pos))
+				shipComponent->removeCell(pos);
+				shipChanged = true;
+			}
+			else if (shipCells[shipCell_Index] != nullptr)
+			{
+				ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos);
+				if (shipComponent->canPlaceCell(newCell))
 				{
-					shipComponent->removeCell(pos);
+					shipComponent->addCell(newCell);
 					shipChanged = true;
 				}
-				else if (shipCells[shipCell_Index] != nullptr)
-				{
-					ShipCellData newCell = ShipCellData(shipCells[shipCell_Index], (vector3B)m_cursorPos);
-					if (shipComponent->canPlaceCell(newCell))
-					{
-						shipComponent->addCell(newCell);
-						shipChanged = true;
-					}
-				}
 			}
-			lastState = currentState;
 		}
 
-		if (true)
+		if (InputManager::Instance->getButtonPressed("editor_cell_next"))
 		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-			if (currentState && !lastState)
+			shipCell_Index--;
+			if (shipCell_Index < 0)
 			{
-				shipCell_Index--;
-				if (shipCell_Index < 0)
-				{
-					shipCell_Index = (int)shipCells.size() - 1;
-				}
+				shipCell_Index = (int)shipCells.size() - 1;
+			}
 
-			}
-			lastState = currentState;
 		}
-		if (true)
+
+		if (InputManager::Instance->getButtonPressed("editor_cell_prev"))
 		{
-			static int lastState = 0;
-			int currentState = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-			if (currentState && !lastState)
+			shipCell_Index++;
+			if (shipCell_Index >  shipCells.size() - 1)
 			{
-				shipCell_Index++;
-				if (shipCell_Index >  shipCells.size() - 1)
-				{
-					shipCell_Index = 0;
-				}
+				shipCell_Index = 0;
 			}
-			lastState = currentState;
 		}
 
 		if (shipChanged == true)
@@ -459,7 +431,7 @@ public:
 		}
 
 		//Load game world
-		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
+		if (InputManager::Instance->getButtonPressed("editor_exit"))
 		{
 			printf("Loading Game World!!!\n");
 
@@ -470,7 +442,7 @@ public:
 			instace->currentScene = game;
 
 			ship->m_renderer = new ShipRenderer();
-			ship->addComponent("FlightControl", new ShipFlightControl(controller));
+			ship->addComponent("FlightControl", new ShipFlightControl());
 			ship->addComponent("shipComponent", shipComponent);
 			ship->addToWorld(game->baseWorld);
 			shipComponent->initializeEntity();
@@ -521,7 +493,7 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("Test");
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("smallship_all");
 		if (shipCell_Index < shipCells.size() && shipCells[shipCell_Index] != nullptr)
 		{
 			Model* model = new Model();
@@ -576,14 +548,12 @@ public:
 	ShaderProgram* PointShader = nullptr;
 
 	bool shipChanged = false;
-	SDL_GameController* controller;
-	int deadzone = 4000;
 
 	vector3D camOrigin = vector3D(0.0);
 
 	double cameraDistance = 20.0;
 	double maxDistance = 200.0;
-	double minDistance = 0.0;
+	double minDistance = 5.0;
 
 	double rotSpeed = 3.0;
 	double zoomSpeed = 150.0;

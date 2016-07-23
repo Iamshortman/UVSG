@@ -131,8 +131,7 @@ void World::setGravity(vector3D gravity)
 
 Transform World::getWorldOffsetMatrix()
 {
-	Transform transform = Transform();
-	return transform;
+	return Transform();
 }
 
 World::~World()

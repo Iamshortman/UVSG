@@ -1,12 +1,18 @@
 {
 	"cell_ID": "smallship_rightWing",
     "name": "Right Wing",
-    "mass": 200,
+    "mass": 50,
     "mesh_loc": "res/ShipParts/Small_Ship/",
     "mesh": "Wing_Right.obj",
     "mesh_cursor": "Wing_Right.obj",
 	"aabbMin": [-1.5, -0.05, -0.5],
 	"aabbMax": [0.5, 0.05, 2.5],
+	
+	"categories":
+	[
+		"smallship_all",
+		"smallship_wing"
+	],
 	
 	"physics_mesh":
 	{

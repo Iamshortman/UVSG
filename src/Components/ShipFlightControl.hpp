@@ -4,19 +4,15 @@
 #include "Components/Component.hpp"
 #include "GLM_Include.hpp"
 
-#include <SDL2/SDL_gamecontroller.h>
-
 class ShipFlightControl : public Component
 {
 public:
-	ShipFlightControl(SDL_GameController* controllerToUse);
+	ShipFlightControl();
 	virtual ~ShipFlightControl();
 
 	virtual void update(double deltaTime);
 
 private:
-	SDL_GameController* m_controller = nullptr;
-
 	//Flight Data
 	vector3D m_throttle;
 

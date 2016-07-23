@@ -108,6 +108,12 @@ ShipCell::ShipCell(string jsonFile)
 			m_seats.push_back(CockpitSeat(vector3D(pos[0], pos[1], pos[2]), direction));
 		}
 	}
+
+	if (cell.has_member("categories"))
+	{
+		m_categories = cell["categories"].as<vector<string>>();
+	}
+
 }
 
 ShipCell::~ShipCell()

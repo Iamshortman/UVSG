@@ -41,7 +41,7 @@ public:
 	bool isAlive() { return m_alive; };
 	void kill();
 
-	void update(double deltaTime);
+	virtual void update(double deltaTime);
 
 	void addToWorld(World* world);
 	World* getWorld();
@@ -75,6 +75,8 @@ public:
 	Component* getComponent(std::string componentName);
 	void addComponent(std::string componentName, Component* component);
 	void removeComponent(std::string componentName);
+
+	Transform getRenderTransform();
 };
 
 #endif //ENTITY_HPP

@@ -28,7 +28,7 @@ void ShipCellDictionary::loadAllCellsFromFolder(string folder)
 			string fileName = data.name;
 			printf("Loading Ship Cell from: %s \n", (folder + fileName).c_str());
 			ShipCell* cell = new ShipCell(folder + fileName);
-			
+
 			if (m_shipCells.find(cell->getCellId()) != m_shipCells.end())
 			{
 				perror(("ShipCell " + cell->getCellId() + "is already loaded!!!\n").c_str());
@@ -37,14 +37,18 @@ void ShipCellDictionary::loadAllCellsFromFolder(string folder)
 
 			m_shipCells[cell->getCellId()] = cell;
 
-			//TODO add to category support
-			string category = "Test";
-			if (m_cellCategories.find(category) == m_cellCategories.end())
-			{
-				m_cellCategories[category] = vector<ShipCell*>();
-			}
-			m_cellCategories[category].push_back(cell);
+			string category;
 
+			for (int i = 0; i < cell->m_categories.size(); i++)
+			{
+				category = cell->m_categories[i];
+
+				if (m_cellCategories.find(category) == m_cellCategories.end())
+				{
+					m_cellCategories[category] = vector<ShipCell*>();
+				}
+				m_cellCategories[category].push_back(cell);
+			}
 
 			res = _findnext(ff, &data);
 		}

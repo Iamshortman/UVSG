@@ -8,6 +8,12 @@
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 0.5, 1.5],
 	
+	"categories":
+	[
+		"smallship_all",
+		"smallship_weapon"
+	],
+	
     "nodes": 
 	[
       {

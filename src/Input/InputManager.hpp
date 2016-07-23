@@ -21,6 +21,7 @@ public:
 
 	void update(double deltaTime);
 
+	bool hasAxis(string name);
 	double getAxis(string name);
 
 	bool getButtonDown(string name);

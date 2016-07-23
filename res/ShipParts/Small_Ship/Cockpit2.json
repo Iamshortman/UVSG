@@ -1,12 +1,18 @@
 {
     "cell_ID": "smallship_Cockpit2",
     "name": "cockpit2",
-    "mass": 1200,
+    "mass": 700,
     "mesh_loc": "res/ShipParts/Small_Ship/",
     "mesh": "Cockpit2.obj",
     "mesh_cursor": "Cockpit2_Cursor.obj",
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 1.5, 2.5],
+	
+	"categories":
+	[
+		"smallship_all",
+		"smallship_cockpit"
+	],
 	
     "nodes": 
 	[

@@ -1,8 +1,8 @@
-#include "JoystickAxis.hpp"
+#include "GamepadAxis.hpp"
 
 #include <math.h>
 
-JoystickAxis::JoystickAxis(SDL_Joystick* device, int axis, double deadzone, bool inverted)
+GamepadAxis::GamepadAxis(SDL_GameController* device, SDL_GameControllerAxis axis, double deadzone, bool inverted)
 {
 	m_device = device;
 	m_axis = axis;
@@ -10,9 +10,9 @@ JoystickAxis::JoystickAxis(SDL_Joystick* device, int axis, double deadzone, bool
 	m_inverted = inverted;
 }
 
-void JoystickAxis::update(double deltaTime)
+void GamepadAxis::update(double deltaTime)
 {
-	m_axisValue = SDL_JoystickGetAxis(m_device, m_axis);
+	m_axisValue = SDL_GameControllerGetAxis(m_device, m_axis);
 
 	//Invert axis
 	if (m_inverted)
@@ -21,7 +21,7 @@ void JoystickAxis::update(double deltaTime)
 	}
 }
 
-double JoystickAxis::getAxis()
+double GamepadAxis::getAxis()
 {
 	double range = 1.0 - m_deadzone;
 
@@ -43,22 +43,22 @@ double JoystickAxis::getAxis()
 	return 0.0;
 }
 
-void JoystickAxis::setDeadzone(double deadzone)
+void GamepadAxis::setDeadzone(double deadzone)
 {
 	m_deadzone = deadzone;
 }
 
-void JoystickAxis::setInverted(bool inverted)
+void GamepadAxis::setInverted(bool inverted)
 {
 	m_inverted = inverted;
 }
 
-double JoystickAxis::getDeadzone()
+double GamepadAxis::getDeadzone()
 {
 	return m_deadzone;
 }
 
-bool JoystickAxis::getInverted()
+bool GamepadAxis::getInverted()
 {
 	return m_inverted;
 }

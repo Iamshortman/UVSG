@@ -6,6 +6,13 @@ EntityWorld::EntityWorld(EntityId id)
 	//Nothing I really need to do here
 }
 
+void EntityWorld::update(double deltaTime)
+{
+	this->updateWorld(deltaTime);
+
+	Entity::update(deltaTime);
+}
+
 Transform EntityWorld::getWorldOffsetMatrix()
 {
 	return this->getTransform();

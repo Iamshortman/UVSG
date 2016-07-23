@@ -8,7 +8,6 @@
 class MeshCollisionShape : public CollisionShape
 {
 public:
-	btTriangleMesh* m_triangleMesh;
 	btConvexHullShape* hull;
 
 	MeshCollisionShape(std::string filePath, std::string fileName)

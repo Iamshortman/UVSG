@@ -5,6 +5,7 @@
 #include <hash_map>
 #include <algorithm>
 #include "World/Entity.hpp"
+#include "World/EntityWorld.hpp"
 
 class EntityManager
 {
@@ -14,7 +15,10 @@ public:
 	static EntityManager* Instance;
 
 	EntityManager();
+
 	Entity* createNewEntity();
+	EntityWorld* createNewEntityWorld();
+
 	void destroyEntity(EntityId id);
 
 	Entity* getEntity(EntityId id);

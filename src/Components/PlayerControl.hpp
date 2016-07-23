@@ -7,13 +7,12 @@
 
 struct PlayerControl : public Component
 {
-	PlayerControl(double linear, double angular, SDL_GameController* controllerToUse);
+	PlayerControl(double linear, double angular);
 
 	double linearSpeed;
 
 	//rad per second
 	double angularSpeed;
-	SDL_GameController* m_controller;
 
 	virtual void update(double deltaTime);
 };

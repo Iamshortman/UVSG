@@ -3,6 +3,7 @@
 JoystickButton::JoystickButton(SDL_Joystick* device, int button)
 {
 	m_device = device;
+	m_button = button;
 }
 
 void JoystickButton::update(double deltaTime)

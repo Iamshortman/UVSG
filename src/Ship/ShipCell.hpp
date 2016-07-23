@@ -57,7 +57,7 @@ public:
 	vector3D shapeOffset;
 
 	vector<CockpitSeat> m_seats;
-
+	vector<string> m_categories;
 
 private:
 	string m_cellId;

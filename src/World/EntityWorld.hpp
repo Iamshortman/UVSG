@@ -11,6 +11,7 @@ class EntityWorld : public World, public Entity
 {
 public:
 	EntityWorld(EntityId id);
+	virtual void update(double deltaTime);
 	virtual Transform getWorldOffsetMatrix();
 };
 

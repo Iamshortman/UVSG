@@ -18,16 +18,7 @@ UVSG::UVSG()
 	}
 	else
 	{
-		if (SDL_IsGameController(0))
-		{
-			SDL_GameController* controller = SDL_GameControllerOpen(0);
-			currentScene = new Scene_Editor(controller);
-			printf("Using Controller: %s \n", SDL_GameControllerName(controller));
-		}
-		else
-		{
-			exit(15);
-		}
+		currentScene = new Scene_Editor();
 	}
 
 	shipCellDictionary = new ShipCellDictionary();

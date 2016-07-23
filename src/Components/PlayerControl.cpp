@@ -1,14 +1,14 @@
 #include "Components/PlayerControl.hpp"
 #include "World/Entity.hpp"
+#include "World/EntityWorld.hpp"
 #include "World/World.hpp"
 #include "Ship/ShipComponent.hpp"
+#include "Input/InputManager.hpp"
 
-PlayerControl::PlayerControl(double linear, double angular, SDL_GameController* controllerToUse)
+PlayerControl::PlayerControl(double linear, double angular)
 {
 	linearSpeed = linear;
 	angularSpeed = angular;
-	m_controller = controllerToUse;
-	printf("Using Controller: %s \n", SDL_GameControllerName(m_controller));
 };
 
 void PlayerControl::update(double deltaTime)
@@ -31,58 +31,40 @@ void PlayerControl::update(double deltaTime)
 
 	int deadzone = 8000;
 
-	int pitchAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
-	if (pitchAxis > deadzone || pitchAxis < -deadzone)
+	if (InputManager::Instance->hasAxis("player_pitch"))
 	{
-		//Get between -1 and 1
-		double amount = ((double)pitchAxis) / 32767.0;
-
-		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getLeft()) * rotation;
+		rotation = glm::angleAxis(InputManager::Instance->getAxis("player_pitch") * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getLeft()) * rotation;
 	}
 
-	int yawAxis = -SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
-	if (yawAxis > deadzone || yawAxis < -deadzone)
+	if (InputManager::Instance->hasAxis("player_yaw"))
 	{
-		//Get between -1 and 1
-		double amount = ((double)yawAxis) / 32767.0;
-
-		rotation = glm::angleAxis(amount * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation;
+		rotation = glm::angleAxis(InputManager::Instance->getAxis("player_yaw") * angularSpeed * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation;
 	}
 
 	transform.setOrientation(rotation);
 
 	double linear = this->linearSpeed;
 
-	if (SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+	if (InputManager::Instance->getButtonDown("player_fast"))
 	{
 		linear *= 100.0;
 	}
 
-	int forwardAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTY);
-
-	if (forwardAxis > deadzone || forwardAxis < -deadzone)
+	if (InputManager::Instance->hasAxis("player_forward"))
 	{
-		//Get between -1 and 1
-		double amount = ((double)forwardAxis) / 32767.0;
-		double distance = amount * deltaTime * linear;
+		double distance = InputManager::Instance->getAxis("player_forward") * deltaTime * linear;
 		transform.setPosition(transform.getPosition() + (transform.getForward() * -distance));
 	}
 
-	int strafeAxis = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
-
-	if (strafeAxis > deadzone || strafeAxis < -deadzone)
+	if (InputManager::Instance->hasAxis("player_strafe"))
 	{
-		//Get between -1 and 1
-		double amount = ((double)strafeAxis) / 32767.0;
-		double distance = amount * deltaTime * linear;
-		transform.setPosition(transform.getPosition() + (transform.getRight() * distance));
+		double distance = InputManager::Instance->getAxis("player_strafe") * deltaTime * linear;
+		transform.setPosition(transform.getPosition() + (transform.getLeft() * -distance));
 	}
 
 	parent->setTransform(transform);
 
-	static int lastButton = 0;
-	int button = SDL_GameControllerGetButton(m_controller, SDL_CONTROLLER_BUTTON_A);
-	if (button && !lastButton)
+	if (InputManager::Instance->getButtonPressed("player_click"))
 	{
 		double rayDistance = 1000.0f;
 		vector3D startPos = transform.getPosition();
@@ -111,7 +93,15 @@ void PlayerControl::update(double deltaTime)
 				}
 
 			}
+			else if (entity->hasComponent("BigShip"))
+			{
+				EntityWorld* entityWorld = (EntityWorld*)entity;
+
+				parent->addToWorld(entityWorld);
+				parent->setTransform(Transform());
+
+				//entityWorld->setAngularVelocity(vector3D(0.0, 0.0, 1.0));
+			}
 		}
 	}
-	lastButton = button;
 }
