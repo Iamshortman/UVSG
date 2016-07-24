@@ -51,6 +51,8 @@ public:
 	Mesh* getCursorMesh();
 	Mesh* getInteriorMesh();
 	vector<Node> getNodePoints();
+	vector<Node> getInternalNodePoints();
+	
 	AABB getAABB();
 
 	CollisionShape* shape;
@@ -68,7 +70,11 @@ private:
 	Mesh* m_interiorMesh = nullptr;
 
 	vector<Node> m_nodes;
+
 	AABB m_aabb;
+
+	//Big Ship only
+	vector<Node> m_internalNode;
 };
 
 #endif //SHIPCELL_HPP

@@ -55,6 +55,16 @@ vector<Node> ShipCellData::getNodePoints()
 	return nodes;
 }
 
+vector<Node> ShipCellData::getInternalNodePoints()
+{
+	vector<Node> nodes;
+	for (Node node : m_cellType->getInternalNodePoints())
+	{
+		nodes.push_back(Node(node.m_position + this->m_position, node.m_direction));
+	}
+	return nodes;
+}
+
 vector<CockpitSeat> ShipCellData::getSeats()
 {
 	return m_cellType->m_seats;

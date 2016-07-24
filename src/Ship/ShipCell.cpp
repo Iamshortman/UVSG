@@ -71,6 +71,18 @@ ShipCell::ShipCell(string jsonFile)
 		}
 	}
 
+	if (cell.has_member("internalNode"))
+	{
+		json nodes = cell["nodes"];
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			vector<int> pos = nodes[i]["position"].as<vector<int>>();
+			int direction = nodes[i]["direction"].as<int>();
+
+			m_internalNode.push_back(Node(vector3B(pos[0], pos[1], pos[2]), direction));
+		}
+	}
+
 	vector<double> min_pos = cell["aabbMin"].as<vector<double>>();
 	vector<double> max_pos = cell["aabbMax"].as<vector<double>>();
 	m_aabb = AABB(vector3D(min_pos[0], min_pos[1], min_pos[2]), vector3D(max_pos[0], max_pos[1], max_pos[2]));
@@ -148,9 +160,14 @@ Mesh* ShipCell::getInteriorMesh()
 	return m_interiorMesh;
 }
 
-std::vector<Node> ShipCell::getNodePoints()
+vector<Node> ShipCell::getNodePoints()
 {
 	return m_nodes;
+}
+
+vector<Node> ShipCell::getInternalNodePoints()
+{
+	return m_internalNode;
 }
 
 AABB ShipCell::getAABB()

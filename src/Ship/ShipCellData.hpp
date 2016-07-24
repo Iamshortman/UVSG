@@ -22,6 +22,7 @@ public:
 	Mesh* getMesh();
 	Mesh* getInteriorMesh();
 	vector<Node> getNodePoints();
+	vector<Node> getInternalNodePoints();
 	vector<CockpitSeat> getSeats();
 	AABB getAABB();
 	void addCollisionShape(vector3D pos, btCompoundShape* shape);

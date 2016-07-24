@@ -301,7 +301,7 @@ Mesh* ShipComponent::genOutsideMesh()
 
 Mesh* ShipComponent::genInsideMesh()
 {
-
+	return nullptr;
 }
 
 void ShipComponent::EjectOccupancy()
