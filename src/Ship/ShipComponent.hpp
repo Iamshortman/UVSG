@@ -48,7 +48,10 @@ public:
 	bool hasNode(vector3B pos, int direction);
 	bool canPlaceCell(ShipCellData& cell);
 	bool getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace); 
+
+
 	Mesh* genOutsideMesh();
+	Mesh* genInsideMesh();
 
 	void EjectOccupancy();
 

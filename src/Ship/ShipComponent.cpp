@@ -299,6 +299,11 @@ Mesh* ShipComponent::genOutsideMesh()
 	return new MaterialMesh(vertices, materials);
 }
 
+Mesh* ShipComponent::genInsideMesh()
+{
+
+}
+
 void ShipComponent::EjectOccupancy()
 {
 	//Loop though all the cells
