@@ -8,6 +8,38 @@
 
 #include <unordered_map>
 
+struct Quad
+{
+	Quad(){};
+	Quad(vector3F a, vector3F b, vector3F c, vector3F d)
+	{
+		m_a = a;
+		m_b = b;
+		m_c = c;
+		m_d = d;
+	};
+	vector3F m_a;
+	vector3F m_b;
+	vector3F m_c;
+	vector3F m_d;
+};
+
+struct insideCubeFace
+{
+	/*
+	[00][10][20]
+	[01][11][21]
+	[02][12][22]
+	*/
+	Quad m_Faces[3][3];
+
+	//m_Checks is a cell offest to check if the quad in the corresponding m_faces location should be drawn.
+	//The Mesh gen function will deal with this logic.
+	vector3B m_Checks[3][3];
+
+	vector3F m_Normal;
+};
+
 struct ShipMapKeyFuncs
 {
 	size_t operator()(const vector3B& k)const
@@ -46,6 +78,7 @@ public:
 	vector3B getCellRootPos(ShipCellData cell);
 	bool hasCellAtPos(vector3B pos);
 	bool hasNode(vector3B pos, int direction);
+	bool hasInternalNode(vector3B pos, int direction);
 	bool canPlaceCell(ShipCellData& cell);
 	bool getRayCollision(const vector3D& rayOrigin, const vector3D& rayEnd, vector3D& out_Pos, DIRECTIONS& out_HitFace); 
 
