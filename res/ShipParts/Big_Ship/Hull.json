@@ -41,6 +41,34 @@
       }
 	],
 	
+	"internal_Node": 
+	[
+      {
+        "position": [0, 0, 0],
+        "direction": 0
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 1
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 2
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 3
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 4
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 5
+      }
+	],
+	
 	"physics_box":
 	{
 		"halfExtends": [1.5, 1.5, 1.5],

@@ -40,19 +40,27 @@ void ShipFlightControl::update(double deltaTime)
 		return;
 	}
 
-	ShipComponent* component = (ShipComponent*)parent->getComponent("shipComponent");
-	if (component == nullptr)
+	if (parent->hasComponent("shipComponent"))
 	{
-		printf("Error: missing componet!!!\n");
-		return;
+		ShipComponent* component = (ShipComponent*)parent->getComponent("shipComponent");
+
+		if (component->isBeingRidden == false)
+		{
+			//Dampen Movement if is there is no riding entity
+			parent->setDampening(0.5, 0.5);
+
+			return;
+		}
 	}
-
-	if (component->isBeingRidden == false)
+	else if (tempSeat != nullptr)
 	{
-		//Dampen Movement if is there is no riding entity
-		parent->setDampening(0.5, 0.5);
+		if (!tempSeat->isOccupied())
+		{
+			//Dampen Movement if is there is no riding entity
+			parent->setDampening(0.5, 0.5);
 
-		return;
+			return;
+		}
 	}
 	else
 	{
@@ -294,6 +302,17 @@ void ShipFlightControl::update(double deltaTime)
 
 	if (InputManager::Instance->getButtonPressed("ship_eject"))
 	{
-		component->EjectOccupancy();
+		if (parent->hasComponent("shipComponent"))
+		{
+			ShipComponent* component = (ShipComponent*)parent->getComponent("shipComponent");
+			component->EjectOccupancy();
+		}
+		else if (tempSeat != nullptr)
+		{
+			if (tempSeat->isOccupied())
+			{
+				tempSeat->clearOccupancy();
+			}
+		}
 	}
 }

@@ -10,7 +10,7 @@ InputManager* InputManager::Instance = nullptr;
 
 InputManager::InputManager()
 {
-	int num_joy = SDL_NumJoysticks();
+	/*int num_joy = SDL_NumJoysticks();
 	printf("\n%i joystick(s) found.\n", num_joy);
 	for (int i = 0; i < num_joy; i++)
 	{
@@ -41,62 +41,80 @@ InputManager::InputManager()
 		}
 		else
 		{
-			SDL_GameController* controller = SDL_GameControllerOpen(i);
-			string name = SDL_GameControllerName(controller);
-			printf("%s \n", name.c_str());
-
-			InputDevice* device = new InputDevice(name, InputType::GAMEPAD, controller);
-			this->m_devices.push_back(device);
-
-			//Ship Controls
-			device->addAxis("ship_roll", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.2, false));
-			device->addAxis("ship_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, true));
-			device->addAxis("ship_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, true));
-
-			device->addButton("ship_throttle_up", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
-			device->addButton("ship_throttle_down", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER));
-			device->addButton("ship_flight_assist", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
-			device->addButton("ship_eject", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_BACK));
-
-			//Editor Controls
-			device->addAxis("editor_cell_forward_back", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTY, 0.4, true));
-			device->addAxis("editor_cell_left_right", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.4, true));
-
-			device->addButton("editor_cell_up", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
-			device->addButton("editor_cell_down", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER));
-			device->addButton("editor_cell_place", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
-			device->addButton("editor_cell_next", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP));
-			device->addButton("editor_cell_prev", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN));
-
-			device->addAxis("editor_camera_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, false));
-			device->addAxis("editor_camera_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, false));
-			device->addAxis("editor_camera_zoom_in", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 0.1, false));
-			device->addAxis("editor_camera_zoom_out", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.1, false));
-
-			device->addButton("editor_exit", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_BACK));
-
-
-			//Player Controls
-			device->addAxis("player_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, false));
-			device->addAxis("player_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, true));
-			device->addAxis("player_forward", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTY, 0.2, false));
-			device->addAxis("player_strafe", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.2, false));
-
-			device->addButton("player_fast", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
-			device->addButton("player_click", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
+			//SDL_GameController* controller = SDL_GameControllerOpen(i);
+			//this->loadController(controller);
 		}
+	}*/
+}
 
-	}
+void InputManager::loadController(SDL_GameController* controller)
+{
+	string name = SDL_GameControllerName(controller);
+	printf("%s \n", name.c_str());
 
+	InputDevice* device = new InputDevice(name, InputType::GAMEPAD, controller);
+	this->m_devices.push_back(device);
 
+	//Ship Controls
+	device->addAxis("ship_roll", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.2, false));
+	device->addAxis("ship_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, true));
+	device->addAxis("ship_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, true));
+
+	device->addButton("ship_throttle_up", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
+	device->addButton("ship_throttle_down", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER));
+	device->addButton("ship_flight_assist", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
+	device->addButton("ship_eject", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_BACK));
+
+	//Editor Controls
+	device->addAxis("editor_cell_forward_back", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTY, 0.4, true));
+	device->addAxis("editor_cell_left_right", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.4, true));
+
+	device->addButton("editor_cell_up", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
+	device->addButton("editor_cell_down", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER));
+	device->addButton("editor_cell_place", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
+	device->addButton("editor_cell_next", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP));
+	device->addButton("editor_cell_prev", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN));
+
+	device->addAxis("editor_camera_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, false));
+	device->addAxis("editor_camera_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, false));
+	device->addAxis("editor_camera_zoom_in", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 0.1, false));
+	device->addAxis("editor_camera_zoom_out", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.1, false));
+
+	device->addButton("editor_exit", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_BACK));
+
+	//Player Controls
+	device->addAxis("player_pitch", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY, 0.2, false));
+	device->addAxis("player_yaw", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX, 0.2, true));
+	device->addAxis("player_forward", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTY, 0.2, false));
+	device->addAxis("player_strafe", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTX, 0.2, false));
+
+	device->addButton("player_fast", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER));
+	device->addButton("player_click", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
+}
+
+void InputManager::unloadController(SDL_GameController* controller)
+{
+	/*for (auto it = m_devices.begin(), endI = m_devices.end(); it != endI; ++it)
+	{
+		if ((*it)->m_deviceType == InputType::GAMEPAD)
+		{
+			SDL_GameController* controller2 = (SDL_GameController*)(*it)->m_devicePtr;
+			if (controller == controller2)
+			{
+				delete (*it);
+				break;
+			}
+		}
+	}*/
 }
 
 InputManager::~InputManager()
 {
-	for (InputDevice* device : m_devices)
+	for (auto it = m_devices.begin(); it != m_devices.end(); ++it)
 	{
-		delete device;
+		delete (*it);
 	}
+	m_devices.clear();
 }
 
 void InputManager::update(double deltaTime)

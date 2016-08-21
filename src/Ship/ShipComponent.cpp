@@ -3,9 +3,15 @@
 #include "Renderable.hpp"
 #include "Util.hpp"
 
-ShipComponent::ShipComponent(double shipSize)
+ShipComponent::ShipComponent(double cubeSizeOutside, double cubeSizeInside)
 {
-	this->shipOutsideSize = shipSize;
+	this->shipOutsideSize = cubeSizeOutside;
+	if (cubeSizeInside != 0.0)
+	{
+		this->shipInsideSize = cubeSizeInside;
+		this->hasInterior = true;
+	}
+
 	m_shipCells = Ship_Map();
 }
 
@@ -59,6 +65,11 @@ void ShipComponent::initializeEntity()
 	}
 
 	outsideMesh = genOutsideMesh();
+
+	if (hasInterior == true)
+	{
+		insideMesh = genInsideMesh();
+	}
 
 	double totalMass = 0.0;
 	vector3D centerOfMass = vector3D(0.0);
@@ -345,6 +356,17 @@ void ShipComponent::EjectOccupancy()
 	}
 }
 
+void PushQuad(std::vector<MaterialVertex>& verticesVector, Quad points, vector3F normal, float material, vector3F offset)
+{
+	verticesVector.push_back({ points.m_a + offset, normal, material });
+	verticesVector.push_back({ points.m_b + offset, normal, material });
+	verticesVector.push_back({ points.m_c + offset, normal, material });
+	
+	verticesVector.push_back({ points.m_c + offset, normal, material });
+	verticesVector.push_back({ points.m_d + offset, normal, material });
+	verticesVector.push_back({ points.m_a + offset, normal, material });
+}
+
 Mesh* ShipComponent::genInsideMesh()
 {
 	/*if (m_InsideMesh != 0)
@@ -385,6 +407,26 @@ Mesh* ShipComponent::genInsideMesh()
 	ceiling.m_Checks[0][2] = vector3B(-1, 0, -1); //Right Back
 	ceiling.m_Checks[1][2] = vector3B(0, 0, -1); //Back
 	ceiling.m_Checks[2][2] = vector3B(1, 0, -1); //Left Back
+
+	ceiling.m_SubstitutionDirections[0] = FORWARD; //[1][0]
+	ceiling.m_SubstitutionChecks[0][0] = vector2I(0, 0);
+	ceiling.m_SubstitutionChecks[0][1] = vector2I(1, 0);
+	ceiling.m_SubstitutionChecks[0][2] = vector2I(2, 0);
+
+	ceiling.m_SubstitutionDirections[1] = RIGHT; //[0][1]
+	ceiling.m_SubstitutionChecks[1][0] = vector2I(0, 0);
+	ceiling.m_SubstitutionChecks[1][1] = vector2I(1, 0);
+	ceiling.m_SubstitutionChecks[1][2] = vector2I(2, 0);
+
+	ceiling.m_SubstitutionDirections[2] = BACKWARD; //[1][2]
+	ceiling.m_SubstitutionChecks[2][0] = vector2I(0, 0);
+	ceiling.m_SubstitutionChecks[2][1] = vector2I(1, 0);
+	ceiling.m_SubstitutionChecks[2][2] = vector2I(2, 0);
+
+	ceiling.m_SubstitutionDirections[3] = LEFT; //[2][1]
+	ceiling.m_SubstitutionChecks[3][0] = vector2I(0, 0);
+	ceiling.m_SubstitutionChecks[3][1] = vector2I(1, 0);
+	ceiling.m_SubstitutionChecks[3][2] = vector2I(2, 0);
 	//-------------------------------------------------------------------------
 
 	//-------------------------------------------------------------------------
@@ -413,6 +455,26 @@ Mesh* ShipComponent::genInsideMesh()
 	floor.m_Checks[0][2] = vector3B(1, 0, -1); //Left Back
 	floor.m_Checks[1][2] = vector3B(0, 0, -1); //Back
 	floor.m_Checks[2][2] = vector3B(-1, 0, -1); //Right Back
+
+	floor.m_SubstitutionDirections[0] = FORWARD; //[1][0]
+	floor.m_SubstitutionChecks[0][0] = vector2I(0, 2);
+	floor.m_SubstitutionChecks[0][1] = vector2I(1, 2);
+	floor.m_SubstitutionChecks[0][2] = vector2I(2, 2);
+
+	floor.m_SubstitutionDirections[1] = LEFT; //[0][1]
+	floor.m_SubstitutionChecks[1][0] = vector2I(0, 2);
+	floor.m_SubstitutionChecks[1][1] = vector2I(1, 2);
+	floor.m_SubstitutionChecks[1][2] = vector2I(2, 2);
+
+	floor.m_SubstitutionDirections[2] = BACKWARD; //[1][2]
+	floor.m_SubstitutionChecks[2][0] = vector2I(0, 2);
+	floor.m_SubstitutionChecks[2][1] = vector2I(1, 2);
+	floor.m_SubstitutionChecks[2][2] = vector2I(2, 2);
+
+	floor.m_SubstitutionDirections[3] = RIGHT; //[2][1]
+	floor.m_SubstitutionChecks[3][0] = vector2I(0, 2);
+	floor.m_SubstitutionChecks[3][1] = vector2I(1, 2);
+	floor.m_SubstitutionChecks[3][2] = vector2I(2, 2);
 	//-------------------------------------------------------------------------
 
 	//-------------------------------------------------------------------------
@@ -441,6 +503,26 @@ Mesh* ShipComponent::genInsideMesh()
 	northWall.m_Checks[0][2] = vector3B(1, -1, 0); //Down Left
 	northWall.m_Checks[1][2] = vector3B(0, -1, 0); //Down
 	northWall.m_Checks[2][2] = vector3B(-1, -1, 0); //Down Right
+
+	northWall.m_SubstitutionDirections[0] = UP; //[1][0]
+	northWall.m_SubstitutionChecks[0][0] = vector2I(0, 0);
+	northWall.m_SubstitutionChecks[0][1] = vector2I(1, 0);
+	northWall.m_SubstitutionChecks[0][2] = vector2I(2, 0);
+
+	northWall.m_SubstitutionDirections[1] = LEFT; //[0][1]
+	northWall.m_SubstitutionChecks[1][0] = vector2I(2, 0);
+	northWall.m_SubstitutionChecks[1][1] = vector2I(2, 1);
+	northWall.m_SubstitutionChecks[1][2] = vector2I(2, 2);
+
+	northWall.m_SubstitutionDirections[2] = DOWN; //[1][2]
+	northWall.m_SubstitutionChecks[2][0] = vector2I(0, 0);
+	northWall.m_SubstitutionChecks[2][1] = vector2I(1, 0);
+	northWall.m_SubstitutionChecks[2][2] = vector2I(2, 0);
+
+	northWall.m_SubstitutionDirections[3] = RIGHT; //[2][1]
+	northWall.m_SubstitutionChecks[3][0] = vector2I(2, 0);
+	northWall.m_SubstitutionChecks[3][1] = vector2I(2, 1);
+	northWall.m_SubstitutionChecks[3][2] = vector2I(2, 2);
 	//-------------------------------------------------------------------------
 
 	//-------------------------------------------------------------------------
@@ -469,6 +551,27 @@ Mesh* ShipComponent::genInsideMesh()
 	southWall.m_Checks[0][2] = vector3B(-1, -1, 0); //Down Right
 	southWall.m_Checks[1][2] = vector3B(0, -1, 0); //Down
 	southWall.m_Checks[2][2] = vector3B(1, -1, 0); //Down Left
+
+	southWall.m_SubstitutionDirections[0] = UP; //[1][0]
+	southWall.m_SubstitutionChecks[0][0] = vector2I(0, 2);
+	southWall.m_SubstitutionChecks[0][1] = vector2I(1, 2);
+	southWall.m_SubstitutionChecks[0][2] = vector2I(2, 2);
+
+	southWall.m_SubstitutionDirections[1] = RIGHT; //[0][1]
+	southWall.m_SubstitutionChecks[1][0] = vector2I(0, 0);
+	southWall.m_SubstitutionChecks[1][1] = vector2I(0, 1);
+	southWall.m_SubstitutionChecks[1][2] = vector2I(0, 2);
+
+	southWall.m_SubstitutionDirections[2] = DOWN; //[1][2]
+	southWall.m_SubstitutionChecks[2][0] = vector2I(0, 2);
+	southWall.m_SubstitutionChecks[2][1] = vector2I(1, 2);
+	southWall.m_SubstitutionChecks[2][2] = vector2I(2, 2);
+
+	southWall.m_SubstitutionDirections[3] = LEFT; //[2][1]
+	southWall.m_SubstitutionChecks[3][0] = vector2I(2, 0);
+	southWall.m_SubstitutionChecks[3][1] = vector2I(2, 1);
+	southWall.m_SubstitutionChecks[3][2] = vector2I(2, 2);
+
 	//-------------------------------------------------------------------------
 
 	//-------------------------------------------------------------------------
@@ -497,6 +600,26 @@ Mesh* ShipComponent::genInsideMesh()
 	westWall.m_Checks[0][2] = vector3B(0, -1, -1); //Down Back
 	westWall.m_Checks[1][2] = vector3B(0, -1, 0); //Down
 	westWall.m_Checks[2][2] = vector3B(0, -1, 1); //Down Forward
+
+	westWall.m_SubstitutionDirections[0] = UP; //[1][0]
+	westWall.m_SubstitutionChecks[0][0] = vector2I(2, 0);
+	westWall.m_SubstitutionChecks[0][1] = vector2I(2, 1);
+	westWall.m_SubstitutionChecks[0][2] = vector2I(2, 2);
+
+	westWall.m_SubstitutionDirections[1] = BACKWARD; //[0][1]
+	westWall.m_SubstitutionChecks[1][0] = vector2I(2, 0);
+	westWall.m_SubstitutionChecks[1][1] = vector2I(2, 1);
+	westWall.m_SubstitutionChecks[1][2] = vector2I(2, 2);
+
+	westWall.m_SubstitutionDirections[2] = DOWN; //[1][2]
+	westWall.m_SubstitutionChecks[2][0] = vector2I(0, 0);
+	westWall.m_SubstitutionChecks[2][1] = vector2I(0, 1);
+	westWall.m_SubstitutionChecks[2][2] = vector2I(0, 2);
+
+	westWall.m_SubstitutionDirections[3] = FORWARD; //[2][1]
+	westWall.m_SubstitutionChecks[3][0] = vector2I(0, 0);
+	westWall.m_SubstitutionChecks[3][1] = vector2I(0, 1);
+	westWall.m_SubstitutionChecks[3][2] = vector2I(0, 2);
 	//-------------------------------------------------------------------------
 
 	//-------------------------------------------------------------------------
@@ -525,13 +648,37 @@ Mesh* ShipComponent::genInsideMesh()
 	eastWall.m_Checks[0][2] = vector3B(0, -1, 1); //Down Forward
 	eastWall.m_Checks[1][2] = vector3B(0, -1, 0); //Down
 	eastWall.m_Checks[2][2] = vector3B(0, -1, -1); //Down Back
+
+	eastWall.m_SubstitutionDirections[0] = UP; //[1][0]
+	eastWall.m_SubstitutionChecks[0][0] = vector2I(0, 0);
+	eastWall.m_SubstitutionChecks[0][1] = vector2I(0, 1);
+	eastWall.m_SubstitutionChecks[0][2] = vector2I(0, 2);
+
+	eastWall.m_SubstitutionDirections[1] = FORWARD; //[0][1]
+	eastWall.m_SubstitutionChecks[1][0] = vector2I(0, 0);
+	eastWall.m_SubstitutionChecks[1][1] = vector2I(0, 1);
+	eastWall.m_SubstitutionChecks[1][2] = vector2I(0, 2);
+
+	eastWall.m_SubstitutionDirections[2] = DOWN; //[1][2]
+	eastWall.m_SubstitutionChecks[2][0] = vector2I(2, 0);
+	eastWall.m_SubstitutionChecks[2][1] = vector2I(2, 1);
+	eastWall.m_SubstitutionChecks[2][2] = vector2I(2, 2);
+
+	eastWall.m_SubstitutionDirections[3] = BACKWARD; //[2][1]
+	eastWall.m_SubstitutionChecks[3][0] = vector2I(2, 0);
+	eastWall.m_SubstitutionChecks[3][1] = vector2I(2, 1);
+	eastWall.m_SubstitutionChecks[3][2] = vector2I(2, 2);
 	//-------------------------------------------------------------------------
 
 	vector<insideCubeFace> faces = { ceiling, floor, northWall, southWall, westWall, eastWall };
 
 	vector<MaterialVertex> verticesVector = vector<MaterialVertex>();
-	vector<unsigned int> indicesVector;
-	unsigned int indicesOffset = 0;
+	vector<Material> materialVector = vector<Material>();
+	materialVector.push_back(Material("primary", vector3F(0.8f, 0.0f, 0.5f), 2, 1.0));
+	materialVector.push_back(Material("second", vector3F(0.8f, 0.8f, 0.8f), 2, 1.0));
+	materialVector.push_back(Material("3", vector3F(0.0f, 0.8f, 0.8f), 2, 1.0));
+	materialVector.push_back(Material("4", vector3F(0.0f, 0.8f, 0.0f), 2, 1.0));
+	materialVector.push_back(Material("5", vector3F(0.8f, 0.8f, 0.0f), 2, 1.0));
 
 	for (auto it = m_shipCells.begin(); it != m_shipCells.end(); ++it)
 	{
@@ -545,142 +692,158 @@ Mesh* ShipComponent::genInsideMesh()
 
 			if (!hasInternalNode(pos + face.m_Checks[1][1], flipDirection(direction)))
 			{
+				PushQuad(verticesVector, face.m_Faces[1][1], face.m_Normal, 1, offset);
 
-				if (hasInternalNode(pos + face.m_Checks[1][0], direction))
+				if (hasInternalNode(pos + face.m_Checks[1][0], face.m_SubstitutionDirections[0]))
 				{
+					PushQuad(verticesVector, face.m_Faces[1][0], face.m_Normal, 0, offset);
+				}
 
+				if (hasInternalNode(pos + face.m_Checks[0][1], face.m_SubstitutionDirections[1]))
+				{
+					PushQuad(verticesVector, face.m_Faces[0][1], face.m_Normal, 0, offset);
+				}
+
+				if (hasInternalNode(pos + face.m_Checks[1][2], face.m_SubstitutionDirections[2]))
+				{
+					PushQuad(verticesVector, face.m_Faces[1][2], face.m_Normal, 0, offset);
+				}
+
+				if (hasInternalNode(pos + face.m_Checks[2][1], face.m_SubstitutionDirections[3]))
+				{
+					PushQuad(verticesVector, face.m_Faces[2][1], face.m_Normal, 0, offset);
+				}
+
+				//Top Left Corner
+				if (hasInternalNode(pos + face.m_Checks[0][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], face.m_SubstitutionDirections[0]) && hasInternalNode(pos + face.m_Checks[0][1], face.m_SubstitutionDirections[1]))
+				{
+					PushQuad(verticesVector, face.m_Faces[0][0], face.m_Normal, 0, offset);
+				}
+
+				//Top Right Corner
+				if (hasInternalNode(pos + face.m_Checks[2][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], face.m_SubstitutionDirections[0]) && hasInternalNode(pos + face.m_Checks[2][1], face.m_SubstitutionDirections[3]))
+				{
+					PushQuad(verticesVector, face.m_Faces[2][0], face.m_Normal, 0, offset);
+				}
+
+				//Bottom Left Corner
+				if (hasInternalNode(pos + face.m_Checks[0][2], direction) && hasInternalNode(pos + face.m_Checks[1][2], face.m_SubstitutionDirections[2]) && hasInternalNode(pos + face.m_Checks[0][1], face.m_SubstitutionDirections[1]))
+				{
+					PushQuad(verticesVector, face.m_Faces[0][2], face.m_Normal, 0, offset);
+				}
+
+				//Bottom Right Corner
+				if (hasInternalNode(pos + face.m_Checks[2][2], direction) && hasInternalNode(pos + face.m_Checks[1][2], face.m_SubstitutionDirections[2]) && hasInternalNode(pos + face.m_Checks[2][1], face.m_SubstitutionDirections[3]))
+				{
+					PushQuad(verticesVector, face.m_Faces[2][2], face.m_Normal, 0, offset);
 				}
 			}
 			else
 			{
-
-			}
-		}
-
-		for (int i = 0; i < faces.size(); i++)
-		{
-			insideCubeFace face = faces[i];
-
-			if (!hasCell(pos + face.m_Checks[1][1]))
-			{
-				PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[1][1], face.m_Normal, vector3F(1, 0, 1), offset);
-
-				if (hasCell(pos + face.m_Checks[1][0]))
+				if (hasInternalNode(pos + face.m_Checks[1][0], direction) && !hasInternalNode(pos + face.m_Checks[1][0] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[1][0], face.m_Normal, vector3F(1, 0, 1), offset);
-				}
-				if (hasCell(pos + face.m_Checks[1][2]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[1][2], face.m_Normal, vector3F(1, 0, 1), offset);
-				}
-				if (hasCell(pos + face.m_Checks[0][1]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][1], face.m_Normal, vector3F(1, 0, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[1][0], face.m_Normal, 2, offset);
 				}
 
-				if (hasCell(pos + face.m_Checks[2][1]))
+				if (hasInternalNode(pos + face.m_Checks[1][2], direction) && !hasInternalNode(pos + face.m_Checks[1][2] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][1], face.m_Normal, vector3F(1, 0, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[1][2], face.m_Normal, 2, offset);
+				}
+
+				if (hasInternalNode(pos + face.m_Checks[0][1], direction) && !hasInternalNode(pos + face.m_Checks[0][1] + face.m_Checks[1][1], direction))
+				{
+					PushQuad(verticesVector, face.m_Faces[0][1], face.m_Normal, 2, offset);
+				}
+
+				if (hasInternalNode(pos + face.m_Checks[2][1], direction) && !hasInternalNode(pos + face.m_Checks[2][1] + face.m_Checks[1][1], direction))
+				{
+					PushQuad(verticesVector, face.m_Faces[2][1], face.m_Normal, 2, offset);
 				}
 
 				//Top Left Corner
-				if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]))
+				if (hasInternalNode(pos + face.m_Checks[0][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], direction) && hasInternalNode(pos + face.m_Checks[0][1], direction) && (!hasInternalNode(pos + face.m_Checks[1][0] + face.m_Checks[1][1], direction) || !hasInternalNode(pos + face.m_Checks[0][1] + face.m_Checks[1][1], direction)))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][0], face.m_Normal, vector3F(1, 0, 0.5f), offset);
+					PushQuad(verticesVector, face.m_Faces[0][0], face.m_Normal, 3, offset);
 				}
 
 				//Top Right Corner
-				if (hasCell(pos + face.m_Checks[2][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[2][1]))
+				if (hasInternalNode(pos + face.m_Checks[2][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], direction) && hasInternalNode(pos + face.m_Checks[2][1], direction) && (!hasInternalNode(pos + face.m_Checks[1][0] + face.m_Checks[1][1], direction) || !hasInternalNode(pos + face.m_Checks[2][1] + face.m_Checks[1][1], direction)))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][0], face.m_Normal, vector3F(1, 0, 0.5f), offset);
+					PushQuad(verticesVector, face.m_Faces[2][0], face.m_Normal, 3, offset);
 				}
 
 				//Bottom Left Corner
-				if (hasCell(pos + face.m_Checks[0][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[0][1]))
+				if (hasInternalNode(pos + face.m_Checks[0][2], direction) && hasInternalNode(pos + face.m_Checks[1][2], direction) && hasInternalNode(pos + face.m_Checks[0][1], direction) && (!hasInternalNode(pos + face.m_Checks[1][2] + face.m_Checks[1][1], direction) || !hasInternalNode(pos + face.m_Checks[0][1] + face.m_Checks[1][1], direction)))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][2], face.m_Normal, vector3F(1, 0, 0.5f), offset);
+					PushQuad(verticesVector, face.m_Faces[0][2], face.m_Normal, 3, offset);
 				}
 
 				//Bottom Right Corner
-				if (hasCell(pos + face.m_Checks[2][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[2][1]))
+				if (hasInternalNode(pos + face.m_Checks[2][2], direction) && hasInternalNode(pos + face.m_Checks[1][2], direction) && hasInternalNode(pos + face.m_Checks[2][1], direction) && (!hasInternalNode(pos + face.m_Checks[1][2] + face.m_Checks[1][1], direction) || !hasInternalNode(pos + face.m_Checks[2][1] + face.m_Checks[1][1], direction)))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][2], face.m_Normal, vector3F(1, 0, 0.5f), offset);
-				}
-			}
-			else
-			{
-				if (hasCell(pos + face.m_Checks[1][0]) && !hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[1][0], face.m_Normal, vector3F(0, 0, 1), offset);
-				}
-
-				if (hasCell(pos + face.m_Checks[1][2]) && !hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[1][2], face.m_Normal, vector3F(0, 0, 1), offset);
-				}
-
-				if (hasCell(pos + face.m_Checks[0][1]) && !hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][1], face.m_Normal, vector3F(0, 0, 1), offset);
-				}
-
-				if (hasCell(pos + face.m_Checks[2][1]) && !hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1]))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][1], face.m_Normal, vector3F(0, 0, 1), offset);
-				}
-
-
-				//Top Left Corner
-				if (hasCell(pos + face.m_Checks[0][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[0][1]) && (!hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1])))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][0], face.m_Normal, vector3F(1, 0.5f, 0.5f), offset);
-				}
-
-				//Top Right Corner
-				if (hasCell(pos + face.m_Checks[2][0]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[2][1]) && (!hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1])))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][0], face.m_Normal, vector3F(1, 0.5f, 0.5f), offset);
-				}
-
-				//Bottom Left Corner
-				if (hasCell(pos + face.m_Checks[0][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[0][1]) && (!hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1])))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][2], face.m_Normal, vector3F(1, 0.5f, 0.5f), offset);
-				}
-
-				//Bottom Right Corner
-				if (hasCell(pos + face.m_Checks[2][2]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[2][1]) && (!hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) || !hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1])))
-				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][2], face.m_Normal, vector3F(1, 0.5f, 0.5f), offset);
+					PushQuad(verticesVector, face.m_Faces[2][2], face.m_Normal, 3, offset);
 				}
 
 				//Cube Case Top Left
-				if (hasCell(pos + face.m_Checks[0][0]) && !hasCell(pos + face.m_Checks[0][0] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[0][1]) && hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]))
+				if (hasInternalNode(pos + face.m_Checks[0][0], direction) && !hasInternalNode(pos + face.m_Checks[0][0] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[1][0], direction) && hasInternalNode(pos + face.m_Checks[1][0] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[0][1], direction) && hasInternalNode(pos + face.m_Checks[0][1] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][0], face.m_Normal, vector3F(1, 1, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[0][0], face.m_Normal, 3, offset);
 				}
 
 				//Cube Case Top Right
-				if (hasCell(pos + face.m_Checks[2][0]) && !hasCell(pos + face.m_Checks[2][0] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[1][0]) && hasCell(pos + face.m_Checks[1][0] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[2][1]) && hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1]))
+				if (hasInternalNode(pos + face.m_Checks[2][0], direction) && !hasInternalNode(pos + face.m_Checks[2][0] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[1][0], direction) && hasInternalNode(pos + face.m_Checks[1][0] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[2][1], direction) && hasInternalNode(pos + face.m_Checks[2][1] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][0], face.m_Normal, vector3F(1, 1, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[2][0], face.m_Normal, 3, offset);
 				}
 
 				//Cube Case Bottom Right
-				if (hasCell(pos + face.m_Checks[2][2]) && !hasCell(pos + face.m_Checks[2][2] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[2][1]) && hasCell(pos + face.m_Checks[2][1] + face.m_Checks[1][1]))
+				if (hasInternalNode(pos + face.m_Checks[2][2], direction) && !hasInternalNode(pos + face.m_Checks[2][2] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[1][2], direction) && hasInternalNode(pos + face.m_Checks[1][2] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[2][1], direction) && hasInternalNode(pos + face.m_Checks[2][1] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[2][2], face.m_Normal, vector3F(1, 1, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[2][2], face.m_Normal, 3, offset);
 				}
 
 				//Cube Case Bottom Left
-				if (hasCell(pos + face.m_Checks[0][2]) && !hasCell(pos + face.m_Checks[0][2] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[1][2]) && hasCell(pos + face.m_Checks[1][2] + face.m_Checks[1][1]) && hasCell(pos + face.m_Checks[0][1]) && hasCell(pos + face.m_Checks[0][1] + face.m_Checks[1][1]))
+				if (hasInternalNode(pos + face.m_Checks[0][2], direction) && !hasInternalNode(pos + face.m_Checks[0][2] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[1][2], direction) && hasInternalNode(pos + face.m_Checks[1][2] + face.m_Checks[1][1], direction) && hasInternalNode(pos + face.m_Checks[0][1], direction) && hasInternalNode(pos + face.m_Checks[0][1] + face.m_Checks[1][1], direction))
 				{
-					PushQuad(verticesVector, indicesVector, indicesOffset, face.m_Faces[0][2], face.m_Normal, vector3F(1, 1, 1), offset);
+					PushQuad(verticesVector, face.m_Faces[0][2], face.m_Normal, 3, offset);
 				}
-			}
 
+
+				//Model Node case
+				for (int i = 0; i < 4; i++)
+				{
+					DIRECTIONS checkDirection = face.m_SubstitutionDirections[i];
+
+					if (!hasInternalNode(pos, checkDirection))
+					{
+						insideCubeFace face1 = faces[checkDirection];
+
+						vector2I value = face1.m_SubstitutionChecks[i][1];
+						PushQuad(verticesVector, face1.m_Faces[value.x][value.y], face1.m_Normal, 4, offset);
+
+						//Corner
+						/*if (hasInternalNode(pos + face.m_Checks[0][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], face.m_SubstitutionDirections[0]) && hasInternalNode(pos + face.m_Checks[0][1], face.m_SubstitutionDirections[1]))
+						{
+							PushQuad(verticesVector, face.m_Faces[0][0], face.m_Normal, 0, offset);
+						}
+
+						//Corner
+						if (hasInternalNode(pos + face.m_Checks[2][0], direction) && hasInternalNode(pos + face.m_Checks[1][0], face.m_SubstitutionDirections[0]) && hasInternalNode(pos + face.m_Checks[2][1], face.m_SubstitutionDirections[3]))
+						{
+							PushQuad(verticesVector, face.m_Faces[2][0], face.m_Normal, 0, offset);
+						}*/
+
+					}
+				}
+
+			}
 		}
 	}
 
-	return nullptr;
+	if (verticesVector.size() == 0)
+	{
+		return nullptr;
+	}
+
+	return new MaterialMesh(verticesVector, materialVector);
 }

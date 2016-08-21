@@ -20,12 +20,60 @@ public:
 	Gui* m_Gui;
 
 	int shipCell_Index = 0;
+	string cellList = "";
 
 	//Temp int Mouse
 	int intMouse = 0;
 
+	float cubeSizeOutside = 1.0f;
+	float cubeSizeInside = 2.6f;
+
+	ShipComponent* shipComponent = nullptr;
+	ShaderProgram* MaterialShader = nullptr;
+	Model* shipModelOutside = nullptr;
+	Model* shipModelInside = nullptr;
+	Model* skybox = nullptr;
+	Model* UIBox = nullptr;
+
+	DirectionalLight* directionalLight = nullptr;
+	ShaderProgram* DirectionalShader = nullptr;
+
+	PointLight* pointLight = nullptr;
+	ShaderProgram* PointShader = nullptr;
+
+	bool shipChanged = false;
+
+	vector3D camOrigin = vector3D(0.0);
+
+	double cameraDistance = 20.0;
+	double maxDistance = 200.0;
+	double minDistance = 5.0;
+
+	double rotSpeed = 3.0;
+	double zoomSpeed = 150.0;
+
+	quaternionD cameraRot;
+
+	Model* m_cursorModel = nullptr;
+	vector3B m_cursorPos = vector3D(0.0);
+
 	Scene_Editor()
 	{
+		if (true)
+		{
+			//Big Ship
+			cubeSizeOutside = 3.0;
+			cubeSizeInside = 2.6;
+			cellList = "bigship_all";
+		}
+		else
+		{
+			//Small Ship
+			cubeSizeOutside = 1.0;
+			cubeSizeInside = 0.0;
+			cellList = "smallship_all";
+		}
+
 		m_Gui = new Gui();
 
 		//Load Skybox
@@ -47,13 +95,19 @@ public:
 		shipModelOutside->mesh = nullptr;
 		shipModelOutside->texture = "";
 
+		shipModelInside = new Model();
+		shipModelInside->localOffset = Transform();
+		shipModelInside->shader = MaterialShader;
+		shipModelInside->mesh = nullptr;
+		shipModelInside->texture = "";
+
 		m_cursorModel = new Model();
 		m_cursorModel->localOffset = Transform();
 		m_cursorModel->shader = MaterialShader;
 		m_cursorModel->mesh = loadMaterialMeshFromFile("res/", "Cursor.obj");
 		m_cursorModel->texture = "";
 
-		shipComponent = new ShipComponent(cubeSizeOutside);
+		shipComponent = new ShipComponent(cubeSizeOutside, cubeSizeInside);
 		this->shipChanged = true;
 
 		UVSG::getInstance()->renderingManager->texturePool.loadTexture("res/Textures/metalPanel_Cells_Green.png");
@@ -80,7 +134,7 @@ public:
 
 	virtual void update(double deltaTime)
 	{
-		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("smallship_all");
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory(cellList);
 
 		const double stepTime = 0.3;
 
@@ -414,6 +468,16 @@ public:
 				delete shipModelOutside->mesh;
 			}
 
+			if (shipComponent->hasInterior)
+			{
+				if (shipModelInside->mesh != nullptr)
+				{
+					delete shipModelInside->mesh;
+				}
+
+				shipModelInside->mesh = shipComponent->genInsideMesh();
+			}
+
 			shipModelOutside->mesh = shipComponent->genOutsideMesh();
 
 			shipChanged = false;
@@ -493,7 +557,7 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory("smallship_all");
+		vector<ShipCell*> shipCells = UVSG::getInstance()->shipCellDictionary->getCategory(cellList);
 		if (shipCell_Index < shipCells.size() && shipCells[shipCell_Index] != nullptr)
 		{
 			Model* model = new Model();
@@ -530,38 +594,6 @@ public:
 
 		manager->window->updateBuffer();
 	};
-
-	float cubeSizeOutside = 1.0f;
-	float cubeSizeInside = 2.6f;
-
-	ShipComponent* shipComponent = nullptr;
-	ShaderProgram* MaterialShader = nullptr;
-	Model* shipModelOutside = nullptr;
-	Model* shipModelInside = nullptr;
-	Model* skybox = nullptr;
-	Model* UIBox = nullptr;
-
-	DirectionalLight* directionalLight = nullptr;
-	ShaderProgram* DirectionalShader = nullptr;
-
-	PointLight* pointLight = nullptr;
-	ShaderProgram* PointShader = nullptr;
-
-	bool shipChanged = false;
-
-	vector3D camOrigin = vector3D(0.0);
-
-	double cameraDistance = 20.0;
-	double maxDistance = 200.0;
-	double minDistance = 5.0;
-
-	double rotSpeed = 3.0;
-	double zoomSpeed = 150.0;
-
-	quaternionD cameraRot;
-
-	Model* m_cursorModel = nullptr;
-	vector3B m_cursorPos = vector3D(0.0); 
 
 private:
 	

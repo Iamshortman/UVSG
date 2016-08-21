@@ -71,9 +71,9 @@ ShipCell::ShipCell(string jsonFile)
 		}
 	}
 
-	if (cell.has_member("internalNode"))
+	if (cell.has_member("internal_Node"))
 	{
-		json nodes = cell["nodes"];
+		json nodes = cell["internal_Node"];
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			vector<int> pos = nodes[i]["position"].as<vector<int>>();

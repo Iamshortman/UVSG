@@ -1,16 +1,16 @@
 {
-	"cell_ID": "bigship_hull",
+	"cell_ID": "smallship_hull",
     "name": "Hull",
-    "mass": 2000,
-    "mesh_loc": "res/ShipParts/Big_Ship/",
+    "mass": 200,
+    "mesh_loc": "res/ShipParts/Small_Ship/",
     "mesh_cursor": "Hull_Cursor.obj",
 	"aabbMin": [-0.5, -0.5, -0.5],
 	"aabbMax": [0.5, 0.5, 0.5],
 	
 	"categories":
 	[
-		"bigship_all",
-		"bigship_hull"
+		"smallship_all",
+		"smallship_hull"
 	],
 	
     "nodes": 
@@ -43,7 +43,7 @@
 	
 	"physics_box":
 	{
-		"halfExtends": [1.5, 1.5, 1.5],
+		"halfExtends": [0.5, 0.5, 0.5],
 		"offset": [0, 0, 0]
 	}
 }

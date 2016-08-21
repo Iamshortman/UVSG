@@ -1,0 +1,50 @@
+{
+	"cell_ID": "bigship_bridge",
+    "name": "bridge",
+    "mass": 5000,
+    "mesh_loc": "res/ShipParts/Big_Ship/",
+	
+	"mesh": "Bridge.obj",
+	"mesh_interior": "Bridge_Interior.obj",
+    "mesh_cursor": "Bridge_Cursor.obj",
+	
+	"aabbMin": [-0.5, -0.5, -0.5],
+	"aabbMax": [0.5, 0.5, 1.5],
+	
+	"categories":
+	[
+		"bigship_all",
+		"bigship_bridge"
+	],
+	
+    "nodes": 
+	[
+      {
+        "position": [0, 0, 0],
+        "direction": 1
+      },
+      {
+        "position": [0, 0, 1],
+        "direction": 1
+      },
+      {
+        "position": [0, 0, 0],
+        "direction": 3
+      }
+	],
+	
+	"internal_Node": 
+	[
+      {
+        "position": [0, 0, 0],
+        "direction": 3
+      }
+	],
+		
+	"physics_mesh":
+	{
+		"mesh_loc": "res/ShipParts/Big_Ship/",
+		"mesh": "Bridge_Cursor.obj",
+		"offset": [0, 0, 0]
+	}
+}

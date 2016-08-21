@@ -36,6 +36,8 @@ struct insideCubeFace
 	//m_Checks is a cell offest to check if the quad in the corresponding m_faces location should be drawn.
 	//The Mesh gen function will deal with this logic.
 	vector3B m_Checks[3][3];
+	DIRECTIONS m_SubstitutionDirections[4];
+	vector2I m_SubstitutionChecks[4][3];
 
 	vector3F m_Normal;
 };
@@ -62,12 +64,18 @@ public:
 	Ship_Map m_shipCells;
 	Ship_Seat_Map m_seatMap;
 
-	Mesh* outsideMesh;
+	Mesh* outsideMesh = nullptr;
+	Mesh* insideMesh = nullptr;
+
 	double shipOutsideSize;
+	double shipInsideSize;
+
+	bool hasInterior = false;
+
 	vector3D m_centerOfMass;
 	bool isBeingRidden = false;
 
-	ShipComponent(double shipSize);
+	ShipComponent(double cubeSizeOutside, double cubeSizeInside = 0.0);
 	virtual void update(double deltaTime);
 
 	void initializeEntity();

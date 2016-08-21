@@ -4,6 +4,7 @@
 #include "World/World.hpp"
 #include "Ship/ShipComponent.hpp"
 #include "Input/InputManager.hpp"
+#include "Components/SeatComponent.hpp"
 
 PlayerControl::PlayerControl(double linear, double angular)
 {
@@ -98,9 +99,13 @@ void PlayerControl::update(double deltaTime)
 				EntityWorld* entityWorld = (EntityWorld*)entity;
 
 				parent->addToWorld(entityWorld);
-				parent->setTransform(Transform());
+				parent->setTransform(Transform(vector3D(3.0, 0.0, 0.0)));
+			}
+			else if (entity->hasComponent("Mount"))
+			{
+				SeatComponent* seat = (SeatComponent*)entity->getComponent("Mount");
 
-				//entityWorld->setAngularVelocity(vector3D(0.0, 0.0, 1.0));
+				seat->setOccupied(parent);
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <SDL2/SDL_gamecontroller.h>
 
 using std::string;
 using std::vector;
@@ -18,8 +19,9 @@ public:
 
 	InputManager();
 	~InputManager();
-
 	void update(double deltaTime);
+	void loadController(SDL_GameController* controller);
+	void unloadController(SDL_GameController* controller);
 
 	bool hasAxis(string name);
 	double getAxis(string name);

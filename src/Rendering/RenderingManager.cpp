@@ -7,7 +7,7 @@
 
 RenderingManager::RenderingManager()
 {
-	string Title = "UVSG";
+	string Title = "USG";
 	int SCREEN_WIDTH = 800;
 	int SCREEN_HEIGHT = 600;
 
@@ -33,13 +33,11 @@ RenderingManager::~RenderingManager()
 	delete window;
 }
 
-void RenderingManager::update(double timeStep, World* world)
+void RenderingManager::RenderMainWorld(double timeStep, World* world)
 {
 	int width, height;
 	window->getWindowSize(width, height);
 	camera.setProjection(45.0f, 0.01f, 1000.0f, width, height);
-
-	window->clearBuffer();
 
 	//Skybox Render
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
@@ -59,8 +57,15 @@ void RenderingManager::update(double timeStep, World* world)
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	world->render(&camera);
+}
 
-	window->updateBuffer();
+void RenderingManager::RenderSecondaryWorld(double timeStep, World* world)
+{
+	int width, height;
+	window->getWindowSize(width, height);
+	camera.setProjection(45.0f, 0.01f, 1000.0f, width, height);
+
+	world->render(&camera);
 }
 
 void RenderingManager::renderModel(Camera* camera, Model* model, Transform transform)

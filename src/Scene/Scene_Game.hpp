@@ -11,6 +11,7 @@
 #include "Components/TimeToLive.hpp"
 #include "Components/ScriptComponent.hpp"
 #include "Ship/ShipComponent.hpp"
+#include "Components/SeatComponent.hpp"
 
 #include "World/EntityManager.hpp"
 #include "Rendering/ObjLoader.hpp"
@@ -23,6 +24,7 @@ class Scene_Game : public Scene
 {
 public:
 	Entity* cam_Entity = nullptr;
+	Entity* Chair;
 
 	Scene_Game()
 	{
@@ -102,23 +104,57 @@ public:
 		{
 			EntityWorld* BigShip = EntityManager::Instance->createNewEntityWorld();
 			BigShip->addComponent("BigShip", new Component());
+			BigShip->addComponent("FlightControl", new ShipFlightControl());
+			BigShip->setGravity(vector3D(0, -9.8, 0));
 
 			BigShip->addToWorld(baseWorld);
-			transform.setPosition(vector3D(0, 10, 1000));
+			transform.setPosition(vector3D(0, 10, 10));
 			BigShip->setTransform(transform);
 
 			Model* OutsideModel = new Model();
 			OutsideModel->localOffset = Transform();
 			OutsideModel->shader = bigCubeModel->shader;
-			OutsideModel->mesh = loadMaterialMeshFromFile("res/ShipParts/", "Ship_Outside.obj");
+			OutsideModel->mesh = loadMaterialMeshFromFile("res/Ships/Arrowhead_L/", "Arrowhead_Outside_Mesh.obj");
 			BigShip->tempModels.push_back(OutsideModel);
 
-			MeshCollisionShape* OutsideShape = new MeshCollisionShape("res/ShipParts/", "Ship_Outside.obj");
+			MeshCollisionShape* OutsideShape = new MeshCollisionShape("res/Ships/Arrowhead_L/", "Arrowhead_Outside_Mesh.obj");
 			BigShip->addRigidBody(new RigidBody(OutsideShape->getCollisionShape(), 24000.0));
 			//BigShip->setDampening(0.5, 0.5);
 			delete OutsideShape;
 
-			BigShip->setLinearVelocity(vector3D(0, 0, 100.0));
+			Entity* BigShipInterior = EntityManager::Instance->createNewEntity();
+			BigShipInterior->addToWorld(BigShip);
+
+			Model* InsideModel = new Model();
+			InsideModel->localOffset = Transform();
+			InsideModel->shader = bigCubeModel->shader;
+			InsideModel->mesh = loadMaterialMeshFromFile("res/Ships/Arrowhead_L/", "Arrowhead_Inside_Mesh.obj");
+			BigShipInterior->tempModels.push_back(InsideModel);
+
+			btTriangleMesh* triMesh = new btTriangleMesh();
+			loadTriMesh("res/Ships/Arrowhead_L/", "Arrowhead_Inside_Mesh.obj", triMesh);
+			BigShipInterior->addRigidBody(new RigidBody(new btBvhTriangleMeshShape(triMesh, true), 0.0));
+
+
+			Chair = EntityManager::Instance->createNewEntity();
+			Chair->addToWorld(BigShip);
+
+			Model* ChairModel = new Model();
+			ChairModel->localOffset = Transform();
+			ChairModel->shader = bigCubeModel->shader;
+			ChairModel->mesh = loadMaterialMeshFromFile("res/Ships/", "Chair.obj");
+			Chair->tempModels.push_back(ChairModel);
+
+			triMesh = new btTriangleMesh();
+			loadTriMesh("res/Ships/", "Chair.obj", triMesh);
+			Chair->addRigidBody(new RigidBody(new btBvhTriangleMeshShape(triMesh, true), 0.0));
+
+			Chair->setTransform(Transform(vector3D(0.0, -0.75, 2.0)));// , quaternionD(0.963, -0.164, -0.202, -0.067)));
+
+			Chair->addComponent("Mount", new SeatComponent(Transform(vector3D(0.0, 1.0, 0.0))));
+
+			((ShipFlightControl*)BigShip->getComponent("FlightControl"))->tempSeat = (SeatComponent*)Chair->getComponent("Mount");
+
 		}
 
 	};
@@ -142,8 +178,17 @@ public:
 	virtual void render(RenderingManager* manager)
 	{
 		manager->window->set3dRendering();
+		manager->window->clearBuffer();
 
-		manager->update(0.0, baseWorld);
+		manager->RenderMainWorld(0.0, baseWorld);
+
+		if (cam_Entity->getWorld() != baseWorld)
+		{
+			manager->RenderSecondaryWorld(0.0, cam_Entity->getWorld());
+		}
+
+		manager->window->updateBuffer();
+
 	};
 
 	World* baseWorld;

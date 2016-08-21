@@ -3,25 +3,25 @@
 
 #include "Components/Component.hpp"
 #include "World/Entity.hpp"
+#include "World/EntityManager.hpp"
 
 struct TimeToLive: public Component
 {
 	//The Time left in seconds
-	double timeToLive;
+	double m_timeToLive;
 
 	TimeToLive(double lifeTime)
 	{
-		timeToLive = lifeTime;
+		m_timeToLive = lifeTime;
 	};
 
 	virtual void update(double deltaTime) 
 	{
-		timeToLive -= deltaTime;
-		if (timeToLive <= 0.0)
+		m_timeToLive -= deltaTime;
+		if (m_timeToLive <= 0.0)
 		{
 			getParent()->kill();
 		}
 	};
 };
-
 #endif //TIMETOLIVE_HPP

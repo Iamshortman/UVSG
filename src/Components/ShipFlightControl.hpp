@@ -2,6 +2,7 @@
 #define SHIPFLIGHTCONTROL_HPP
 
 #include "Components/Component.hpp"
+#include "Components/SeatComponent.hpp"
 #include "GLM_Include.hpp"
 
 class ShipFlightControl : public Component
@@ -11,6 +12,8 @@ public:
 	virtual ~ShipFlightControl();
 
 	virtual void update(double deltaTime);
+
+	SeatComponent* tempSeat = nullptr;
 
 private:
 	//Flight Data

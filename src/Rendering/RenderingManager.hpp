@@ -24,7 +24,8 @@ public:
 	virtual ~RenderingManager();
 
 	//Render
-	void update(double deltaTime, World* world);
+	void RenderMainWorld(double deltaTime, World* world);
+	void RenderSecondaryWorld(double deltaTime, World* world);
 
 	void renderModelLight(Camera* camera, Model* model, Transform transform, float alphaValue = 1.0f);
 	void renderModel(Camera* camera, Model* model, Transform transform);

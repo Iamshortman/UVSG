@@ -12,7 +12,7 @@ UVSG::UVSG()
 	this->renderingManager = new RenderingManager();
 	this->renderingManager->window->setVsync(1);
 
-	if (false)
+	if (true)
 	{
 		currentScene = new Scene_Game();
 	}
@@ -22,7 +22,8 @@ UVSG::UVSG()
 	}
 
 	shipCellDictionary = new ShipCellDictionary();
-	shipCellDictionary->loadAllCellsFromFolder("res/ShipParts/Small_Ship/");
+	//shipCellDictionary->loadAllCellsFromFolder("res/ShipParts/Small_Ship/");
+	//shipCellDictionary->loadAllCellsFromFolder("res/ShipParts/Big_Ship/");
 }
 
 UVSG::~UVSG()
@@ -49,7 +50,8 @@ void UVSG::update(double deltaTime)
 
 			if (SDL_IsGameController(i))
 			{
-				SDL_GameControllerOpen(i);
+				SDL_GameController* controller = SDL_GameControllerOpen(i);
+				InputManager::Instance->loadController(controller);
 			}
 
 			continue;
@@ -57,6 +59,15 @@ void UVSG::update(double deltaTime)
 
 		if (event.type == SDL_CONTROLLERDEVICEREMOVED)
 		{
+			int i = event.cbutton.which;
+			
+			if (SDL_IsGameController(i))
+			{
+				SDL_GameController* controller = SDL_GameControllerFromInstanceID(i);
+				InputManager::Instance->unloadController(controller);
+
+			}
+
 			continue;
 		}
 
