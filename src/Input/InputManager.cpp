@@ -64,6 +64,8 @@ void InputManager::loadController(SDL_GameController* controller)
 	device->addButton("ship_throttle_down", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER));
 	device->addButton("ship_flight_assist", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_A));
 	device->addButton("ship_eject", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_BACK));
+	device->addButton("ship_warp", new GamepadButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK));
+	
 
 	//Editor Controls
 	device->addAxis("editor_cell_forward_back", new GamepadAxis(controller, SDL_CONTROLLER_AXIS_LEFTY, 0.4, true));

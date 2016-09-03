@@ -74,6 +74,8 @@ void PlayerControl::update(double deltaTime)
 
 		if (result.hasHit)
 		{
+			printf("Hit!!!\n");
+
 			Entity* entity = result.hitEntity;
 
 			if (entity->hasComponent("shipComponent"))
@@ -101,7 +103,13 @@ void PlayerControl::update(double deltaTime)
 				parent->addToWorld(entityWorld);
 				parent->setTransform(Transform(vector3D(3.0, 0.0, 0.0)));
 			}
-			else if (entity->hasComponent("Mount"))
+			else if (entity->hasComponent("Mount") && entity->hasComponent("FlightControl") && result.index == 1)
+			{
+				SeatComponent* seat = (SeatComponent*)entity->getComponent("Mount");
+
+				seat->setOccupied(parent);
+			}
+			else if (entity->hasComponent("Mount") && !entity->hasComponent("FlightControl"))
 			{
 				SeatComponent* seat = (SeatComponent*)entity->getComponent("Mount");
 

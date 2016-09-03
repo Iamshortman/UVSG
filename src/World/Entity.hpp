@@ -33,6 +33,7 @@ public:
 
 	Renderer* m_renderer = nullptr;
 	std::vector<void*> tempModels;
+	std::vector<void*> tempTransparentModels;
 
 	const EntityId m_entityId;
 	Entity(EntityId id);

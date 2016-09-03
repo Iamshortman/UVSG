@@ -95,7 +95,7 @@ public:
 
 		/*Entity* debugRay = EntityManager::Instance->createNewEntity();
 		debugRay->addToWorld(baseWorld);
-		transform.setPosition(vector3D(0, 20, 0));
+		transform.setPosition(vector3D(-20, 20, 10));
 		debugRay->setTransform(transform);
 		debugRay->m_renderer = new RayTracingDebug();*/
 
@@ -108,7 +108,7 @@ public:
 			BigShip->setGravity(vector3D(0, -9.8, 0));
 
 			BigShip->addToWorld(baseWorld);
-			transform.setPosition(vector3D(0, 10, 10));
+			transform.setPosition(vector3D(-10, 10, 10));
 			BigShip->setTransform(transform);
 
 			Model* OutsideModel = new Model();
@@ -154,8 +154,59 @@ public:
 			Chair->addComponent("Mount", new SeatComponent(Transform(vector3D(0.0, 1.0, 0.0))));
 
 			((ShipFlightControl*)BigShip->getComponent("FlightControl"))->tempSeat = (SeatComponent*)Chair->getComponent("Mount");
-
 		}
+
+
+		//SmallShip Creation
+		if (true)
+		{
+			Entity* smallShip = EntityManager::Instance->createNewEntity();
+			smallShip->addComponent("FlightControl", new ShipFlightControl());
+
+			smallShip->addToWorld(baseWorld);
+			transform.setPosition(vector3D(0, 10, 10));
+			smallShip->setTransform(transform);
+
+			Model* OutsideModel = new Model();
+			OutsideModel->localOffset = Transform();
+			OutsideModel->shader = bigCubeModel->shader;
+			OutsideModel->mesh = loadMaterialMeshFromFile("res/Ships/Arrowhead_S/", "Outside_Body_Canopy.obj");
+			smallShip->tempModels.push_back(OutsideModel);
+
+			Model* InsideModel = new Model();
+			InsideModel->localOffset = Transform();
+			InsideModel->shader = bigCubeModel->shader;
+			InsideModel->mesh = loadMaterialMeshFromFile("res/Ships/Arrowhead_S/", "Inside_Body_Canopy.obj");
+			smallShip->tempTransparentModels.push_back(InsideModel);
+
+			Model* LaserGun = new Model();
+			LaserGun->localOffset = Transform(vector3D(0.5, -0.25, 1.75));
+			LaserGun->shader = bigCubeModel->shader;
+			LaserGun->mesh = loadMaterialMeshFromFile("res/Ships/", "LaserCannon.obj");
+			smallShip->tempModels.push_back(LaserGun);
+
+			Model* LaserGun1 = new Model();
+			LaserGun1->localOffset = Transform(vector3D(-0.5, -0.25, 1.75));
+			LaserGun1->shader = bigCubeModel->shader;
+			LaserGun1->mesh = LaserGun->mesh;
+			smallShip->tempModels.push_back(LaserGun1);
+
+			//CollsionShapes
+			btCompoundShape* shape = new btCompoundShape();
+
+			MeshCollisionShape* OutsideShape = new MeshCollisionShape("res/Ships/Arrowhead_S/", "Collision_Body.obj");
+			shape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.0, 0.0)), OutsideShape->getCollisionShape());
+			delete OutsideShape;
+			OutsideShape = new MeshCollisionShape("res/Ships/Arrowhead_S/", "Collision_Canopy.obj");
+			shape->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.0, 0.0)), OutsideShape->getCollisionShape());
+			delete OutsideShape;
+			smallShip->addRigidBody(new RigidBody(shape, 2400.0));
+
+			//Seat
+			smallShip->addComponent("Mount", new SeatComponent(Transform(vector3D(0.0, 0.9125, 0.0))));
+			((ShipFlightControl*)smallShip->getComponent("FlightControl"))->tempSeat = (SeatComponent*)smallShip->getComponent("Mount");
+		}
+
 
 	};
 

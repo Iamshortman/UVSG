@@ -74,7 +74,64 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 
 void EntityRenderer::renderTransparency(World* world, Entity* entity, Camera* camera)
 {
+	vector3F ambientLight = world->ambientLight;
 
+	Model* model = nullptr;
+
+	Transform entityTransform = entity->getRenderTransform();
+
+	for (int i = 0; i < entity->tempTransparentModels.size(); i++)
+	{
+		model = (Model*)entity->tempTransparentModels[i];
+
+		matrix4 projectionMatrix = camera->getProjectionMatrix();
+		matrix4 viewMatrix = camera->getOriginViewMatrix();
+
+		matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPosition());
+		matrix3 normalMatrix = entityTransform.getNormalMatrix();
+
+		modelMatrix = modelMatrix * model->localOffset.getModleMatrix();
+		normalMatrix = normalMatrix * model->localOffset.getNormalMatrix();
+
+		matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+		model->shader->setActiveProgram();
+
+		model->shader->setUniform("MVP", MVP);
+		model->shader->setUniform("normalMatrix", normalMatrix);
+		model->shader->setUniform("ambientLight", ambientLight);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		if (model->mesh != nullptr)
+		{
+			model->mesh->draw(model->shader);
+		}
+
+		model->shader->deactivateProgram();
+		glDisable(GL_BLEND);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDepthMask(false);
+		glDepthFunc(GL_EQUAL);
+
+		DirectionalShader->setActiveProgram();
+		DirectionalShader->setUniform("MVP", MVP);
+		DirectionalShader->setUniform("normalMatrix", normalMatrix);
+		DirectionalShader->setUniform("modelMatrix", modelMatrix);
+		DirectionalShader->setUniform("directionalLight.color", directionalLight->getColor());
+		DirectionalShader->setUniform("directionalLight.direction", directionalLight->getDirection());
+		DirectionalShader->setUniform("directionalLight.intensity", directionalLight->getIntensity());
+		model->mesh->draw(DirectionalShader);
+		DirectionalShader->deactivateProgram();
+
+
+		glDepthFunc(GL_LESS);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
+	}
 }
 
 void EntityRenderer::renderLighting(World* world, Entity* entity, Camera* camera)

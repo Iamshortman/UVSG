@@ -40,39 +40,52 @@ void ShipFlightControl::update(double deltaTime)
 		return;
 	}
 
-	if (parent->hasComponent("shipComponent"))
+	bool flightAssist;
+	bool throttleUp;
+	bool throttleDown;
+	bool leaveSeat;
+	bool hyperSpeed;
+
+	double throttle;
+	double pitch;
+	double yaw;
+	double roll;
+
+	if (tempSeat != nullptr && tempSeat->isOccupied())
 	{
-		ShipComponent* component = (ShipComponent*)parent->getComponent("shipComponent");
+		//Get Inputs
+		flightAssist = InputManager::Instance->getButtonDown("ship_flight_assist");
+		throttleUp = InputManager::Instance->getButtonDown("ship_throttle_up");
+		throttleDown = InputManager::Instance->getButtonDown("ship_throttle_down");
+		leaveSeat = InputManager::Instance->getButtonPressed("ship_eject");
+		hyperSpeed = InputManager::Instance->getButtonDown("ship_warp");
 
-		if (component->isBeingRidden == false)
-		{
-			//Dampen Movement if is there is no riding entity
-			parent->setDampening(0.5, 0.5);
-
-			return;
-		}
-	}
-	else if (tempSeat != nullptr)
-	{
-		if (!tempSeat->isOccupied())
-		{
-			//Dampen Movement if is there is no riding entity
-			parent->setDampening(0.5, 0.5);
-
-			return;
-		}
+		throttle = InputManager::Instance->getAxis("ship_throttle");
+		pitch = InputManager::Instance->getAxis("ship_pitch");
+		yaw = InputManager::Instance->getAxis("ship_yaw");
+		roll = InputManager::Instance->getAxis("ship_roll");
 	}
 	else
 	{
-		//Reset Dampening
-		parent->setDampening(0.0, 0.0);
+		//Default Inputs
+		flightAssist = false;
+		throttleUp = false;
+		throttleDown = false;
+		leaveSeat = false;
+		hyperSpeed = false;
+
+		throttle = -1.0;
+		pitch = 0.0;
+		yaw = 0.0;
+		roll = 0.0;
 	}
 
+
 	//Max Speed in meters per second
-	double maxSpeed[] = { 15.0, 15.0, 225.0, 50.0, 15.0, 15.0 };
+	double maxSpeed[] = { 15.0, 15.0, 250.0, 50.0, 15.0, 15.0 };
 
 	//Acceleration in meters per second per second
-	double accelerations[] = { 250.0, 250.0, 250.0, 250.0, 250.0, 250.0 };
+	double accelerations[] = { 25.0, 25.0, 25.0, 25.0, 25.0, 25.0 };
 
 	bool FlightAssistEnabled = true;
 
@@ -82,22 +95,100 @@ void ShipFlightControl::update(double deltaTime)
 
 	FlightAssistEnabled = true;
 
-	if (InputManager::Instance->getButtonDown("ship_flight_assist"))
+	if (flightAssist)
 	{
 		FlightAssistEnabled = false;
 	}
 
+	if (true)
+	{
+		double turnSpeedDesired = m_turnSpeedMax.x * pitch;
+		double turnSpeedCurrent = m_turnSpeedCurrent.x;
+		if (turnSpeedCurrent < turnSpeedDesired)
+		{
+			turnSpeedCurrent += m_turnSpeedAcceleration.x * deltaTime;
+			if (turnSpeedCurrent > turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		else if (turnSpeedCurrent > turnSpeedDesired)
+		{
+			turnSpeedCurrent -= m_turnSpeedAcceleration.x * deltaTime;
+			if (turnSpeedCurrent < turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		m_turnSpeedCurrent.x = turnSpeedCurrent;
+	}
+
+	if (true)
+	{
+		double turnSpeedDesired = m_turnSpeedMax.y * yaw;
+		double turnSpeedCurrent = m_turnSpeedCurrent.y;
+		if (turnSpeedCurrent < turnSpeedDesired)
+		{
+			turnSpeedCurrent += m_turnSpeedAcceleration.y * deltaTime;
+			if (turnSpeedCurrent > turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		else if (turnSpeedCurrent > turnSpeedDesired)
+		{
+			turnSpeedCurrent -= m_turnSpeedAcceleration.y * deltaTime;
+			if (turnSpeedCurrent < turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		m_turnSpeedCurrent.y = turnSpeedCurrent;
+	}
+
+	if (true)
+	{
+		double turnSpeedDesired = m_turnSpeedMax.z * roll;
+		double turnSpeedCurrent = m_turnSpeedCurrent.z;
+		if (turnSpeedCurrent < turnSpeedDesired)
+		{
+			turnSpeedCurrent += m_turnSpeedAcceleration.z * deltaTime;
+			if (turnSpeedCurrent > turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		else if (turnSpeedCurrent > turnSpeedDesired)
+		{
+			turnSpeedCurrent -= m_turnSpeedAcceleration.z * deltaTime;
+			if (turnSpeedCurrent < turnSpeedDesired)
+			{
+				turnSpeedCurrent = turnSpeedDesired;
+			}
+		}
+		m_turnSpeedCurrent.z = turnSpeedCurrent;
+	}
+
+	quaternionD rotation1 = glm::angleAxis(m_turnSpeedCurrent.x * (M_PI * 2.0) * deltaTime, transform.getLeft());
+	rotation1 = glm::angleAxis(m_turnSpeedCurrent.y * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation1;
+	rotation1 = glm::angleAxis(m_turnSpeedCurrent.z * (M_PI * 2.0) * deltaTime, transform.getForward()) * rotation1;
+
+	transform.setOrientation(rotation1 * rotation);
+	parent->setTransform(transform);
+
+	parent->setAngularVelocity(Lerp(parent->getAngularVelocity(), vector3D(0.0), deltaTime * 3.0));
+
 	//Forward Backward Movment
 	if (true)
 	{
-		if (InputManager::Instance->hasAxis("ship_throttle"))
+		if (throttle)
 		{
-			m_throttle.z = InputManager::Instance->getAxis("ship_throttle");
+			m_throttle.z = throttle;
 			m_throttle.z += 1.0;
 			m_throttle.z /= 2.0;
 		}
 
-		if (InputManager::Instance->getButtonDown("ship_throttle_up"))
+		if (throttleUp)
 		{
 			m_throttle.z += 0.5 * deltaTime;
 			if (m_throttle.z > 1.0)
@@ -105,7 +196,7 @@ void ShipFlightControl::update(double deltaTime)
 				m_throttle.z = 1.0;
 			}
 		}
-		else if (InputManager::Instance->getButtonDown("ship_throttle_down"))
+		else if (throttleDown)
 		{
 			m_throttle.z -= 0.5 * deltaTime;
 			if (m_throttle.z < 0.0)
@@ -164,7 +255,7 @@ void ShipFlightControl::update(double deltaTime)
 					velocitytoAdd = diffrence;
 				}
 
-				linearVelocity += transform.getUp() * velocitytoAdd;
+				linearVelocity += transform.getUp() * diffrence;
 			}
 		}
 		else if (currentUpVelocity > desiredUpVelocity)
@@ -178,7 +269,7 @@ void ShipFlightControl::update(double deltaTime)
 					velocitytoAdd = diffrence;
 				}
 
-				linearVelocity += -transform.getUp() * velocitytoAdd;
+				linearVelocity += -transform.getUp() * diffrence;
 			}
 		}
 	}
@@ -200,7 +291,7 @@ void ShipFlightControl::update(double deltaTime)
 					velocitytoAdd = diffrence;
 				}
 
-				linearVelocity += transform.getLeft() * velocitytoAdd;
+				linearVelocity += transform.getLeft() * diffrence;
 			}
 		}
 		else if (currentLeftVelocity > desiredLeftVelocity)
@@ -214,7 +305,7 @@ void ShipFlightControl::update(double deltaTime)
 					velocitytoAdd = diffrence;
 				}
 
-				linearVelocity += -transform.getLeft() * velocitytoAdd;
+				linearVelocity += -transform.getLeft() * diffrence;
 			}
 		}
 	}
@@ -222,85 +313,7 @@ void ShipFlightControl::update(double deltaTime)
 	//Update Velocity
 	parent->setLinearVelocity(linearVelocity);
 
-	if (true)
-	{
-		double turnSpeedDesired = m_turnSpeedMax.x * InputManager::Instance->getAxis("ship_pitch");
-		double turnSpeedCurrent = m_turnSpeedCurrent.x;
-		if (turnSpeedCurrent < turnSpeedDesired)
-		{
-			turnSpeedCurrent += m_turnSpeedAcceleration.x * deltaTime;
-			if (turnSpeedCurrent > turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		else if (turnSpeedCurrent > turnSpeedDesired)
-		{
-			turnSpeedCurrent -= m_turnSpeedAcceleration.x * deltaTime;
-			if (turnSpeedCurrent < turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		m_turnSpeedCurrent.x = turnSpeedCurrent;
-	}
-
-	if (true)
-	{
-		double turnSpeedDesired = m_turnSpeedMax.y * InputManager::Instance->getAxis("ship_yaw");
-		double turnSpeedCurrent = m_turnSpeedCurrent.y;
-		if (turnSpeedCurrent < turnSpeedDesired)
-		{
-			turnSpeedCurrent += m_turnSpeedAcceleration.y * deltaTime;
-			if (turnSpeedCurrent > turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		else if (turnSpeedCurrent > turnSpeedDesired)
-		{
-			turnSpeedCurrent -= m_turnSpeedAcceleration.y * deltaTime;
-			if (turnSpeedCurrent < turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		m_turnSpeedCurrent.y = turnSpeedCurrent;
-	}
-
-	if (true)
-	{
-		double turnSpeedDesired = m_turnSpeedMax.z * InputManager::Instance->getAxis("ship_roll");
-		double turnSpeedCurrent = m_turnSpeedCurrent.z;
-		if (turnSpeedCurrent < turnSpeedDesired)
-		{
-			turnSpeedCurrent += m_turnSpeedAcceleration.z * deltaTime;
-			if (turnSpeedCurrent > turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		else if (turnSpeedCurrent > turnSpeedDesired)
-		{
-			turnSpeedCurrent -= m_turnSpeedAcceleration.z * deltaTime;
-			if (turnSpeedCurrent < turnSpeedDesired)
-			{
-				turnSpeedCurrent = turnSpeedDesired;
-			}
-		}
-		m_turnSpeedCurrent.z = turnSpeedCurrent;
-	}
-
-	quaternionD rotation1 = glm::angleAxis(m_turnSpeedCurrent.x * (M_PI * 2.0) * deltaTime, transform.getLeft());
-	rotation1 = glm::angleAxis(m_turnSpeedCurrent.y * (M_PI * 2.0) * deltaTime, transform.getUp()) * rotation1;
-	rotation1 = glm::angleAxis(m_turnSpeedCurrent.z * (M_PI * 2.0) * deltaTime, transform.getForward()) * rotation1;
-
-	transform.setOrientation(rotation1 * rotation);
-	parent->setTransform(transform);
-
-	parent->setAngularVelocity(Lerp(parent->getAngularVelocity(), vector3D(0.0), deltaTime * 3.0));
-
-	if (InputManager::Instance->getButtonPressed("ship_eject"))
+	if (leaveSeat)
 	{
 		if (parent->hasComponent("shipComponent"))
 		{

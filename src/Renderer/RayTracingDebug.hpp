@@ -32,8 +32,8 @@ public:
 		vector3D down = -entityTransform.getUp();
 
 		double rayDist = 20.0;
-		double stepLen = 0.2;
-		int count = 20;
+		double stepLen = 0.5;
+		int count = 10;
 
 		materialShader->setActiveProgram();
 		materialShader->setUniform("ambientLight", vector3F(1.0f));
@@ -49,23 +49,29 @@ public:
 				if (result.hasHit)
 				{
 					localOffset = Transform(result.hitPosition - pos);
-					matrix4 projectionMatrix = camera->getProjectionMatrix();
-					matrix4 viewMatrix = camera->getOriginViewMatrix();
-
-					matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPosition());
-					matrix3 normalMatrix = entityTransform.getNormalMatrix();
-
-					modelMatrix = modelMatrix * localOffset.getModleMatrix();
-					normalMatrix = normalMatrix * localOffset.getNormalMatrix();
-
-					matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
-
-					materialShader->setUniform("MVP", MVP);
-					materialShader->setUniform("normalMatrix", normalMatrix);
-
-
-					mesh->draw(materialShader);
 				}
+				else
+				{
+					localOffset = Transform(rayEnd - pos);
+				}
+
+				matrix4 projectionMatrix = camera->getProjectionMatrix();
+				matrix4 viewMatrix = camera->getOriginViewMatrix();
+
+				matrix4 modelMatrix = entityTransform.getModleMatrix(camera->getPosition());
+				matrix3 normalMatrix = entityTransform.getNormalMatrix();
+
+				modelMatrix = modelMatrix * localOffset.getModleMatrix();
+				normalMatrix = normalMatrix * localOffset.getNormalMatrix();
+
+				matrix4 MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+				materialShader->setUniform("MVP", MVP);
+				materialShader->setUniform("normalMatrix", normalMatrix);
+
+
+				mesh->draw(materialShader);
+
 			}
 		}
 
