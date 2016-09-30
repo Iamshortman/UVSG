@@ -82,12 +82,12 @@ public:
 		skybox->texture = "res/Skybox.png";
 		skybox->shader = new ShaderProgram("res/Textured.vs", "res/Textured.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
 
-		MaterialShader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		MaterialShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/Shaders/Material.Deferred.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 
 		directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, -1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
-		DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		DirectionalShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 		pointLight = new PointLight(vector3D(0.0, 10.0, 0.0), 20.0f, vector3F(1.0), 0.4f, vector3F(0.0f, 0.0f, 0.02f));
-		PointShader = new ShaderProgram("res/Material.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		PointShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/foward-point.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 
 		shipModelOutside = new Model();
 		shipModelOutside->localOffset = Transform();

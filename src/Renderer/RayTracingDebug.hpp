@@ -12,7 +12,7 @@ class RayTracingDebug : public Renderer
 public:
 	RayTracingDebug()
 	{
-		materialShader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		materialShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/Shaders/Material.Deferred.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 		mesh = loadMaterialMeshFromFile("res/", "point.obj");
 	};
 	~RayTracingDebug()

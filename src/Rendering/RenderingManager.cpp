@@ -21,8 +21,26 @@ RenderingManager::RenderingManager()
 	skybox = new Model();
 	skybox->mesh = loadMeshFromFile("res/Skybox.obj");
 	skybox->texture = "res/Skybox.png";
-	skybox->shader = new ShaderProgram("res/Textured.vs", "res/Textured.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
+	skybox->shader = new ShaderProgram("res/Shaders/Textured.Deferred.vs", "res/Shaders/Textured.Deferred.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_TexCoord" } });
 	texturePool.loadTexture(skybox->texture);
+
+	gbuffer = new GBuffer(SCREEN_WIDTH, SCREEN_HEIGHT, false);
+	
+	static const GLfloat g_quad_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+	};
+
+	glGenBuffers(1, &quad_vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+
+	// Create and compile our GLSL program from the shaders
+	postShader = new ShaderProgram("res/Shaders/Deferred.vs", "res/Shaders/Deferred.fs", { { 0, "in_Position" }, { 1, "in_TexCoord" } });
 }
 
 RenderingManager::~RenderingManager()
@@ -35,9 +53,20 @@ RenderingManager::~RenderingManager()
 
 void RenderingManager::RenderMainWorld(double timeStep, World* world)
 {
-	int width, height;
-	window->getWindowSize(width, height);
-	camera.setProjection(45.0f, 0.01f, 1000.0f, width, height);
+	static vector2I lastSize;
+	vector2I size;
+	window->getWindowSize(size.x, size.y);
+	camera.setProjection(45.0f, 0.01f, 1000.0f, size.x, size.y);
+
+	if (size != lastSize)
+	{
+		delete gbuffer;
+		gbuffer = new GBuffer(size.x, size.y, false);
+		lastSize = size;
+	}
+
+	gbuffer->BindGBuffer();
+	window->clearBuffer();
 
 	//Skybox Render
 	matrix4 projectionMatrix = camera.getProjectionMatrix();
@@ -45,6 +74,7 @@ void RenderingManager::RenderMainWorld(double timeStep, World* world)
 	skybox->shader->setActiveProgram();
 	texturePool.bindTexture(skybox->texture);
 	skybox->shader->setUniform("MVP", projectionMatrix * viewMatrix);
+	skybox->shader->setUniform("ambientLight", vector3F(1.0f));
 	skybox->mesh->draw(skybox->shader);
 	skybox->shader->deactivateProgram();
 
@@ -57,6 +87,34 @@ void RenderingManager::RenderMainWorld(double timeStep, World* world)
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	world->render(&camera);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	window->set2dRendering();
+	gbuffer->SetActiveTextures();
+
+	postShader->setActiveProgram();
+	postShader->setUniform("gColor", 0);
+	postShader->setUniform("gPosition", 1);
+	postShader->setUniform("gNormal", 2);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glVertexAttribPointer(
+		0, // attribute
+		3,                              // size
+		GL_FLOAT,                       // type
+		GL_FALSE,                       // normalized?
+		0,                              // stride
+		(void*)0                        // array buffer offset
+		);
+
+	// Draw the triangles !
+	glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
+
+	glDisableVertexAttribArray(0);
+
+	postShader->deactivateProgram();
 }
 
 void RenderingManager::RenderSecondaryWorld(double timeStep, World* world)

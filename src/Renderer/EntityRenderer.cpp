@@ -4,7 +4,7 @@
 EntityRenderer::EntityRenderer()
 {
 	directionalLight = new DirectionalLight(vector3F(1.0f, -1.0f, 1.0f), vector3F(1.0f, 1.0f, 1.0f), 0.6f);
-	DirectionalShader = new ShaderProgram("res/Material.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+	DirectionalShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/foward-directional.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 }
 
 EntityRenderer::~EntityRenderer()
@@ -48,6 +48,8 @@ void EntityRenderer::renderAmbient(World* world, Entity* entity, Camera* camera)
 		}
 
 		model->shader->deactivateProgram();
+
+		return;
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);

@@ -41,6 +41,11 @@ public:
 	//TODO Remove in favor of the world based ambient light.
 	vector3F ambientLight = vector3F(0.9f);
 
+	//Temp
+	GBuffer* gbuffer = nullptr;
+	GLuint quad_vertexbuffer;
+	ShaderProgram* postShader= nullptr;
+
 protected:
 
 private:

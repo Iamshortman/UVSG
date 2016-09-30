@@ -38,7 +38,7 @@ ShaderProgram::ShaderProgram(string VertexShader, string FragmentShader, vector<
 	{
 		std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
 		glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-		if (&ProgramErrorMessage[0] != "")
+		if (ProgramErrorMessage.size() > 2)
 		{
 			printf("%s\n", &ProgramErrorMessage[0]);
 		}
@@ -131,7 +131,10 @@ GLuint ShaderProgram::buildShader(string location, GLuint type)
 	{
 		std::vector<char> ShaderErrorMessage(InfoLogLength + 1);
 		glGetShaderInfoLog(ShaderID, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-		printf("%s\n", &ShaderErrorMessage[0]);
+		if (ShaderErrorMessage.size() > 2)
+		{
+			printf("%s\n", &ShaderErrorMessage[0]);
+		}
 	}
 
 	return ShaderID;

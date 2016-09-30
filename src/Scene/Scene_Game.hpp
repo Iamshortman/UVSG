@@ -24,7 +24,6 @@ class Scene_Game : public Scene
 {
 public:
 	Entity* cam_Entity = nullptr;
-	Entity* Chair;
 
 	Scene_Game()
 	{
@@ -41,7 +40,7 @@ public:
 
  		Model* bigCubeModel = new Model();
 		bigCubeModel->localOffset = Transform();
-		bigCubeModel->shader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+		bigCubeModel->shader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/Shaders/Material.Deferred.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 		bigCubeModel->mesh = loadMaterialMeshFromFile("res/", "BigCube.obj");
 
 		transform = Transform();
@@ -136,7 +135,7 @@ public:
 			BigShipInterior->addRigidBody(new RigidBody(new btBvhTriangleMeshShape(triMesh, true), 0.0));
 
 
-			Chair = EntityManager::Instance->createNewEntity();
+			Entity* Chair = EntityManager::Instance->createNewEntity();
 			Chair->addToWorld(BigShip);
 
 			Model* ChairModel = new Model();
@@ -233,10 +232,10 @@ public:
 
 		manager->RenderMainWorld(0.0, baseWorld);
 
-		if (cam_Entity->getWorld() != baseWorld)
+		/*if (cam_Entity->getWorld() != baseWorld)
 		{
 			manager->RenderSecondaryWorld(0.0, cam_Entity->getWorld());
-		}
+		}*/
 
 		manager->window->updateBuffer();
 

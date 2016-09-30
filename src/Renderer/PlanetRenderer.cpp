@@ -4,7 +4,7 @@
 PlanetRenderer::PlanetRenderer()
 {
 	mesh = loadMaterialMeshFromFile("res/Models/", "Planet.obj");
-	ambientShader = new ShaderProgram("res/Material.vs", "res/Material.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
+	ambientShader = new ShaderProgram("res/Shaders/Material.Deferred.vs", "res/Shaders/Material.Deferred.fs", { { 0, "in_Position" }, { 1, "in_Normal" }, { 2, "in_Material" } });
 }
 
 PlanetRenderer::~PlanetRenderer()

@@ -15,7 +15,7 @@ public:
 	GLuint gBuffer;
 
 private:
-	GLuint gPosition, gNormal, gColorSpec;
+	GLuint gColor, gPosition, gNormal;
 	GLuint rboDepth;
 
 };
